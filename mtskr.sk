@@ -1,11 +1,133 @@
-options:
-    model_maxium_blocks: 1000
-    model_name_regex: [a-zA-Z0-9_]{1,64}
-    model_builder: iron axe named "&bModel Builder"
-    model_path: plugins\Skript\scripts\mtskr\models\
+# MTskR: Minecraft TrainSkript Railway
+# Minecraft Trainsit Railway in Paper without resource packs
 import:
     java.io.File
     org.bukkit.entity.Entity
+expression (mtskr|MTskR) config %string%:
+    get:
+        return (yaml value expr-1 of "MTskR.config")
+    set:
+        set yaml value expr-1 of "MTskR.config" to change value
+        save yaml "MTskR.config"
+effect (reset|fix) (mtskr|MTskR) config:
+    trigger:
+        if mtskr config "model_maxium_blocks" is not set:
+            set mtskr config "model_maxium_blocks" to 1000
+        if mtskr config "model_name_regex" is not set:
+            set mtskr config "model_name_regex" to "[a-zA-Z0-9_]{1,64}"
+        if mtskr config "model_builder" is not set:
+            set mtskr config "model_builder" to iron axe named "&bModel Builder"
+        if mtskr config "model_path" is not set:
+            set mtskr config "model_path" to "plugins\Skript\scripts\mtskr\models\"
+        save yaml "MTskR.config"
+effect remove %objects%:
+    trigger:
+        loop exprs-1:
+            (loop-value).remove()
+effect spawn train %string% [at %location%] [from %player%]:
+    trigger:
+        if (new File("%mtskr config "model_path"%%expr-1%.yml")).exists() is true:
+            load yaml "%mtskr config "model_path"%%expr-1%.yml" as "MTskR.model.%expr-1%"
+            set {_facing} to yaml value "facing" of "MTskR.model.%expr-1%"
+            set {_id} to size of indexes of {-MTskR::trains::*}
+            spawn regular minecart at expr-2
+            set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
+            set {_rotates} to closest quater of expr-2's yaw - yaw of direction {_facing}
+            send {_rotates} to expr-3
+            loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "facing"]:
+                set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
+                set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
+                loop (abs({_rotates} / 4) if {_rotates} is not 0 or 180 or -180, else 2) times:
+                    set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
+                spawn block display at location(x of {_loc} + 0.5, y of {_loc} + 0.5, z of {_loc} + 0.5, world of {_loc}, yaw of {_loc}, 0)
+                make (last spawned block display) ride on {-MTskR::trains::%{_id}%::minecart}
+                set {_base} to expr-2
+                set {_rls::*} to (yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%") split at ","
+                set {_x} to {_rls::1} parsed as number
+                set {_y} to {_rls::2} parsed as number
+                set {_z} to {_rls::3} parsed as number
+                set {_model_yaw} to yaw of direction {_facing}
+                set yaw of {_base} to closest quater of yaw of {_base}
+                set {_base_yaw} to yaw of {_base}
+                set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
+                rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
+                set display translation of (last spawned block display) to {_v}
+                set blockdata of (last spawned block display) to {_data}
+                set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
+                spawn shulker at {_loc}
+                add nbt from "{NoAI:1b,Invulnerable:1b,Bukkit.invisible:1b}" to nbt compound of (last spawned shulker)
+                set {-MTskR::trains::%{_id}%::shulkers::%loop-value%} to (last spawned shulker)
+            play sound "entity.experience_orb.pickup" to expr-3
+            send "&eTrain &6%{_id}% &espawned with model &6%expr-1% &eat &6%x coord of expr-2%, %y coord of expr-2%, %z coord of expr-2%, %world of expr-2%" to expr-3
+            send "[MTskR] Train %{_id}% spawned with model %expr-1% at %x coord of expr-2%, %y coord of expr-2%, %z coord of expr-2%, %world of expr-2%" to console
+            set {_ml} to location of {-MTskR::trains::%{_id}%::minecart}
+            while {-MTskR::trains::%{_id}%::minecart} is alive:
+                wait 5 ticks
+                {_ml} is not location of {-MTskR::trains::%{_id}%::minecart}
+                set {_ml} to location of {-MTskR::trains::%{_id}%::minecart}
+                loop {-MTskR::trains::%{_id}%::shulkers::*}:
+                    teleport loop-value to rotateRelativeCoor({_ml}, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
+        else:
+            play sound "entity.villager.no" with seed 0 to expr-3
+            send "&cThe model named %expr-1% does not exists" to (expr-3 and console)
+effect (kill|remove) (id:train [with id] %integer%|all:[all] trains|last:last [spawned] train)[ from %player%]:
+    trigger:
+        if parse tags contains "id":
+            if {-MTskR::trains::%expr-1%::blocks::*} is set:
+                set {_indexes::*} to expr-1
+            else:
+                play sound "entity.villager.no" with seed 0 to expr-2
+                send "&cThe train with id %expr-1% does not exist" to expr-2
+        else if parse tags contains "all":
+            set {_indexes::*} to indexes of {-MTskR::trains::*}
+        else if parse tags contains "last":
+            set {_indexes::*} to last element of indexes of {-MTskR::trains::*} 
+        loop {_indexes::*}:
+            remove {-MTskR::trains::%loop-value%::blocks::*}
+            remove {-MTskR::trains::%loop-value%::shulkers::*}
+            remove {-MTskR::trains::%loop-value%::minecart}
+            clear {-MTskR::trains::%loop-value%::*}
+on load: # load config
+    set {_startDir} to new File("plugins\Skript\scripts\")
+    set {_dir::1} to {_startDir}
+    while size of {_dir::*} is greater than 0:
+        set {_currentDir} to {_dir::1}
+        remove {_dir::1} from {_dir::*}
+        set {_array} to {_currentDir}.listFiles()
+        loop ...{_array}:
+            if loop-value.isDirectory() is true:
+                if loop-value.getName() is "mtskr":
+                    set {_config} to new File(loop-value, "config.yml")
+                    if {_config}.exists() is true:
+                        load yaml "%{_config}.getPath()%" as "MTskR.config"
+                        wait 1 tick
+                        fix mtskr config
+                        send "[MTskR] config loaded" to console
+                        stop trigger
+                else:
+                    add loop-value to {_dir::*}
+    load yaml "plugins\Skript\scripts\mtskr\config.yml" as "MTskR.config"
+    wait 1 tick
+    fix mtskr config
+    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\mtskr\config.yml"
+on load: # init
+    set {_scripts::*} to all scripts where ["%input%" contains "mtskr\"]
+    if {_scripts::*} is not set:
+        set {_source} to new File("plugins\Skript\scripts\%current script%")
+        set {_destination} to new File("plugins\Skript\scripts\mtskr\%current script%")
+        if {_source}.renameTo({_destination}) is false:
+            send "[MTskR] &cFailed to move to plugins\Skript\scripts\mtskr\%current script%"
+        else:
+            send "[MTskR] %current script% moved to plugins\Skript\scripts\mtskr\%current script%"
+            send "[MTskR] reloading"
+            unload the current script
+            load script "mtskr\%current script%"
+    else:
+        send "[MTskR] MTskR succesfully started"
+on unload:
+    unload yaml "MTskR.config"
+on skript stop:
+    kill all trains
 expression: # yaw of direction %direction%
     return type: integer
     patterns:
@@ -32,19 +154,19 @@ expression closest quater of %float%:
 expression [MTskR] [train] models:
     return type: strings
     get:
-        set {_dir} to new File("{@model_path}")
-        if {_dir}.exists():
-            if {_dir}.isDirectory():
-                set {_javaArray} to {_dir}.listFiles()
-                loop ...{_javaArray}:
+        set {_dir} to new File(mtskr config "model_path")
+        if {_dir}.exists() is true:
+            if {_dir}.isDirectory() is true:
+                set {_array} to {_dir}.listFiles()
+                loop ...{_array}:
                     set {_name} to loop-value.getName()
                     regex replace "\.yml$" in {_name} with ""
                     add {_name} to {_results::*}
                 return {_results::*}
             else:
-                send "[MTskR] &c'{@model_path}' is not a directory" to console
+                send "[MTskR] &c'%mtskr config "model_path"%' is not a directory" to console
         else:
-            send "[MTskR] &c'{@model_path}' does not exist" to console
+            send "[MTskR] &c'%mtskr config "model_path"%' does not exist" to console
         return
 expression quater clockwise direction of %object%:
     return type: direction
@@ -86,89 +208,91 @@ function rotateRelativeCoor(base: location, model_facing: direction, rloc_str: s
     set {_v} to vector({_x}, {_y}, {_z})
     rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
     return {_base} offset by {_v}
-effect remove %objects%:
+effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %player%]:
     trigger:
-        loop exprs-1:
-            (loop-value).remove()
-effect spawn train %string%[ at %location%][ from %player%]:
-    trigger:
-        if (new File("{@model_path}%expr-1%.yml")).exists():
-            load yaml "{@model_path}%expr-1%.yml" as "MTskR.model.%expr-1%"
-            set {_facing} to yaml value "facing" of "MTskR.model.%expr-1%"
-            set {_id} to size of indexes of {-MTskR::trains::*}
-            spawn regular minecart at expr-2
-            set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
-            set {_rotates} to closest quater of expr-2's yaw - yaw of direction {_facing}
-            send {_rotates} to expr-3
-            loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "facing"]:
-                set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
-                set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
-                loop (abs({_rotates} / 4) if {_rotates} is not 0 or 180 or -180, else 2) times:
-                    set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
-                spawn block display at location(x of {_loc} + 0.5, y of {_loc} + 0.5, z of {_loc} + 0.5, world of {_loc}, yaw of {_loc}, 0)
-                make (last spawned block display) ride on {-MTskR::trains::%{_id}%::minecart}
-                
-                set {_base} to expr-2
-                set {_rls::*} to (yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%") split at ","
-                set {_x} to {_rls::1} parsed as number
-                set {_y} to {_rls::2} parsed as number
-                set {_z} to {_rls::3} parsed as number
-                set {_model_yaw} to yaw of direction {_facing}
-                set yaw of {_base} to closest quater of yaw of {_base}
-                set {_base_yaw} to yaw of {_base}
-                set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
-                rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
-                
-                set display translation of (last spawned block display) to {_v}
-                set blockdata of (last spawned block display) to {_data}
-                add (last spawned block display) to {-MTskR::trains::%{_id}%::blocks::*}
-                spawn shulker at {_loc}
-                add nbt from "{NoAI:1b,Invulnerable:1b,Bukkit.invisible:1b}" to nbt compound of (last spawned shulker)
-                add (last spawned shulker) to {-MTskR::trains::%{_id}%::shulkers::*}
-                # set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
-                # set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
-                # loop (abs({_rotates} / 4) if {_rotates} is not 0 or 180, else 2) times:
-                #     set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
-                # spawn block display at location(x of {_loc} + 0.5, y of {_loc} + 0.5, z of {_loc} + 0.5, world of {_loc}, yaw of {_loc}, 0)
-                # set blockdata of (last spawned block display) to {_data}
-                # add (last spawned block display) to {-MTskR::trains::%{_id}%::blocks::*}
-                # spawn shulker at {_loc}
-                # add nbt from "{NoAI:1b,Invulnerable:1b,Bukkit.invisible:1b}" to nbt compound of (last spawned shulker)
-                # add (last spawned shulker) to {-MTskR::trains::%{_id}%::shulkers::*}
-            play sound "entity.experience_orb.pickup" to expr-3
-            send "&eTrain &6%{_id}% &espawned with model &6%expr-1% &eat &6%x coord of expr-2%, %y coord of expr-2%, %z coord of expr-2%, %world of expr-2%" to expr-3
-        else:
-            play sound "entity.villager.no" with seed 0 to expr-3
-            send "&cThe model named %expr-1% does not exists" to (expr-3 and console)
-effect (kill|remove) (id:train [with id ]%integer%|all:[all ]trains|last:last [spawned ]train)[ from %player%]:
-    trigger:
-        if parse tags contains "id":
-            if {-MTskR::trains::%expr-1%::blocks::*} is set:
-                set {_indexes::*} to expr-1
+        if expr-1 matches mtskr config "model_name_regex":
+            set {_path} to "%mtskr config "model_path"%%expr-1%.yml"
+            set {_file} to new File({_path})
+            if parse mark contains 1:
+                if {_file}.exists() is true:
+                    {_file}.delete()
+            else:
+                if yaml "MTskR.model.%expr-1%" is loaded:
+                    play sound "entity.villager.no" with seed 0 to expr-2
+                    send "&c%expr-1% exists in memory, put -f at arg-4 to overwrite" to expr-2
+                    stop trigger
+                else if {_file}.exists() is true:
+                    play sound "entity.villager.no" with seed 0 to expr-2
+                    send "&c%expr-1% exists on disk, put -f at arg-4 to overwrite" to expr-2
+                    stop trigger
+            if {-MTskR::item::%expr-2%::model_builder::loc1} and {-MTskR::item::%expr-2%::model_builder::loc2} are set:
+                set {_blocks::*} to (all blocks within {-MTskR::item::%expr-2%::model_builder::loc1} and {-MTskR::item::%expr-2%::model_builder::loc2}) where [input is not air]
+                if size of {_blocks::*} is not greater than mtskr config "model_maxium_blocks":
+                    loop {_blocks::*}:
+                        if loop-value is an oak sign:
+                            if {_facing} is not set:
+                                set {_base} to location of loop-value
+                                if first line of loop-value is "[Train]":
+                                    if facing of loop-value is set:
+                                        set {_facing} to facing of loop-value
+                                    else:
+                                        set {_rotation} to block data tag "rotation" of loop-value
+                                        if {_rotation} is 0:
+                                            set {_facing} to south
+                                        else if {_rotation} is 4:
+                                            set {_facing} to west
+                                        else if {_rotation} is 8:
+                                            set {_facing} to north
+                                        else if {_rotation} is 12:
+                                            set {_facing} to east
+                                        else:
+                                            play sound "entity.villager.no" with seed 0 to expr-2
+                                            send "&cThe rotation of [Train] sign should be 0, 4, 8, or 12" to expr-2
+                                            stop trigger
+                            else:
+                                play sound "entity.villager.no" with seed 0 to expr-2
+                                send "&cA [Train] sign already exists" to expr-2
+                                stop trigger
+                    if {_facing} is set:
+                        send actionbar "&aCheck done, creating..." to expr-2
+                        load yaml {_path} as "MTskR.model.%expr-1%"
+                        set yaml value "facing" from "MTskR.model.%expr-1%" to {_facing}
+                        set {_i} to 0
+                        loop {_blocks::*}:
+                            location of loop-value is not {_base}
+                            set {_x} to x of loop-value - x of {_base}
+                            set {_y} to y of loop-value - y of {_base}
+                            set {_z} to z of loop-value - z of {_base}
+                            set yaml value "%{_i}%.loc" from "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
+                            set yaml value "%{_i}%.block" from "MTskR.model.%expr-1%" to blockdata of loop-value
+                            if loop-value is an iron door:
+                                add 1 to {_door_count}
+                                set yaml value "%{_i}%.door" from "MTskR.model.%expr-1%" to doorType({_facing}, loop-value)
+                            add 1 to {_i}
+                        save yaml "MTskR.model.%expr-1%"
+                        play sound "entity.experience_orb.pickup" to expr-2
+                        send "&eTrain model &6%expr-1% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2%&7)" to expr-2
+                        send "[MTskR] %expr-2% created train model %expr-1% with %{_door_count} / 2% door%"s" if {_door_count} / 2 > 1, else ""% among %size of {_blocks::*}% block%"s" if size of {_blocks::*} > 1, else ""%" to console
+                    else:
+                        play sound "entity.villager.no" with seed 0 to expr-2
+                        send "&cYou must put an oak sign that says '[Train]'" to expr-2
+                else:
+                    play sound "entity.villager.no" with seed 0 to expr-2
+                    send "&cYour model is bigger than the limit (%size of {_blocks::*}%/%mtskr config "model_maxium_blocks"%)" to expr-2
             else:
                 play sound "entity.villager.no" with seed 0 to expr-2
-                send "&cThe train with id %expr-1% does not exist" to expr-2
-        else if parse tags contains "all":
-            set {_indexes::*} to indexes of {-MTskR::trains::*}
-        else if parse tags contains "last":
-            set {_indexes::*} to last element of indexes of {-MTskR::trains::*} 
-        loop {_indexes::*}:
-            remove {-MTskR::trains::%loop-value%::blocks::*}
-            remove {-MTskR::trains::%loop-value%::shulkers::*}
-            remove {-MTskR::trains::%loop-value%::minecart}
-            clear {-MTskR::trains::%loop-value%::*}
-on skript stop:
-    kill all trains
+                send "&cYou must set two locations using a Model Builder" to expr-2
+
 on left click with iron axe:
     player is op
-    player is holding {@model_builder}
+    player is holding mtskr config "model_builder"
     cancel event
     set {-MTskR::item::%player%::model_builder::loc1} to event-block
     play sound "entity.experience_orb.pickup"
     send "&eLoc 1 set to &6%{-MTskR::item::%player%::model_builder::loc1}%" to player
 on right click with iron axe:
     player is op
-    player is holding {@model_builder}
+    player is holding mtskr config "model_builder"
     cancel event
     set {-MTskR::item::%player%::model_builder::loc2} to event-block
     play sound "entity.experience_orb.pickup"
@@ -185,84 +309,13 @@ command mtskr <text> [<text>] [<text>] [<text>]:
     trigger:
         if arg-1 is "model":
             if arg-2 is "create":
-                if arg-3 matches "{@model_name_regex}":
-                    set {_path} to "{@model_path}%arg-3%.yml"
-                    set {_file} to new File({_file})
-                    if arg-4 is "-f":
-                        if {_file}.exists():
-                            set {_delete} to {_file}.delete()
-                            if {_delete} is false:
-                                play sound "entity.villager.no" with seed 0
-                                send "&cError while deleting file: %last java exception%"
-                                stop trigger
-                    else:
-                        if yaml "MTskR.model.%arg-3%" is loaded:
-                            play sound "entity.villager.no" with seed 0
-                            send "&c%arg-3% exists in memory"
-                            stop trigger
-                        else if {_file}.exists():
-                            play sound "entity.villager.no" with seed 0
-                            send "&c%arg-3% exists on disk"
-                            stop trigger
-                    if {-MTskR::item::%player%::model_builder::loc1} and {-MTskR::item::%player%::model_builder::loc2} are set:
-                        set {_blocks::*} to (all blocks within {-MTskR::item::%player%::model_builder::loc1} and {-MTskR::item::%player%::model_builder::loc2}) where [input is not air]
-                        if size of {_blocks::*} <= {@model_maxium_blocks}:
-                            loop {_blocks::*}:
-                                if loop-value is an oak sign:
-                                    if {_facing} is not set:
-                                        set {_base} to location of loop-value
-                                        if first line of loop-value is "[Train]":
-                                            if facing of loop-value is set:
-                                                set {_facing} to facing of loop-value
-                                            else:
-                                                set {_rotation} to block data tag "rotation" of loop-value
-                                                if {_rotation} is 0:
-                                                    set {_facing} to south
-                                                else if {_rotation} is 4:
-                                                    set {_facing} to west
-                                                else if {_rotation} is 8:
-                                                    set {_facing} to north
-                                                else if {_rotation} is 12:
-                                                    set {_facing} to east
-                                                else:
-                                                    play sound "entity.villager.no" with seed 0
-                                                    send "&cThe rotation of [Train] sign should be 0, 4, 8, or 12"
-                                                    stop trigger
-                                    else:
-                                        play sound "entity.villager.no" with seed 0
-                                        send "&cA [Train] sign already exists"
-                                        stop trigger
-                            if {_facing} is set:
-                                send actionbar "&aCheck done, creating..."
-                                load yaml {_path} as "MTskR.model.%arg-3%"
-                                set yaml value "facing" from "MTskR.model.%arg-3%" to {_facing}
-                                set {_i} to 0
-                                loop {_blocks::*}:
-                                    location of loop-value is not {_base}
-                                    set {_x} to x of loop-value - x of {_base}
-                                    set {_y} to y of loop-value - y of {_base}
-                                    set {_z} to z of loop-value - z of {_base}
-                                    set yaml value "%{_i}%.loc" from "MTskR.model.%arg-3%" to "%{_x}%,%{_y}%,%{_z}%"
-                                    set yaml value "%{_i}%.block" from "MTskR.model.%arg-3%" to blockdata of loop-value
-                                    if loop-value is an iron door:
-                                        add 1 to {_door_count}
-                                        set yaml value "%{_i}%.door.type" from "MTskR.model.%arg-3%" to doorType({_facing}, loop-value)
-                                    add 1 to {_i}
-                                save yaml "MTskR.model.%arg-3%"
-                                play sound "entity.experience_orb.pickup"
-                                send "&eTrain model &6%arg-3% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2%&7)"
-                            else:
-                                play sound "entity.villager.no" with seed 0
-                                send "&cYou must put an oak sign that says '[Train]'"
-                        else:
-                            play sound "entity.villager.no" with seed 0
-                            send "&cYour model is bigger than the limit (%size of {_blocks::*}%/{@model_maxium_blocks})"
-                    else:
-                        play sound "entity.villager.no" with seed 0
-                        send "&cYou must set two locations using a Model Builder"
+                if arg-4 is "-f":
+                    force create train model arg-3
+                else:
+                    create train model arg-3
             else if arg-2 is "rebuild":
-                if (new File("{@model_path}%arg-3%.yml")).exists():
-                    load yaml "{@model_path}%arg-3%.yml" as "MTskR.model.%arg-3%"
+                if (new File("%mtskr config "model_path"%%arg-3%.yml")).exists() is true:
+                    load yaml "%mtskr config "model_path"%%arg-3%.yml" as "MTskR.model.%arg-3%"
                     set {_facing} to yaml value "facing" of "MTskR.model.%arg-3%"
                     loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "facing"]:
                         set {_loc} to rotateRelativeCoor(player's location, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
@@ -275,8 +328,8 @@ command mtskr <text> [<text>] [<text>] [<text>]:
                     send "&cThe model named %arg-3% does not exists"
         else if arg-1 is "gui":
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
-                make gui slot 0 with {@model_builder}:
-                    give {@model_builder} to player's inventory
+                make gui slot 0 with mtskr config "model_builder":
+                    give mtskr config "model_builder" to player's inventory
             open last gui to player
         else if arg-1 is "reload":
             make player execute command "sk reload %the current script%"

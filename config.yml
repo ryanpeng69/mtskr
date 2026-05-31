@@ -1,0 +1,14 @@
+model_maxium_blocks: 1000
+
+model_name_regex: '[a-zA-Z0-9_]{1,64}'
+
+model_path: plugins\Skript\scripts\mtskr\models\
+
+model_builder:
+    ==: org.bukkit.inventory.ItemStack
+    DataVersion: 4671
+    id: minecraft:iron_axe
+    count: 1
+    components:
+        minecraft:custom_name: '{extra:[{bold:0b,color:"aqua",italic:0b,obfuscated:0b,strikethrough:0b,text:"Model Builder",underlined:0b}],text:""}'
+    schema_version: 1

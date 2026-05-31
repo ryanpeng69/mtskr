@@ -189,20 +189,16 @@ facing: !skriptclass
 '46':
     loc: -2,2,-1
     block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=right,open=false,powered=false]'
-    door:
-        type: RL
+    door: RL
 
 '47':
     loc: 2,2,-1
     block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=left,open=false,powered=false]'
-    door:
-        type: LR
+    door: LR
 
 '48':
     loc: -2,2,0
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
-    door:
-        type: LR
 
 '49':
     loc: 2,2,0
@@ -219,20 +215,16 @@ facing: !skriptclass
 '52':
     loc: -2,2,2
     block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=right,open=false,powered=false]'
-    door:
-        type: RL
+    door: RL
 
 '53':
     loc: 2,2,2
     block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=left,open=false,powered=false]'
-    door:
-        type: LR
+    door: LR
 
 '54':
     loc: -2,2,3
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
-    door:
-        type: LR
 
 '55':
     loc: 2,2,3
@@ -281,20 +273,16 @@ facing: !skriptclass
 '66':
     loc: -2,3,-1
     block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=right,open=false,powered=false]'
-    door:
-        type: RL
+    door: RL
 
 '67':
     loc: 2,3,-1
     block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=left,open=false,powered=false]'
-    door:
-        type: LR
+    door: LR
 
 '68':
     loc: -2,3,0
     block: !blockdata 'minecraft:white_stained_glass'
-    door:
-        type: LR
 
 '69':
     loc: 2,3,0
@@ -311,20 +299,16 @@ facing: !skriptclass
 '72':
     loc: -2,3,2
     block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=right,open=false,powered=false]'
-    door:
-        type: RL
+    door: RL
 
 '73':
     loc: 2,3,2
     block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=left,open=false,powered=false]'
-    door:
-        type: LR
+    door: LR
 
 '74':
     loc: -2,3,3
     block: !blockdata 'minecraft:white_stained_glass'
-    door:
-        type: LR
 
 '75':
     loc: 2,3,3
@@ -511,9 +495,5 @@ facing: !skriptclass
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '121':
-    loc: 1,5,4
-    block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
-
-'122':
     loc: 1,5,4
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
