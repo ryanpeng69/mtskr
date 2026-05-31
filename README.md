@@ -1,13 +1,16 @@
+<img width="2109" height="745" alt="MTskR_banner" src="https://github.com/user-attachments/assets/26cfca62-b0df-495b-8bc5-b45b2363196e" />
+
 # MTskR: Minecraft TrainSkript Railway
 
-MTskR is a [Skript](https://modrinth.com/project/xFNYAvMk) work of Jonathan Ho's [Minecraft Trainsit Railway mod](https://modrinth.com/project/XKPAmI6u).
-My goal is to put this mod into a Paper server with [Skript](https://modrinth.com/project/xFNYAvMk) **without resource packs**.
+MTskR is a [Skript](https://modrinth.com/project/xFNYAvMk) work of [Jonathan Ho](https://www.youtube.com/@JonathanHo33)'s [Minecraft Trainsit Railway mod](https://modrinth.com/project/XKPAmI6u).
+
+My goal is to put this mod into a Paper server with [Skript](https://modrinth.com/project/xFNYAvMk) **without any resource packs**.
 
 Join [MTskR Discrd](http://discord.gg/kSSmEyVSRR) for more help!
 
 ## Installation:
 
-Grab [mtskr.sk](https://github.com/ryanpeng69/mtskr/blob/main/mtskr.sk) into your scripts folder, reload script, it will automatically generate folder an move.
+Grab [mtskr.sk](https://github.com/ryanpeng69/mtskr/blob/main/mtskr.sk) into your scripts folder, reload script, it will automatically generate folder and move.
 
 ## Items/Blocks:
 
