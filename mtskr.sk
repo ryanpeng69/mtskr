@@ -63,34 +63,34 @@ expression quater clockwise direction of %object%:
         else:
             return
 # Items
-expression [MTskR|mtskr] brush[es]:
+expression [MTskR|mtskr] [a] brush[es]:
     return type: itemtype
     get:
         return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.")
-expression [MTskR|mtskr] model builder[s]: 
+expression [MTskR|mtskr] [a] model builder[s]: 
     return type: itemtype
     get:
         return iron axe named "&fModel Builder" with lore "&7Select 2 locs like worldedit to create model."
-expression [MTskR|mtskr] rail node[s]:
+expression [MTskR|mtskr] [a] rail node[s]:
     return type: itemtype
     get:
         return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters."
-expression [MTskR|mtskr] (normal|regular|speed limit) rail connector[s]:
+expression [MTskR|mtskr] [a] (normal|regular|speed limit) rail connector[s]:
     return type: itemtype
     get:
         return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] platform[s] rail connector[s]:
+expression [MTskR|mtskr] [a] platform[s] rail connector[s]:
     return type: itemtype
     get:
         return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] (siding|depot)[s] rail connector[s]:
+expression [MTskR|mtskr] [a] siding[s] rail connector[s]:
     return type: itemtype
     get:
         return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] %integet% blocks wide bridge creator[s]:
+expression [MTskR|mtskr] [a] bridge (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone shovel named "&f%expr-1% Blocks Wide Bridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place")
+        return stone shovel named "&fBridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair")
 # todo: tunnel
 effect (reset|fix) (mtskr|MTskR) config:
     trigger:
@@ -274,7 +274,9 @@ function rotateRelativeCoor(base: location, model_facing: direction, rloc_str: s
     rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
     return {_base} offset by {_v}
 on load: # load config
-    set {_startDir} to new File("plugins\Skript\scripts\")
+    set {_dir} to "%current script%"
+    regex replace "\\?[^\\]+$" in {_dir} with "\\"
+    set {_startDir} to new File("plugins\Skript\scripts\%{_dir}%")
     set {_dir::1} to {_startDir}
     while size of {_dir::*} is greater than 0:
         set {_currentDir} to {_dir::1}
@@ -287,27 +289,33 @@ on load: # load config
                     if {_config}.exists() is true:
                         load yaml "%{_config}.getPath()%" as "MTskR.config"
                         fix mtskr config
-                        send "[MTskR] &aConfig loaded" to console
+                        send "[MTskR] &aConfig loaded"
                         stop trigger
                 else:
                     add loop-value to {_dir::*}
-    load yaml "plugins\Skript\scripts\mtskr\config.yml" as "MTskR.config"
+    if {_dir} does not contain "mtskr":
+        set {_dir} to "%{_dir}%mtskr\"
+    load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
     fix mtskr config
-    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\mtskr\config.yml"
+    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml"
 on load: # init
-    set {_scripts::*} to all scripts where ["%input%" contains "mtskr\"]
-    if {_scripts::*} is not set:
-        set {_source} to new File("plugins\Skript\scripts\%current script%")
-        set {_destination} to new File("plugins\Skript\scripts\mtskr\%current script%")
-        if {_source}.renameTo({_destination}) is false:
-            send "[MTskR] &cFailed to move to plugins\Skript\scripts\mtskr\%current script%"
-        else:
-            send "[MTskR] %current script% moved to plugins\Skript\scripts\mtskr\%current script%"
-            send "[MTskR] reloading"
+    set {_dir} to "%current script%"
+    regex replace "\\?[^\\]+$" in {_dir} with "\\"
+    if {_dir} does not contain "mtskr":
+        set {_dir} to "%{_dir}%mtskr\"
+        set {_script} to new File("plugins\Skript\scripts\%current script%")
+        set {_target} to new File("plugins\Skript\scripts\%{_dir}%mtskr.sk")
+        if {_script}.renameTo({_target}) is true:
+            send "[MTskR] &aMoved %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk, reloading"
+            set {_new_script} to "%current script%"
             unload the current script
-            load script "mtskr\%current script%"
-    else:
-        send "[MTskR] &aSuccesfully started"
+            wait 1 tick
+            regex replace "(.*\\)([^\\]+)$" in {_new_script} with "$1-$2"
+            load script {_new_script}
+            send "[MTskR] &eInitialize done"
+        else:
+            send "[MTskR] &cFailed to move %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk"
+    send "[MTskR] &aMTskR started!"
 on unload:
     unload yaml "MTskR.config"
 on skript stop:
@@ -326,6 +334,24 @@ on right click with iron axe:
     set {-MTskR::item::%player%::model_builder::loc2} to event-block
     play sound "entity.experience_orb.pickup"
     send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eLoc 2 set to &6%{-MTskR::item::%player%::model_builder::loc2}%%nl%&eUse &6/mtskr model create <name> &eto create train" to player
+on right click with stone shovel: # not done, now is 1 block wide
+    player is holding a bridge creator
+    if player is sneaking:
+        set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
+    else:
+        event-block is stone button
+        if line 5 of lore of player's tool is not set:
+            set line 5 of lore of player's tool to "&7Selected location: &f%x of event-block%, %y of event-block%, %z of event-block%, %world of event-block%"
+        else:
+            set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
+            set {_v::*} to {_rawloc} split at ", "
+            set {_loc} to location({_v::1}, {_v::2}, {_v::3}, world({_v::4}))
+            if block at {_loc} is event-block:
+                clear line 5 of lore of player's tool
+            else:
+                set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
+                set {_block} to {_rawblock} parsed as blockdata
+                update (blocks between (the block below {_loc}) and (the block below event-block)) to be {_block}
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
     set tab completions for position 1 to ("model", "gui", and "reload")
     if tab arg 1 is "model":
@@ -361,4 +387,4 @@ command mtskr <text> [<text>] [<text>] [<text>]:
                     give model builder to player's inventory
             open last gui to player
         else if arg-1 is "reload":
-            make player execute command "sk reload %the current script%"
+            make sender execute command "sk reload %the current script%"
