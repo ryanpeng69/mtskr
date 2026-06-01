@@ -3,6 +3,36 @@
 import:
     java.io.File
     org.bukkit.entity.Entity
+# Items
+expression [MTskR|mtskr] [a] brush[es]:
+    return type: itemtype
+    get:
+        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.")
+expression [MTskR|mtskr] [a] model builder[s]: 
+    return type: itemtype
+    get:
+        return iron axe named "&fModel Builder" with lore "&7Select 2 locs like worldedit to create model."
+expression [MTskR|mtskr] [a] rail node[s]:
+    return type: itemtype
+    get:
+        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters."
+expression [MTskR|mtskr] [a] (normal|regular|speed limit) rail connector[s]:
+    return type: itemtype
+    get:
+        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.")
+expression [MTskR|mtskr] [a] platform[s] rail connector[s]:
+    return type: itemtype
+    get:
+        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.")
+expression [MTskR|mtskr] [a] siding[s] rail connector[s]:
+    return type: itemtype
+    get:
+        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.")
+expression [MTskR|mtskr] [a] bridge (creator|builder)[s]:
+    return type: itemtype
+    get:
+        return stone shovel named "&fBridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair")
+# Functions
 expression (mtskr|MTskR) config %string%:
     get:
         return (yaml value expr-1 of "MTskR.config")
@@ -62,36 +92,6 @@ expression quater clockwise direction of %object%:
             return south
         else:
             return
-# Items
-expression [MTskR|mtskr] [a] brush[es]:
-    return type: itemtype
-    get:
-        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.")
-expression [MTskR|mtskr] [a] model builder[s]: 
-    return type: itemtype
-    get:
-        return iron axe named "&fModel Builder" with lore "&7Select 2 locs like worldedit to create model."
-expression [MTskR|mtskr] [a] rail node[s]:
-    return type: itemtype
-    get:
-        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters."
-expression [MTskR|mtskr] [a] (normal|regular|speed limit) rail connector[s]:
-    return type: itemtype
-    get:
-        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] platform[s] rail connector[s]:
-    return type: itemtype
-    get:
-        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] siding[s] rail connector[s]:
-    return type: itemtype
-    get:
-        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] bridge (creator|builder)[s]:
-    return type: itemtype
-    get:
-        return stone shovel named "&fBridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair")
-# todo: tunnel
 effect (reset|fix) (mtskr|MTskR) config:
     trigger:
         if mtskr config "model_maxium_blocks" is not set:
@@ -115,6 +115,9 @@ effect spawn train %string% [at %location%] [from %player%]:
             set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
             set {_rotates} to closest quater of expr-2's yaw - yaw of direction {_facing}
             send {_rotates} to expr-3
+            set {_model_yaw} to yaw of direction {_facing}
+            set yaw of {_base} to closest quater of yaw of {_base}
+            set {_base_yaw} to yaw of {_base}
             loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "facing"]:
                 set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
                 set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
@@ -127,9 +130,6 @@ effect spawn train %string% [at %location%] [from %player%]:
                 set {_x} to {_rls::1} parsed as number
                 set {_y} to {_rls::2} parsed as number
                 set {_z} to {_rls::3} parsed as number
-                set {_model_yaw} to yaw of direction {_facing}
-                set yaw of {_base} to closest quater of yaw of {_base}
-                set {_base_yaw} to yaw of {_base}
                 set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
                 rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
                 set display translation of (last spawned block display) to {_v}
@@ -151,6 +151,16 @@ effect spawn train %string% [at %location%] [from %player%]:
                 remove 90 from yaw of {_fml}
                 loop {-MTskR::trains::%{_id}%::shulkers::*}:
                     teleport loop-value to rotateRelativeCoor({_fml}, {_facing}, yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%")
+                # set yaw of {_fml4blockdisplay} to closest quater of yaw of {_fml4blockdisplay}
+                # set {_fml4blockdisplay_yaw} to yaw of {_fml4blockdisplay}
+                # loop {-MTskR::trains::%{_id}%::blocks::*}:
+                #     set {_rls::*} to (yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%") split at ","
+                #     set {_x} to {_rls::1} parsed as number
+                #     set {_y} to {_rls::2} parsed as number
+                #     set {_z} to {_rls::3} parsed as number
+                #     set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
+                #     rotate {_v} around y-axis by ({_model_yaw} - {_fml4blockdisplay_yaw})
+                #     set display translation of loop-value to {_v}
             kill train {_id} from expr-3
         else:
             play sound "entity.villager.no" with seed 0 to expr-3
@@ -275,47 +285,33 @@ function rotateRelativeCoor(base: location, model_facing: direction, rloc_str: s
     return {_base} offset by {_v}
 on load: # load config
     set {_dir} to "%current script%"
-    regex replace "\\?[^\\]+$" in {_dir} with "\\"
-    set {_startDir} to new File("plugins\Skript\scripts\%{_dir}%")
-    set {_dir::1} to {_startDir}
-    while size of {_dir::*} is greater than 0:
-        set {_currentDir} to {_dir::1}
-        remove {_dir::1} from {_dir::*}
-        set {_array} to {_currentDir}.listFiles()
-        loop ...{_array}:
-            if loop-value.isDirectory() is true:
-                if loop-value.getName() is "mtskr":
-                    set {_config} to new File(loop-value, "config.yml")
-                    if {_config}.exists() is true:
-                        load yaml "%{_config}.getPath()%" as "MTskR.config"
-                        fix mtskr config
-                        send "[MTskR] &aConfig loaded"
-                        stop trigger
-                else:
-                    add loop-value to {_dir::*}
+    regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
     if {_dir} does not contain "mtskr":
         set {_dir} to "%{_dir}%mtskr\"
+    set {_config} to new File("plugins\Skript\scripts\%{_dir}%config.yml")
+    if {_config}.exists() is true:
+        send "[MTskR] Found config at plugins\Skript\scripts\%{_dir}%config.yml"
+    else:
+        send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml"
     load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
     fix mtskr config
-    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml"
 on load: # init
     set {_dir} to "%current script%"
-    regex replace "\\?[^\\]+$" in {_dir} with "\\"
+    regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
     if {_dir} does not contain "mtskr":
         set {_dir} to "%{_dir}%mtskr\"
         set {_script} to new File("plugins\Skript\scripts\%current script%")
         set {_target} to new File("plugins\Skript\scripts\%{_dir}%mtskr.sk")
         if {_script}.renameTo({_target}) is true:
-            send "[MTskR] &aMoved %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk, reloading"
+            send "[MTskR] Moved %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk, reloading"
             set {_new_script} to "%current script%"
             unload the current script
-            wait 1 tick
             regex replace "(.*\\)([^\\]+)$" in {_new_script} with "$1-$2"
             load script {_new_script}
-            send "[MTskR] &eInitialize done"
+            send "[MTskR] Initialize done"
         else:
             send "[MTskR] &cFailed to move %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk"
-    send "[MTskR] &aMTskR started!"
+    send "[MTskR] &aSuccesfully loaded"
 on unload:
     unload yaml "MTskR.config"
 on skript stop:
