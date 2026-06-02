@@ -4,34 +4,38 @@ import:
     java.io.File
     org.bukkit.entity.Entity
 # Items
-expression [MTskR|mtskr] [a] brush[es]:
+expression [a] (MTskR|mtskr) brush[es]:
     return type: itemtype
     get:
-        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.")
-expression [MTskR|mtskr] [a] model builder[s]: 
+        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.") with nbt from "{custom:{mtskr_item:""brush""}}"
+expression [a] [MTskR|mtskr] loc[ation] selector[s]: 
     return type: itemtype
     get:
-        return iron axe named "&fModel Builder" with lore "&7Select 2 locs like worldedit to create model."
-expression [MTskR|mtskr] [a] rail node[s]:
+        return iron axe named "&fLocation selector" with lore "&7Select 2 locs like worldedit to create model, stations, and depots." with nbt from "{custom:{mtskr_item:""loc_selector""}}"
+expression [a] [MTskR|mtskr] rail node[s]:
     return type: itemtype
     get:
-        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters."
-expression [MTskR|mtskr] [a] (normal|regular|speed limit) rail connector[s]:
+        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters." with nbt from "{custom:{mtskr_item:""rail_node""}}"
+expression [a] [MTskR|mtskr] (normal|regular|speed limit) rail connector[s]:
     return type: itemtype
     get:
-        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] platform[s] rail connector[s]:
+        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr_item:""rail_connector""}}"
+expression [a] [MTskR|mtskr] platform[s] rail connector[s]:
     return type: itemtype
     get:
-        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] siding[s] rail connector[s]:
+        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr_item:""platform_rail_connector""}}"
+expression [a] [MTskR|mtskr] siding[s] rail connector[s]:
     return type: itemtype
     get:
-        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.")
-expression [MTskR|mtskr] [a] bridge (creator|builder)[s]:
+        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr_item:""siding_rail_connector""}}"
+expression [a] [MTskR|mtskr] %integer% blocks wide bridge (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone shovel named "&fBridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair")
+        return stone shovel named "&f%expr-1% Blocks Wide Bridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{custom:{mtskr_item:""bridge_creator"",mtskr_bridge_width:%expr-1%}}"
+expression [a] [MTskR|mtskr] tutorial[s| book[s]]:
+    return type: itemtype
+    get:
+        return book named "&fMTskR Tutorial" with nbt from "{custom:{mtskr_item:""tutorial""}}"
 # Functions
 expression (mtskr|MTskR) config %string%:
     get:
@@ -114,7 +118,6 @@ effect spawn train %string% [at %location%] [from %player%]:
             spawn regular minecart at expr-2
             set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
             set {_rotates} to closest quater of expr-2's yaw - yaw of direction {_facing}
-            send {_rotates} to expr-3
             set {_model_yaw} to yaw of direction {_facing}
             set yaw of {_base} to closest quater of yaw of {_base}
             set {_base_yaw} to yaw of {_base}
@@ -199,8 +202,8 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                     play sound "entity.villager.no" with seed 0 to expr-2
                     send "&c%expr-1% exists on disk, put -f at arg-4 to overwrite" to expr-2
                     stop trigger
-            if {-MTskR::item::%expr-2%::model_builder::loc1} and {-MTskR::item::%expr-2%::model_builder::loc2} are set:
-                set {_blocks::*} to (all blocks within {-MTskR::item::%expr-2%::model_builder::loc1} and {-MTskR::item::%expr-2%::model_builder::loc2}) where [input is not air]
+            if {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2} are set:
+                set {_blocks::*} to (all blocks within {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2}) where [input is not air]
                 if size of {_blocks::*} is not greater than mtskr config "model_maxium_blocks":
                     loop {_blocks::*}:
                         if loop-value is an oak sign:
@@ -255,7 +258,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                     send "&cYour model is bigger than the limit (%size of {_blocks::*}%/%mtskr config "model_maxium_blocks"%)" to expr-2
             else:
                 play sound "entity.villager.no" with seed 0 to expr-2
-                send "&cYou must set two locations using a Model Builder" to expr-2
+                send "&cYou must set two locations using a loc selector" to expr-2
 function doorType(facing: direction, b: block) :: text:
     set {_data} to block data of {_b}
     if {_facing} is north:
@@ -316,38 +319,58 @@ on unload:
     unload yaml "MTskR.config"
 on skript stop:
     kill all trains
-on left click with iron axe:
-    player is op
-    player is holding model builder
-    cancel event
-    set {-MTskR::item::%player%::model_builder::loc1} to event-block
-    play sound "entity.experience_orb.pickup"
-    send "&eLoc 1 set to &6%{-MTskR::item::%player%::model_builder::loc1}%" to player
-on right click with iron axe:
-    player is op
-    player is holding model builder
-    cancel event
-    set {-MTskR::item::%player%::model_builder::loc2} to event-block
-    play sound "entity.experience_orb.pickup"
-    send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eLoc 2 set to &6%{-MTskR::item::%player%::model_builder::loc2}%%nl%&eUse &6/mtskr model create <name> &eto create train" to player
-on right click with stone shovel: # not done, now is 1 block wide
-    player is holding a bridge creator
-    if player is sneaking:
-        set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
-    else:
-        event-block is stone button
-        if line 5 of lore of player's tool is not set:
-            set line 5 of lore of player's tool to "&7Selected location: &f%x of event-block%, %y of event-block%, %z of event-block%, %world of event-block%"
+on left click:
+    nbt compound of player's tool has tag "custom;mtskr_item"
+    if string tag "custom;mtskr_item" of nbt of player's tool is "loc_selector":
+        cancel event
+        set {-MTskR::item::%player%::loc_selector::loc1} to event-block
+        play sound "entity.experience_orb.pickup"
+        send "&eLoc 1 set to &6%{-MTskR::item::%player%::loc_selector::loc1}%" to player
+on right click:
+    nbt compound of player's tool has tag "custom;mtskr_item"
+    if string tag "custom;mtskr_item" of nbt of player's tool is "loc_selector":
+        cancel event
+        set {-MTskR::item::%player%::loc_selector::loc2} to event-block
+        play sound "entity.experience_orb.pickup"
+        send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr model create <name> &eto create a train" to player
+        send formatted "<ttp:&9Click to use><sgt:/mtskr station create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr station create <name> &eto create a station" to player
+        send formatted "<ttp:&9Click to use><sgt:/mtskr depot create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr depot create <name> &eto create a depot" to player
+    else if string tag "custom;mtskr_item" of nbt of player's tool is "bridge_creator":
+        set {_width} to int tag "custom;mtskr_bridge_width" of nbt of player's tool
+        if player is sneaking:
+            set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
         else:
-            set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
-            set {_v::*} to {_rawloc} split at ", "
-            set {_loc} to location({_v::1}, {_v::2}, {_v::3}, world({_v::4}))
-            if block at {_loc} is event-block:
-                clear line 5 of lore of player's tool
+            event-block is a stone button
+            if line 5 of lore of player's tool is not set:
+                set line 5 of lore of player's tool to "&7Selected location: &f%x of event-block%, %y of event-block%, %z of event-block%, %world of event-block%"
             else:
-                set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
-                set {_block} to {_rawblock} parsed as blockdata
-                update (blocks between (the block below {_loc}) and (the block below event-block)) to be {_block}
+                set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
+                set {_v::*} to {_rawloc} parsed as "%number%, %number%, %number%, %world%"
+                set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
+                if {_loc} is location of event-block:
+                    clear line 5 of lore of player's tool
+                else:
+                    set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
+                    set {_block} to {_rawblock} parsed as blockdata
+                    set {_loc1_block} to block at {_loc}
+                    set {_start_facing} to facing of {_loc1_block}
+                    set {_end_facing} to facing of event-block
+                    set {_r} to floor({_width} / 2)
+                    loop {_r} times:
+                        if {_start_facing} is south or north:
+                            set {_start1} to the block loop-value blocks east of {_loc1_block}
+                            set {_start2} to the block loop-value blocks west of {_loc1_block}
+                        else:
+                            set {_start1} to the block loop-value blocks north of {_loc1_block}
+                            set {_start2} to the block loop-value blocks south of {_loc1_block}
+                        if {_end_facing} is south or north:
+                            set {_end1} to the block loop-value blocks east of event-block
+                            set {_end2} to the block loop-value blocks west of event-block
+                        else:
+                            set {_end1} to the block loop-value blocks north of event-block
+                            set {_end2} to the block loop-value blocks south of event-block
+                        update (blocks between {_start1} and {_end1}) to be {_block}
+                        update (blocks between {_start2} and {_end2}) to be {_block}
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
     set tab completions for position 1 to ("model", "gui", and "reload")
     if tab arg 1 is "model":
@@ -379,8 +402,10 @@ command mtskr <text> [<text>] [<text>] [<text>]:
                     send "&cThe model named %arg-3% does not exists"
         else if arg-1 is "gui":
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
-                make gui slot 0 with model builder:
-                    give model builder to player's inventory
+                make gui slot 0 with mtskr tutorial:
+                    give player mtskr tutorial
+                make gui slot 1 with mtskr brush:
+                    give player mtskr brush
             open last gui to player
         else if arg-1 is "reload":
             make sender execute command "sk reload %the current script%"
