@@ -22,17 +22,19 @@ Tested versions:
 
 ##### Blocks:
 
-* [ ] Rail node: stone button (blocks used to connect rails, direction matters)
+* [X] Rail node: stone button (blocks used to connect rails, direction matters)
 
 ##### Rail connectors: (use on rail nodes)
 
 * [ ] Normal: iron ingot
 * [ ] Platform: redstone
-* [ ] Depot: gold ingot
+* [ ] Siding: gold ingot
+* [ ] Return: lapis lazuli
+* [ ] Remove: copper ingot
 
 ##### Build tools: (use blocks between expression with rail node loc, 1 block left of it, and 1 block right of it)
 
-* [ ] Bridge: stone shovel
+* [X] Bridge: stone shovel
 * [ ] Tunnel: stone pickaxe
 * [ ] Tunnel walls: stone axe
 
@@ -54,17 +56,22 @@ facing: (south|west|north|east)
 ##### rail:
 
 ```yml
-%index%:
-  type: (normal|platform|depot)
-  loc1: %loc%
-  loc2: %loc%
+%loc1%:
+  %loc2%:
+    type: (normal|platform|depot)
+    platform: # optional
+      name: %text = "1"%
+      stop_time: %int = 5% # seconds
+    depot:
+      name: %text = "1"%
+      trains:
+        - %text% # train model
 ```
 
 ## Train function:
 
-* [ ] Model: Display blocks riding on a minecart
+* [X] Model: Display blocks riding on a minecart
 * [ ] Spawn: By selecting train in the gui for a depot track, the train will spawn.
-* [ ] Stations: Stops for `5` seconds
 * [ ] Movement:  Set velocity of train to velocity from loc1 to loc2 (need to set velocity and derailed velocity)
 * [ ] Arrival countdown: ? (need a equ)
 
