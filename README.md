@@ -35,8 +35,8 @@ Tested versions:
 ##### Build tools: (use blocks between expression with rail node loc, 1 block left of it, and 1 block right of it)
 
 * [X] Bridge: stone shovel
-* [ ] Tunnel: stone pickaxe
-* [ ] Tunnel walls: stone axe
+* [X] Tunnel: stone pickaxe
+* [X] Tunnel walls: stone axe
 
 ## Data (Yaml) structure:
 

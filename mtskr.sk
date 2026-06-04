@@ -47,7 +47,7 @@ expression [a] [MTskR|mtskr] %integer% by %integer% tunnel (creator|builder)[s]:
 expression [a] [MTskR|mtskr] %integer% by %integer% [tunnel] wall (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone axe named "&f%expr-1%x%expr-2% Tunnel Wall Creator" with lore ("&7Instant build walls for tunnels." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+        return stone axe named "&f%expr-1%x%expr-2% Tunnel Wall Creator" with lore ("&7Instant build walls for tunnels." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{custom:{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
 expression [a] [MTskR|mtskr] tutorial[s| book[s]]:
     return type: itemtype
     get:
@@ -357,9 +357,14 @@ on right click:
         send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr model create <name> &eto create a train" to player
         send formatted "<ttp:&9Click to use><sgt:/mtskr station create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr station create <name> &eto create a station" to player
         send formatted "<ttp:&9Click to use><sgt:/mtskr depot create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr depot create <name> &eto create a depot" to player
-    else if string tag "custom;mtskr.item" of nbt of player's tool is "bridge_creator":
-        set {_width} to int tag "custom;mtskr_bridge_width" of nbt of player's tool
-        if player is sneaking:
+    else if string tag "custom;mtskr.item" of nbt of player's tool is any of ("bridge_creator", "tunnel_creator", "tunnel_wall_creator"):
+        set {_width} to int tag "custom;mtskr.width" of nbt of player's tool
+        if string tag "custom;mtskr.item" of nbt of player's tool is not "bridge_creator":
+            set {_height} to int tag "custom;mtskr.height" of nbt of player's tool
+        if:
+            player is sneaking
+            string tag "custom;mtskr.item" of nbt of player's tool is not "tunnel_creator"
+        then:
             set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
         else:
             event-block is a stone button
@@ -454,6 +459,12 @@ on right click:
                         update blocks between {_start1::%loop-value%} and {_end1::%loop-value%} to be {_block}
                         update blocks between {_start2::%loop-value%} and {_end2::%loop-value%} to be {_block}
                     update blocks between {_start_block} and {_end_block} to be {_block}
+                    if string tag "custom;mtskr.item" of nbt of player's tool is "tunnel_wall_creator":
+                        set {_rawwallblock} to last element of ((line 4 of lore of player's tool) split at "&f")
+                        set {_wallblock} to {_rawwallblock} parsed as blockdata
+                        loop {_height} times:
+                            update blocks between (the block loop-value blocks above last element of {_start1::%loop-value%}) and (the block loop-value blocks above last element of {_end1::%loop-value%}) to be {_wallblock}
+                            update blocks between (the block loop-value blocks above last element of {_start2::%loop-value%}) and (the block loop-value blocks above last element of {_end2::%loop-value%}) to be {_wallblock}
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
     set tab completions for position 1 to ("model", "gui", and "reload")
     if tab arg 1 is "model":
