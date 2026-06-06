@@ -1,63 +1,68 @@
 # MTskR: Minecraft TrainSkript Railway
 # Minecraft Trainsit Railway in Paper without resource packs
+# https://github.com/ryanpeng69/mtskr/
 import:
     java.io.File
     org.bukkit.entity.Entity
+    org.bukkit.block.Block
 # Items
-expression [a] (MTskR|mtskr) brush[es]:
+expression [a] mtskr brush[es]:
     return type: itemtype
     get:
-        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.") with nbt from "{custom:{mtskr.item:""brush""}}"
-expression [a] [MTskR|mtskr] loc[ation] selector[s]: 
+        return brush named "&fBrush" with lore ("&7The 'debug stick' for MTskR stuffs." and "&7Hold to view rails." and "&7Click on editable blocks to edit.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""brush""}}"
+expression [a] [mtskr] loc[ation] selector[s]: 
     return type: itemtype
     get:
-        return iron axe named "&fLocation selector" with lore "&7Select 2 locs like worldedit to create model, stations, and depots." with nbt from "{custom:{mtskr.item:""loc_selector""}}"
-expression [a] [MTskR|mtskr] rail node[s]:
+        return iron axe named "&fLocation selector" with lore ("&7Select 2 locs like worldedit." and "&7Used to create models, stations, and depots.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""loc_selector""}}"
+expression [a] [mtskr] [model] seat:
+    get:
+        return yellow carpet named "&fModel Seat" with lore ("&7Place in train models to make a seat for a train." and "&7Players can not stand on a train.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""model_seat""}}"
+expression [a] [mtskr] rail node[s]:
     return type: itemtype
     get:
-        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters." with nbt from "{custom:{mtskr.item:""rail_node""}}"
-expression [a] [MTskR|mtskr] [normal|regular|speed limit] rail connector[s]:
+        return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters." with nbt from "{""minecraft:custom_data"":{mtskr.item:""rail_node""}}"
+expression [a] [mtskr] [normal|regular|speed limit] rail connector[s]:
     return type: itemtype
     get:
-        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""rail_connector""}}"
-expression [a] [MTskR|mtskr] platform[s] rail connector[s]:
+        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""normal_rail_connector""}}"
+expression [a] [mtskr] platform[s] rail connector[s]:
     return type: itemtype
     get:
-        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""platform_rail_connector""}}"
-expression [a] [MTskR|mtskr] siding[s] rail connector[s]:
+        return redstone named "&fPlatform Rail Connector" with lore ("&7A platform is a section of track where trains can stop to pick up passengers." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_rail_connector""}}"
+expression [a] [mtskr] siding[s] rail connector[s]:
     return type: itemtype
     get:
-        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""siding_rail_connector""}}"
-expression [a] [MTskR|mtskr] return rail connector[s]:
+        return gold ingot named "&fSiding Rail Connector" with lore ("&7A siding is a section of track where trains can spawn from." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""siding_rail_connector""}}"
+expression [a] [mtskr] turnback rail connector[s]:
     return type: itemtype
     get:
-        return lapis lazuli named "&fReturn Rail Connector" with lore ("&7Trains can change direction with this rail." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""return_rail_connector""}}"
-expression [a] [MTskR|mtskr] (remove rail connector|rail remover)[s]:
+        return lapis lazuli named "&fTurnback Rail Connector" with lore ("&7Trains can change direction with this rail." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""turnback_rail_connector""}}"
+expression [a] [mtskr] (remove rail connector|rail remover)[s]:
     return type: itemtype
     get:
-        return copper ingot named "&fRail Remover" with lore ("&7Remove rails with this connector" and "&7Click on a rail node to remove.") with nbt from "{custom:{mtskr.item:""return_rail_connector""}}"
-expression [a] [MTskR|mtskr] %integer% blocks wide bridge (creator|builder)[s]:
+        return copper ingot named "&fRail Remover" with lore ("&7Remove rails with this connector" and "&7Click on a rail node to remove.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""remove_rail_connector""}}"
+expression [a] [mtskr] %integer% blocks wide bridge (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone shovel named "&f%expr-1% Blocks Wide Bridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{custom:{mtskr.item:""bridge_creator"",mtskr.width:%expr-1%}}"
-expression [a] [MTskR|mtskr] %integer% by %integer% tunnel (creator|builder)[s]:
+        return stone shovel named "&f%expr-1% Blocks Wide Bridge Creator" with lore ("&7Instant build bridges for tracks." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{""minecraft:custom_data"":{mtskr.item:""bridge_creator"",mtskr.width:%expr-1%}}"
+expression [a] [mtskr] %integer% by %integer% tunnel (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone pickaxe named "&f%expr-1%x%expr-2% Tunnel Creator" with lore ("&7Instant dig tunnels for tracks." and "&7Click on a rail node to place.") with nbt from "{custom:{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
-expression [a] [MTskR|mtskr] %integer% by %integer% [tunnel] wall (creator|builder)[s]:
+        return stone pickaxe named "&f%expr-1%x%expr-2% Tunnel Creator" with lore ("&7Instant dig tunnels for tracks." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+expression [a] [mtskr] %integer% by %integer% [tunnel] wall (creator|builder)[s]:
     return type: itemtype
     get:
-        return stone axe named "&f%expr-1%x%expr-2% Tunnel Wall Creator" with lore ("&7Instant build walls for tunnels." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{custom:{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
-expression [a] [MTskR|mtskr] tutorial[s| book[s]]:
+        return stone axe named "&f%expr-1%x%expr-2% Tunnel Wall Creator" with lore ("&7Instant build walls for tunnels." and "&7Click on a rail node to place." and "&7Sneak right click to select block." and "&7Selected block: &fair") with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+expression [a] [mtskr] tutorial[s| book[s]]:
     return type: itemtype
     get:
-        return book named "&fMTskR Tutorial" with nbt from "{custom:{mtskr.item:""tutorial""}}"
-expression [a] [MTskR|mtskr] railway dashboard[s]:
+        return book named "&fMTskR Tutorial" with nbt from "{""minecraft:custom_data"":{mtskr.item:""tutorial""}}"
+expression [a] [mtskr] railway dashboard[s]:
     return type: itemtype
     get:
-        return map named "&fRailway Dashboard" with nbt from "{custom:{mtskr.item:""railway_dashboard""}}"
+        return map named "&fRailway Dashboard" with nbt from "{""minecraft:custom_data"":{mtskr.item:""railway_dashboard""}}"
 # Functions
-expression (mtskr|MTskR) config %string%:
+expression mtskr config %string%:
     get:
         return (yaml value expr-1 of "MTskR.config")
     set:
@@ -116,7 +121,28 @@ expression quater clockwise direction of %object%:
             return south
         else:
             return
-effect (reset|fix) (mtskr|MTskR) config:
+expression route from %location% to %location% [(from|[execute[d]] by) %sender%] [with history %-strings%]:
+    return type: strings
+    get:
+        if world of expr-1 is world of expr-2:
+            set {_world} to world of expr-1
+            set {_current} to "%x coord of expr-1%,%y coord of expr-1%,%z coord of expr-1%"
+            set {_end} to "%x coord of expr-2%,%y coord of expr-2%,%z coord of expr-2%"
+            if exprs-4 is not set:
+                set {_history::*} to {_current}
+            else:
+                set {_history::*} to exprs-4
+            loop yaml node keys {_current} of "MTskR.data.rails.%{_world}%":
+                if loop-value is {_end}:
+                    set {_results::*} to ({_history::*}, loop-value)
+                    return {_results::*}
+                else:
+                    set {_locvs::*} to loop-value parsed as "%number%,%number%,%number%"
+                    set {_path::*} to route from location({_locvs::1}, {_locvs::2}, {_locvs::3}, {_world}) to expr-2 executed by expr-3 with history ({_history::*}, loop-value)
+                    return {_path::*}
+        else:
+            send "[MTskR] &cLocations must be in the same world" to expr-3
+effect (reset|fix) mtskr config:
     trigger:
         if mtskr config "model_maxium_blocks" is not set:
             set mtskr config "model_maxium_blocks" to 1000
@@ -133,18 +159,21 @@ effect spawn train %string% [at %location%] [from %player%]:
     trigger:
         if (new File("%mtskr config "model_path"%%expr-1%.yml")).exists() is true:
             load yaml "%mtskr config "model_path"%%expr-1%.yml" as "MTskR.model.%expr-1%"
-            set {_facing} to yaml value "facing" of "MTskR.model.%expr-1%"
+            set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%expr-1%"
             set {_id} to size of indexes of {-MTskR::trains::*}
             spawn regular minecart at expr-2
             set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
-            set {_rotates} to closest quater of expr-2's yaw - yaw of direction {_facing}
-            set {_model_yaw} to yaw of direction {_facing}
+            set {_model_yaw} to {_facing_yaw}
             set yaw of {_base} to closest quater of yaw of {_base}
             set {_base_yaw} to yaw of {_base}
-            loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "facing"]:
+            set {_rotates} to closest quater of expr-2's yaw - {_facing_yaw}
+            if {_rotates} is smaller than 0:
+                add 360 to {_rotates}
+            set {_times} to {_rotates} / 90
+            loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "info"]:
                 set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
                 set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
-                loop (abs({_rotates} / 4) if {_rotates} is not 0 or 180 or -180, else 2) times:
+                loop {_times} times:
                     set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
                 spawn block display at location(x of {_loc} + 0.5, y of {_loc} + 0.5, z of {_loc} + 0.5, world of {_loc}, yaw of {_loc}, 0)
                 make (last spawned block display) ride on {-MTskR::trains::%{_id}%::minecart}
@@ -153,37 +182,48 @@ effect spawn train %string% [at %location%] [from %player%]:
                 set {_x} to {_rls::1} parsed as number
                 set {_y} to {_rls::2} parsed as number
                 set {_z} to {_rls::3} parsed as number
-                set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
+                set {_v} to vector({_x}, {_y}, {_z})
                 rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
+                set {_v} to vector(x of {_v} - 0.5, y of {_v} + 0.5, z of {_v} - 0.5)
                 set display translation of (last spawned block display) to {_v}
                 set blockdata of (last spawned block display) to {_data}
                 set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
-                spawn shulker at {_loc}
-                add nbt from "{NoAI:1b,Invulnerable:1b,Bukkit.invisible:1b}" to nbt compound of (last spawned shulker)
-                set {-MTskR::trains::%{_id}%::shulkers::%loop-value%} to (last spawned shulker)
+                # spawn shulker at {_loc}
+                # add nbt from "{NoAI:1b,Invulnerable:1b,Bukkit.invisible:1b}" to nbt compound of (last spawned shulker)
+                # set {-MTskR::trains::%{_id}%::shulkers::%loop-value%} to (last spawned shulker)
             play sound "entity.experience_orb.pickup" to expr-3
             send "&eTrain &6%{_id}% &espawned with model &6%expr-1% &eat &6%x coord of expr-2%, %y coord of expr-2%, %z coord of expr-2%, %world of expr-2%" to expr-3
             send "[MTskR] Train %{_id}% spawned with model %expr-1% at %x coord of expr-2%, %y coord of expr-2%, %z coord of expr-2%, %world of expr-2%" to console
             wait 5 ticks
             set {_ml} to location of {-MTskR::trains::%{_id}%::minecart}
+            clear {_base}
+            clear {_base_yaw}
+            clear {_loc}
             while {-MTskR::trains::%{_id}%::minecart} is alive:
                 wait 5 ticks
                 {_ml} is not location of {-MTskR::trains::%{_id}%::minecart}
                 set {_ml} to location of {-MTskR::trains::%{_id}%::minecart}
                 set {_fml} to {_ml}
-                remove 90 from yaw of {_fml}
-                loop {-MTskR::trains::%{_id}%::shulkers::*}:
-                    teleport loop-value to rotateRelativeCoor({_fml}, {_facing}, yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%")
-                # set yaw of {_fml4blockdisplay} to closest quater of yaw of {_fml4blockdisplay}
-                # set {_fml4blockdisplay_yaw} to yaw of {_fml4blockdisplay}
-                # loop {-MTskR::trains::%{_id}%::blocks::*}:
-                #     set {_rls::*} to (yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%") split at ","
-                #     set {_x} to {_rls::1} parsed as number
-                #     set {_y} to {_rls::2} parsed as number
-                #     set {_z} to {_rls::3} parsed as number
-                #     set {_v} to vector({_x} + 0.5, {_y} + 0.5, {_z} + 0.5)
-                #     rotate {_v} around y-axis by ({_model_yaw} - {_fml4blockdisplay_yaw})
-                #     set display translation of loop-value to {_v}
+                set yaw of {_fml} to closest quater of (yaw of {_fml} + 90)
+                # loop {-MTskR::trains::%{_id}%::shulkers::*}:
+                #     teleport loop-value to rotateRelativeCoor({_fml}, {_facing}, yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%")
+                set {_rotates} to closest quater of {_fml}'s yaw - {_facing_yaw}
+                if {_rotates} is smaller than 0:
+                    add 360 to {_rotates}
+                set {_times} to {_rotates} / 90
+                loop {-MTskR::trains::%{_id}%::blocks::*}:
+                    set {_rls::*} to (yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%") split at ","
+                    set {_x} to {_rls::1} parsed as number
+                    set {_y} to {_rls::2} parsed as number
+                    set {_z} to {_rls::3} parsed as number
+                    set {_v} to vector({_x}, {_y}, {_z})
+                    rotate {_v} around y-axis by ({_model_yaw} - yaw of {_fml})
+                    set {_v} to vector(x of {_v} - 0.5, y of {_v} + 0.5, z of {_v} - 0.5)
+                    set display translation of loop-value to {_v}
+                    set {_data} to (yaml value "%loop-index%.block" of "MTskR.model.%expr-1%")
+                    loop {_times} times:
+                        set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
+                    set block data of loop-value to {_data}
             kill train {_id} from expr-3
         else:
             play sound "entity.villager.no" with seed 0 to expr-3
@@ -202,7 +242,7 @@ effect (kill|remove) (id:train [with id] %integer%|all:[all] trains|last:last [s
             set {_indexes::*} to last element of indexes of {-MTskR::trains::*} 
         loop {_indexes::*}:
             remove {-MTskR::trains::%loop-value%::blocks::*}
-            remove {-MTskR::trains::%loop-value%::shulkers::*}
+            # remove {-MTskR::trains::%loop-value%::shulkers::*}
             remove {-MTskR::trains::%loop-value%::minecart}
             clear {-MTskR::trains::%loop-value%::*}
 effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %player%]:
@@ -229,7 +269,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         if loop-value is an oak sign:
                             if {_facing} is not set:
                                 set {_base} to location of loop-value
-                                if first line of loop-value is "[Train]":
+                                if first line of loop-value is "[Model]":
                                     if facing of loop-value is set:
                                         set {_facing} to facing of loop-value
                                     else:
@@ -244,24 +284,31 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                                             set {_facing} to east
                                         else:
                                             play sound "entity.villager.no" with seed 0 to expr-2
-                                            send "&cThe rotation of [Train] sign should be 0, 4, 8, or 12" to expr-2
+                                            send "&cThe rotation of [Model] sign should be 0, 4, 8, or 12" to expr-2
                                             stop trigger
+                                    remove loop-value from {_blocks::*}
                             else:
                                 play sound "entity.villager.no" with seed 0 to expr-2
-                                send "&cA [Train] sign already exists" to expr-2
+                                send "&cA [Model] sign already exists" to expr-2
                                 stop trigger
                     if {_facing} is set:
                         send actionbar "&aCheck done, creating..." to expr-2
                         load yaml {_path} as "MTskR.model.%expr-1%"
-                        set yaml value "facing" from "MTskR.model.%expr-1%" to {_facing}
+                        set yaml value "info.facing" of "MTskR.model.%expr-1%" to yaw of {_facing}
+                        loop 2 times:
+                            set {_x} to x of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - x of {_base}
+                            set {_y} to y of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - y of {_base}
+                            set {_z} to z of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - z of {_base}
+                            set yaml value "info.loc%loop-value%" of "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
+                        set yaml value "info.model_version" of "MTskR.model.%expr-1%" to 1
+                        set yaml value "info.minecraft_version" of "MTskR.model.%expr-1%" to minecraft version
                         set {_i} to 0
                         loop {_blocks::*}:
-                            location of loop-value is not {_base}
                             set {_x} to x of loop-value - x of {_base}
                             set {_y} to y of loop-value - y of {_base}
                             set {_z} to z of loop-value - z of {_base}
-                            set yaml value "%{_i}%.loc" from "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
-                            set yaml value "%{_i}%.block" from "MTskR.model.%expr-1%" to blockdata of loop-value
+                            set yaml value "%{_i}%.loc" of "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
+                            set yaml value "%{_i}%.block" of "MTskR.model.%expr-1%" to blockdata of loop-value
                             if loop-value is an iron door:
                                 add 1 to {_door_count}
                                 set yaml value "%{_i}%.door" from "MTskR.model.%expr-1%" to doorType({_facing}, loop-value)
@@ -272,26 +319,84 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         send "[MTskR] %expr-2% created train model %expr-1% with %{_door_count} / 2% door%"s" if {_door_count} / 2 > 1, else ""% among %size of {_blocks::*}% block%"s" if size of {_blocks::*} > 1, else ""%" to console
                     else:
                         play sound "entity.villager.no" with seed 0 to expr-2
-                        send "&cYou must put an oak sign that says '[Train]'" to expr-2
+                        send "&cYou must put an oak sign that says '[Model]'" to expr-2
                 else:
                     play sound "entity.villager.no" with seed 0 to expr-2
                     send "&cYour model is bigger than the limit (%size of {_blocks::*}%/%mtskr config "model_maxium_blocks"%)" to expr-2
             else:
                 play sound "entity.villager.no" with seed 0 to expr-2
                 send "&cYou must set two locations using a loc selector" to expr-2
-effect load mtskr config:
+effect [re|(:un)]load mtskr (:config|:data)[s] [(by|from) %sender%]:
     trigger:
-        set {_dir} to "%current script%"
-        regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
-        if {_dir} does not contain "mtskr":
-            set {_dir} to "%{_dir}%mtskr\"
-        set {_config} to new File("plugins\Skript\scripts\%{_dir}%config.yml")
-        if {_config}.exists() is true:
-            send "[MTskR] Found config at plugins\Skript\scripts\%{_dir}%config.yml"
+        if parse tags contains "un":
+            if parse tags contains "config":
+                unload yaml "MTskR.config"
+            else:
+                loop all worlds:
+                    unload yaml "MTskR.data.rails.%loop-value%"
         else:
-            send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml"
-        load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
-        fix mtskr config
+            set {_dir} to "%current script%"
+            regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+            if {_dir} does not contain "mtskr":
+                set {_dir} to "%{_dir}%mtskr\"
+            if parse tags contains "config":
+                set {_config} to new File("plugins\Skript\scripts\%{_dir}%config.yml")
+                if {_config}.exists() is false:
+                    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml" to expr-1
+                load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
+                fix mtskr config
+            else:
+                loop all worlds:
+                    load yaml "plugins\Skript\scripts\%{_dir}%data\rails\%loop-value%.yml" as "MTskR.data.rails.%loop-value%"
+effect nothing:
+    trigger:
+        set {_} to null
+condition: # x and z is same
+    patterns:
+        %location%'s x[ ][and][ ]z is [(same:same as|different:different from)] %location%['s]
+        x[ ][and][ ]z of %location% is [(same:same as|different:different from)] %location%['s]
+        %locations%'[s] x[ ][and][ ]z are (same:same|different:different)
+        x[ ][and][ ]z of %locations% are (same:same|different:different)
+    check:
+        if expr-2 is set:
+            if:
+                x coord of expr-1 is x coord of expr-2
+                z coord of expr-1 is z coord of expr-2
+            then:
+                if parse tags contains "same":
+                    continue
+            else if parse tags contains "different":
+                continue
+        else:
+            loop exprs-1:
+                if {_x} is not set:
+                    set {_x} to x coord of loop-value
+                    set {_z} to z coord of loop-value
+                else:
+                    if x coord of loop-value is not {_x}:
+                        if parse tags contains "different":
+                            continue
+                    else if z coord of loop-value is not {_z}:
+                        if parse tags contains "different":
+                            continue
+                    else:
+                        if parse tags contains "same":
+                            continue
+condition %block% (is:is|not:is(n't| not)) [a] full collision block:
+    check:
+        set {_box} to expr-1.getCollisionShape().getBoundingBoxes().get(0)
+        if:
+            {_box}.getMinX() is 0
+            {_box}.getMinY() is 0
+            {_box}.getMinZ() is 0
+            {_box}.getMaxX() is 1
+            {_box}.getMaxY() is 1
+            {_box}.getMaxZ() is 1
+        then:
+            if parse tags contains "is":
+                continue
+        else if parse tags contains "not":
+            continue
 function doorType(facing: direction, b: block) :: text:
     set {_data} to block data of {_b}
     if {_facing} is north:
@@ -304,12 +409,11 @@ function doorType(facing: direction, b: block) :: text:
         set {_side} to "L" if "%{_data}%" contains "facing=south" else "R"
     set {_move} to "R" if "%{_data}%" contains "hinge=left" else "L"
     return "%{_side}%%{_move}%"
-function rotateRelativeCoor(base: location, model_facing: direction, rloc_str: string) :: location:
+function rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: string) :: location:
     set {_rls::*} to {_rloc_str} split at ","
     set {_x} to {_rls::1} parsed as number
     set {_y} to {_rls::2} parsed as number
     set {_z} to {_rls::3} parsed as number
-    set {_model_yaw} to yaw of direction {_model_facing}
     set x of {_base} to floor(x of {_base}) + 0.5
     set y of {_base} to floor(y of {_base}) + 0.5
     set z of {_base} to floor(z of {_base}) + 0.5
@@ -319,6 +423,8 @@ function rotateRelativeCoor(base: location, model_facing: direction, rloc_str: s
     set {_v} to vector({_x}, {_y}, {_z})
     rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
     return {_base} offset by {_v}
+function mtskrYamlNodeLocFormat(loc: location) :: string:
+    return "%floor(x coord of {_loc})%,%floor(y coord of {_loc})%,%floor(z coord of {_loc})%"
 on load:
     set {_dir} to "%current script%"
     regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
@@ -332,145 +438,198 @@ on load:
             unload the current script
             regex replace "(.*\\)([^\\]+)$" in {_new_script} with "$1-$2"
             load script {_new_script}
-            send "[MTskR] Initialize done"
+            send "[MTskR] &aInitialize done"
         else:
             send "[MTskR] &cFailed to move %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk"
-    send "[MTskR] &aSuccesfully loaded"
     load mtskr config
+    load mtskr data
 on unload:
-    unload yaml "MTskR.config"
+    unload mtskr config
+    unload mtskr data
 on skript stop:
     kill all trains
 on left click:
-    nbt compound of player's tool has tag "custom;mtskr.item"
-    if string tag "custom;mtskr.item" of nbt of player's tool is "loc_selector":
+    nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
+    set {_item} to string tag "minecraft:custom_data;mtskr.item" of nbt of player's tool
+    if {_item} is "loc_selector":
+        event-block is set
         cancel event
-        set {-MTskR::item::%player%::loc_selector::loc1} to event-block
+        set {-MTskR::item::%player%::loc_selector::loc1} to location of event-block
         play sound "entity.experience_orb.pickup"
-        send "&eLoc 1 set to &6%{-MTskR::item::%player%::loc_selector::loc1}%" to player
+        send actionbar "&eLoc 1 set to &6%mtskrYamlNodeLocFormat({-MTskR::item::%player%::loc_selector::loc1})%" to player
 on right click:
-    nbt compound of player's tool has tag "custom;mtskr.item"
-    if string tag "custom;mtskr.item" of nbt of player's tool is "loc_selector":
+    nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
+    if event-block is not stone button:
         cancel event
-        set {-MTskR::item::%player%::loc_selector::loc2} to event-block
+    set {_item} to string tag "minecraft:custom_data;mtskr.item" of nbt of player's tool
+    if {_item} is "loc_selector":
+        event-block is set
+        cancel event
+        set {-MTskR::item::%player%::loc_selector::loc2} to location of event-block
         play sound "entity.experience_orb.pickup"
-        send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr model create <name> &eto create a train" to player
-        send formatted "<ttp:&9Click to use><sgt:/mtskr station create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr station create <name> &eto create a station" to player
-        send formatted "<ttp:&9Click to use><sgt:/mtskr depot create >&eLoc 2 set to &6%{-MTskR::item::%player%::loc_selector::loc2}%%nl%&eUse &6/mtskr depot create <name> &eto create a depot" to player
-    else if string tag "custom;mtskr.item" of nbt of player's tool is any of ("bridge_creator", "tunnel_creator", "tunnel_wall_creator"):
-        set {_width} to int tag "custom;mtskr.width" of nbt of player's tool
-        if string tag "custom;mtskr.item" of nbt of player's tool is not "bridge_creator":
-            set {_height} to int tag "custom;mtskr.height" of nbt of player's tool
+        send actionbar "&eLoc 2 set to &6%mtskrYamlNodeLocFormat({-MTskR::item::%player%::loc_selector::loc2})%" to player
+        send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eUse &6/mtskr model create <name> &eto create a train" to player
+        send formatted "<ttp:&9Click to use><sgt:/mtskr station create >&eUse &6/mtskr station create <name> &eto create a station" to player
+        send formatted "<ttp:&9Click to use><sgt:/mtskr depot create >&eUse &6/mtskr depot create <name> &eto create a depot" to player
+    else if {_item} is any of ("bridge_creator", "tunnel_creator", "tunnel_wall_creator"):
+        set {_width} to int tag "minecraft:custom_data;mtskr.width" of nbt of player's tool
+        if {_item} is not "bridge_creator":
+            set {_height} to int tag "minecraft:custom_data;mtskr.height" of nbt of player's tool
         if:
             player is sneaking
-            string tag "custom;mtskr.item" of nbt of player's tool is not "tunnel_creator"
+            {_item} is not "tunnel_creator"
         then:
-            set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
-        else:
-            event-block is a stone button
+            if event-block is a full collision block:
+                set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
+                send actionbar "&eSelected block: &6%blockdata of event-block%" to player
+            else:
+                send actionbar "&cThis block is not solid"
+        else if event-block is a stone button:
             if line 5 of lore of player's tool is not set:
-                set line 5 of lore of player's tool to "&7Selected location: &f%x of event-block%, %y of event-block%, %z of event-block%, %world of event-block%"
+                set line 5 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
+                send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
             else:
                 set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
-                set {_v::*} to {_rawloc} parsed as "%number%, %number%, %number%, %world%"
+                set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
                 set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
-                if:
-                    x coord of {_loc} is x coord of event-block
-                    z coord of {_loc} is z coord of event-block
-                then:
-                    clear line 5 of lore of player's tool
-                else:
+                clear line 5 of lore of player's tool
+                if x and z of {_loc} and event-block are different:
                     set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
                     set {_block} to {_rawblock} parsed as blockdata
                     set {_start_block} to the block below block at {_loc}
-                    set {_start_facing} to facing of {_start_block}
+                    broadcast {_start_block}
+                    set {_start_facing} to facing of block at {_loc}
                     set {_end_block} to the block below event-block
                     set {_end_facing} to facing of event-block
-                    set {_r} to floor({_width} / 2)
-                    if x coord of {_end_facing} - x coord of {_start_facing} is greater than 0: # start is at west of end
-                        if z coord of {_end_block} - z coord of {_start_block} is greater than 0: # start is at north of end
-                            # start
-                            #       end
+                    set {_r} to floor({_width} / 2) + 1
+                    if x coord of {_end_block} - x coord of {_start_block} is not 0:
+                        if z coord of {_end_block} - z coord of {_start_block} is not 0:
                             loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
-                        else if z coord of {_end_block} - z coord of {_start_block} is smaller than 0:
-                            #       end
-                            # start
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks south of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks north of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
-                        else if z coord of {_end_block} is z coord of {_start_block}:
-                            # start end
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
-                    else if x coord of {_end_facing} - x coord of {_start_facing} is smaller than 0: # start is at east of end
-                        if z coord of {_end_block} - z coord of {_start_block} is greater than 0: # start is at north of end
-                            #       start
-                            # end
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks south of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks north of {_end_block}
-                        else if z coord of {_end_block} - z coord of {_start_block} is smaller than 0:
-                            # end
-                            #       start
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
-                        else if z coord of {_end_block} is z coord of {_start_block}:
-                            # end start
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
-                    else if x coord of {_end_facing} - x coord of {_start_facing} is 0: # start is on the same x of end
-                        if z coord of {_end_block} - z coord of {_start_block} is greater than 0: # start is at north of end
-                            # start
-                            # end
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
-                        else if z coord of {_end_block} - z coord of {_start_block} is smaller than 0:
-                            # end
-                            # start
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
+                                if {_start_facing} is east or west:
+                                    set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
+                                    set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
+                                else:
+                                    set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
+                                    set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
+                                if {_end_facing} is north or south:
+                                    set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                                    set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
+                                else:
+                                    set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                    set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
                         else:
-                            send "[MTskR] &cCondition exception while planning bridge from %{_start_block}% to %{_end_block}%" to (player and console)
+                            if:
+                                {_start_facing} is north or south
+                                {_end_facing} is north or south
+                            then:
+                                nothing
+                            else if:
+                                {_start_facing} is east or west
+                                {_end_facing} is east or west
+                            then:
+                                nothing
+                            else:
+                                send actionbar "&cCould not connect rail; invalid orientation" to player
+                                stop trigger
+                            loop {_r} times:
+                                set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
+                                set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
+                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
+                    # else if x coord of {_end_block} - x coord of {_start_block} is smaller than 0:
+                    #     if z coord of {_end_block} - z coord of {_start_block} is greater than 0:
+                    #         #       start
+                    #         # end
+                    #         loop {_r} times:
+                    #             if {_start_facing} is north or south:
+                    #                 set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
+                    #                 set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
+                    #             else:
+                    #                 set {_start1::%loop-value%} to the block loop-value blocks south of {_start_block}
+                    #                 set {_start2::%loop-value%} to the block loop-value blocks north of {_start_block}
+                    #             if {_end_facing} is east or west:
+                    #                 set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                    #                 set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
+                    #             else:
+                    #                 set {_end1::%loop-value%} to the block loop-value blocks south of {_end_block}
+                    #                 set {_end2::%loop-value%} to the block loop-value blocks north of {_end_block}
+                    #     else if z coord of {_end_block} - z coord of {_start_block} is smaller than 0:
+                    #         # end
+                    #         #       start
+                    #         loop {_r} times:
+                    #             set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
+                    #             set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
+                    #             set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                    #             set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
+                    #     else if z coord of {_end_block} is z coord of {_start_block}:
+                    #         # end start
+                    #         loop {_r} times:
+                    #             set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
+                    #             set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
+                    #             set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                    #             set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
+                    else if x coord of {_end_block} is x coord of {_start_block}:
+                        if:
+                            {_start_facing} is north or south
+                            {_end_facing} is north or south
+                        then:
+                            nothing
+                        else if:
+                            {_start_facing} is east or west
+                            {_end_facing} is east or west
+                        then:
+                            nothing
+                        else:
+                            send actionbar "&cCould not connect rail; invalid orientation" to player
                             stop trigger
-                    loop {_r} times:
+                        loop {_r} times:
+                            set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
+                            set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
+                            set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                            set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
+                    loop {_r} - 1 times:
                         update blocks between {_start1::%loop-value%} and {_end1::%loop-value%} to be {_block}
                         update blocks between {_start2::%loop-value%} and {_end2::%loop-value%} to be {_block}
                     update blocks between {_start_block} and {_end_block} to be {_block}
-                    if string tag "custom;mtskr.item" of nbt of player's tool is "tunnel_wall_creator":
+                    if {_item} is "tunnel_wall_creator":
                         set {_rawwallblock} to last element of ((line 4 of lore of player's tool) split at "&f")
                         set {_wallblock} to {_rawwallblock} parsed as blockdata
                         loop {_height} times:
-                            update blocks between (the block loop-value blocks above last element of {_start1::%loop-value%}) and (the block loop-value blocks above last element of {_end1::%loop-value%}) to be {_wallblock}
-                            update blocks between (the block loop-value blocks above last element of {_start2::%loop-value%}) and (the block loop-value blocks above last element of {_end2::%loop-value%}) to be {_wallblock}
+                            update blocks between (the block loop-value blocks above {_start1::%{_r}%}) and (the block loop-value blocks above {_end1::%{_r}%}) to be {_wallblock}
+                            update blocks between (the block loop-value blocks above {_start2::%{_r}%}) and (the block loop-value blocks above {_end2::%{_r}%}) to be {_wallblock}
+    else if {_item} contains "rail_connector":
+        if line 3 of lore of player's tool is not set:
+            set line 3 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
+            send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
+        else:
+            set {_rawloc} to last element of ((line 3 of lore of player's tool) split at "&f")
+            set {_v::*} to {_rawloc} parsed as "%number%, %number%, %number%, %world%"
+            set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
+            clear line 3 of lore of player's tool
+            if world of {_loc} is not world of event-block:
+                send "&cTwo locations must be in the same world" to player
+            else if x and z of {_loc} and event-block are different:
+                clear line 3 of lore of player's tool
+                if {_item} is "remove_rail_connector":
+                    clear yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%" of "MTskR.data.rails.%world of player%"
+                    send actionbar "&eRail removed" to player
+                else:
+                    set {_type} to {_item}
+                    replace "_rail_connector" in {_type} with ""
+                    set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%" of "MTskR.data.rails.%world of player%" to {_type}
+                    send actionbar "&eRail connected" to player
+                save yaml "MTskR.data.rails.%world of player%"
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
     set tab completions for position 1 to ("model", "gui", and "reload")
     if tab arg 1 is "model":
         set tab completions for position 2 to ("create" and "rebuild")
         if tab arg 2 is "rebuild":
             set tab completions for position 3 to train models
+        else if tab arg 2 is "create":
+            set tab completions for position 3 to train models
+            set tab completions for position 4 to "-f"
+    else if tab arg 1 is "reload":
+        set tab completions for position 2 to ("config", "data", "script", and "all")
 command mtskr <text> [<text>] [<text>] [<text>]:
     permission: op
     prefix: ryanpeng69
@@ -484,41 +643,52 @@ command mtskr <text> [<text>] [<text>] [<text>]:
             else if arg-2 is "rebuild":
                 if (new File("%mtskr config "model_path"%%arg-3%.yml")).exists() is true:
                     load yaml "%mtskr config "model_path"%%arg-3%.yml" as "MTskR.model.%arg-3%"
-                    set {_facing} to yaml value "facing" of "MTskR.model.%arg-3%"
-                    loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "facing"]:
-                        set {_loc} to rotateRelativeCoor(player's location, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
-                        update block at {_loc} to be (yaml value "%loop-value%.block" of "MTskR.model.%arg-3%")
-                        set {_rotates} to closest quater of player's yaw - yaw of direction {_facing}
-                        loop {_rotates} / 4 times:
-                            set facing of block at {_loc} to quater clockwise direction of facing of block at {_loc}
+                    set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%arg-3%"
+                    set {_rotates} to closest quater of player's yaw - {_facing_yaw}
+                    if {_rotates} is smaller than 0:
+                        add 360 to {_rotates}
+                    set {_times} to {_rotates} / 90
+                    loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "info"]:
+                        set {_loc} to rotateRelativeCoor(player's location, {_facing_yaw}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
+                        set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%arg-3%")
+                        loop {_times} times:
+                            set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
+                        update block at {_loc} to be {_data}
                 else:
                     play sound "entity.villager.no" with seed 0
                     send "&cThe model named %arg-3% does not exists"
         else if arg-1 is "gui":
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
                 set {_index} to 0
-                loop (mtskr tutorial, mtskr brush, mtskr loc selector, and mtskr railway dashboard):
-                    make gui slot {_index} with loop-value:
-                        give player loop-value
+                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr model seat, and mtskr railway dashboard):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
                     add 1 to {_index}
                 set {_index} to 9
                 loop (mtskr rail node):
-                    make gui slot {_index} with loop-value:
-                        give player loop-value
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
                     add 1 to {_index}
                 set {_index} to 18
-                loop (rail connector, platform rail connector, siding rail connector, return rail connector, and remove rail connector):
-                    make gui slot {_index} with loop-value
-                        give player loop-value
+                loop (rail connector, platform rail connector, siding rail connector, turnback rail connector, and remove rail connector):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
                     add 1 to {_index}
                 set {_index} to 27
-                loop (5 blocks wide bridge creator, 5 by 5 tunnel creator, 5 by 6 tunnel creator, 5 by 7 tunnel creator, 5 by 8 tunnel creator, 5 by 5 tunnel wall creator, 5 by 6 tunnel wall creator, 5 by 7 tunnel wall creator, 5 by 8 tunnel wall creator)
-                    make gui slot {_index} with loop-value
-                        give player loop-value
+                loop (5 blocks wide bridge creator, 5 by 5 tunnel creator, 5 by 6 tunnel creator, 5 by 7 tunnel creator, 5 by 8 tunnel creator, 5 by 5 tunnel wall creator, 5 by 6 tunnel wall creator, 5 by 7 tunnel wall creator, 5 by 8 tunnel wall creator):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
                     add 1 to {_index}
             open last gui to player
         else if arg-1 is "reload":
             if arg-2 is "config":
-                load mtskr config
-            else if arg-2 is "script":
+                reload mtskr config
+            else if arg-2 is "data":
+                reload mtskr data
+            else:
                 make sender execute command "sk reload %the current script%"
+        # else if arg-1 matches "(siding|platform)s?":

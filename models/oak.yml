@@ -1,499 +1,501 @@
-facing: !skriptclass
-    type: direction
-    data: hAhwaXRjaE9yWAkAAAAAAAAAAAlsZW5ndGhPcloJv/AAAAAAAAAGeWF3T3JZCQAAAAAAAAAACHJlbGF0aXZlDwA=
+info:
+    loc1: 2,0,3
+    loc2: -2,5,-5
+    model_version: 1
+    minecraft_version: 1.21.11
 
 '0':
-    loc: -1,1,-3
+    loc: -1,1,-5
     block: !blockdata 'minecraft:oak_stairs[facing=south,half=top,shape=straight,waterlogged=false]'
 
 '1':
-    loc: 0,1,-3
+    loc: 0,1,-5
     block: !blockdata 'minecraft:oak_stairs[facing=south,half=top,shape=straight,waterlogged=false]'
 
 '2':
-    loc: 1,1,-3
+    loc: 1,1,-5
     block: !blockdata 'minecraft:oak_stairs[facing=south,half=top,shape=straight,waterlogged=false]'
 
 '3':
-    loc: -2,1,-2
+    loc: -2,1,-4
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '4':
-    loc: -1,1,-2
+    loc: -1,1,-4
     block: !blockdata 'minecraft:oak_planks'
 
 '5':
-    loc: 0,1,-2
+    loc: 0,1,-4
     block: !blockdata 'minecraft:oak_planks'
 
 '6':
-    loc: 1,1,-2
+    loc: 1,1,-4
     block: !blockdata 'minecraft:oak_planks'
 
 '7':
-    loc: 2,1,-2
+    loc: 2,1,-4
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '8':
-    loc: -2,1,-1
+    loc: -2,1,-3
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '9':
-    loc: -1,1,-1
+    loc: -1,1,-3
     block: !blockdata 'minecraft:oak_planks'
 
 '10':
-    loc: 0,1,-1
+    loc: 0,1,-3
     block: !blockdata 'minecraft:oak_planks'
 
 '11':
-    loc: 1,1,-1
+    loc: 1,1,-3
     block: !blockdata 'minecraft:oak_planks'
 
 '12':
-    loc: 2,1,-1
+    loc: 2,1,-3
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '13':
-    loc: -2,1,0
+    loc: -2,1,-2
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '14':
-    loc: -1,1,0
+    loc: -1,1,-2
     block: !blockdata 'minecraft:oak_planks'
 
 '15':
-    loc: 0,1,0
+    loc: 0,1,-2
     block: !blockdata 'minecraft:oak_planks'
 
 '16':
-    loc: 1,1,0
+    loc: 1,1,-2
     block: !blockdata 'minecraft:oak_planks'
 
 '17':
-    loc: 2,1,0
+    loc: 2,1,-2
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '18':
-    loc: -2,1,1
+    loc: -2,1,-1
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '19':
-    loc: -1,1,1
+    loc: -1,1,-1
     block: !blockdata 'minecraft:oak_planks'
 
 '20':
-    loc: 0,1,1
+    loc: 0,1,-1
     block: !blockdata 'minecraft:oak_planks'
 
 '21':
-    loc: 1,1,1
+    loc: 1,1,-1
     block: !blockdata 'minecraft:oak_planks'
 
 '22':
-    loc: 2,1,1
+    loc: 2,1,-1
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '23':
-    loc: -2,1,2
+    loc: -2,1,0
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '24':
-    loc: -1,1,2
+    loc: -1,1,0
     block: !blockdata 'minecraft:oak_planks'
 
 '25':
-    loc: 0,1,2
+    loc: 0,1,0
     block: !blockdata 'minecraft:oak_planks'
 
 '26':
-    loc: 1,1,2
+    loc: 1,1,0
     block: !blockdata 'minecraft:oak_planks'
 
 '27':
-    loc: 2,1,2
+    loc: 2,1,0
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '28':
-    loc: -2,1,3
+    loc: -2,1,1
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '29':
-    loc: -1,1,3
+    loc: -1,1,1
     block: !blockdata 'minecraft:oak_planks'
 
 '30':
-    loc: 0,1,3
+    loc: 0,1,1
     block: !blockdata 'minecraft:oak_planks'
 
 '31':
-    loc: 1,1,3
+    loc: 1,1,1
     block: !blockdata 'minecraft:oak_planks'
 
 '32':
-    loc: 2,1,3
+    loc: 2,1,1
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '33':
-    loc: -2,1,4
+    loc: -2,1,2
     block: !blockdata 'minecraft:oak_stairs[facing=east,half=top,shape=straight,waterlogged=false]'
 
 '34':
-    loc: -1,1,4
+    loc: -1,1,2
     block: !blockdata 'minecraft:oak_planks'
 
 '35':
-    loc: 0,1,4
+    loc: 0,1,2
     block: !blockdata 'minecraft:oak_planks'
 
 '36':
-    loc: 1,1,4
+    loc: 1,1,2
     block: !blockdata 'minecraft:oak_planks'
 
 '37':
-    loc: 2,1,4
+    loc: 2,1,2
     block: !blockdata 'minecraft:oak_stairs[facing=west,half=top,shape=straight,waterlogged=false]'
 
 '38':
-    loc: -1,1,5
+    loc: -1,1,3
     block: !blockdata 'minecraft:oak_stairs[facing=north,half=top,shape=straight,waterlogged=false]'
 
 '39':
-    loc: 0,1,5
+    loc: 0,1,3
     block: !blockdata 'minecraft:oak_stairs[facing=north,half=top,shape=straight,waterlogged=false]'
 
 '40':
-    loc: 1,1,5
+    loc: 1,1,3
     block: !blockdata 'minecraft:oak_stairs[facing=north,half=top,shape=straight,waterlogged=false]'
 
 '41':
-    loc: -1,2,-3
+    loc: -1,2,-5
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '42':
-    loc: 0,2,-3
+    loc: 0,2,-5
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '43':
-    loc: 1,2,-3
+    loc: 1,2,-5
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '44':
-    loc: -2,2,-2
+    loc: -2,2,-4
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '45':
-    loc: 2,2,-2
+    loc: 2,2,-4
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '46':
-    loc: -2,2,-1
-    block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=right,open=false,powered=false]'
-    door: RL
+    loc: -2,2,-3
+    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '47':
-    loc: 2,2,-1
-    block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=left,open=false,powered=false]'
-    door: LR
+    loc: 2,2,-3
+    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '48':
-    loc: -2,2,0
-    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
+    loc: -2,2,-2
+    block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=left,open=false,powered=false]'
+    door: LR
 
 '49':
-    loc: 2,2,0
-    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
+    loc: 2,2,-2
+    block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=right,open=false,powered=false]'
+    door: RL
 
 '50':
-    loc: -2,2,1
+    loc: -2,2,-1
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '51':
-    loc: 2,2,1
+    loc: 2,2,-1
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '52':
-    loc: -2,2,2
-    block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=right,open=false,powered=false]'
-    door: RL
+    loc: -2,2,0
+    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '53':
-    loc: 2,2,2
-    block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=left,open=false,powered=false]'
-    door: LR
+    loc: 2,2,0
+    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '54':
-    loc: -2,2,3
-    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
+    loc: -2,2,1
+    block: !blockdata 'minecraft:iron_door[facing=east,half=lower,hinge=left,open=false,powered=false]'
+    door: LR
 
 '55':
-    loc: 2,2,3
-    block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
+    loc: 2,2,1
+    block: !blockdata 'minecraft:iron_door[facing=west,half=lower,hinge=right,open=false,powered=false]'
+    door: RL
 
 '56':
-    loc: -2,2,4
+    loc: -2,2,2
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '57':
-    loc: 2,2,4
+    loc: 2,2,2
     block: !blockdata 'minecraft:stripped_oak_wood[axis=y]'
 
 '58':
-    loc: -1,2,5
+    loc: -1,2,3
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '59':
-    loc: 0,2,5
+    loc: 0,2,3
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '60':
-    loc: 1,2,5
+    loc: 1,2,3
     block: !blockdata 'minecraft:stripped_oak_wood[axis=x]'
 
 '61':
-    loc: -1,3,-3
+    loc: -1,3,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '62':
-    loc: 0,3,-3
+    loc: 0,3,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '63':
-    loc: 1,3,-3
+    loc: 1,3,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '64':
-    loc: -2,3,-2
+    loc: -2,3,-4
     block: !blockdata 'minecraft:white_stained_glass'
 
 '65':
-    loc: 2,3,-2
+    loc: 2,3,-4
     block: !blockdata 'minecraft:white_stained_glass'
 
 '66':
-    loc: -2,3,-1
-    block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=right,open=false,powered=false]'
-    door: RL
+    loc: -2,3,-3
+    block: !blockdata 'minecraft:white_stained_glass'
 
 '67':
-    loc: 2,3,-1
-    block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=left,open=false,powered=false]'
-    door: LR
+    loc: 2,3,-3
+    block: !blockdata 'minecraft:white_stained_glass'
 
 '68':
-    loc: -2,3,0
-    block: !blockdata 'minecraft:white_stained_glass'
+    loc: -2,3,-2
+    block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=left,open=false,powered=false]'
+    door: LR
 
 '69':
-    loc: 2,3,0
-    block: !blockdata 'minecraft:white_stained_glass'
+    loc: 2,3,-2
+    block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=right,open=false,powered=false]'
+    door: RL
 
 '70':
-    loc: -2,3,1
+    loc: -2,3,-1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '71':
-    loc: 2,3,1
+    loc: 2,3,-1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '72':
-    loc: -2,3,2
-    block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=right,open=false,powered=false]'
-    door: RL
+    loc: -2,3,0
+    block: !blockdata 'minecraft:white_stained_glass'
 
 '73':
-    loc: 2,3,2
-    block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=left,open=false,powered=false]'
-    door: LR
+    loc: 2,3,0
+    block: !blockdata 'minecraft:white_stained_glass'
 
 '74':
-    loc: -2,3,3
-    block: !blockdata 'minecraft:white_stained_glass'
+    loc: -2,3,1
+    block: !blockdata 'minecraft:iron_door[facing=east,half=upper,hinge=left,open=false,powered=false]'
+    door: LR
 
 '75':
-    loc: 2,3,3
-    block: !blockdata 'minecraft:white_stained_glass'
+    loc: 2,3,1
+    block: !blockdata 'minecraft:iron_door[facing=west,half=upper,hinge=right,open=false,powered=false]'
+    door: RL
 
 '76':
-    loc: -2,3,4
+    loc: -2,3,2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '77':
-    loc: 2,3,4
+    loc: 2,3,2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '78':
-    loc: -1,3,5
+    loc: -1,3,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '79':
-    loc: 0,3,5
+    loc: 0,3,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '80':
-    loc: 1,3,5
+    loc: 1,3,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '81':
-    loc: -1,4,-3
+    loc: -1,4,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '82':
-    loc: 0,4,-3
+    loc: 0,4,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '83':
-    loc: 1,4,-3
+    loc: 1,4,-5
     block: !blockdata 'minecraft:white_stained_glass'
 
 '84':
-    loc: -2,4,-2
+    loc: -2,4,-4
     block: !blockdata 'minecraft:white_stained_glass'
 
 '85':
-    loc: 2,4,-2
+    loc: 2,4,-4
     block: !blockdata 'minecraft:white_stained_glass'
 
 '86':
-    loc: -2,4,-1
+    loc: -2,4,-3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '87':
-    loc: 2,4,-1
+    loc: 2,4,-3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '88':
-    loc: -2,4,0
+    loc: -2,4,-2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '89':
-    loc: 2,4,0
+    loc: 2,4,-2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '90':
-    loc: -2,4,1
+    loc: -2,4,-1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '91':
-    loc: 2,4,1
+    loc: 2,4,-1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '92':
-    loc: -2,4,2
+    loc: -2,4,0
     block: !blockdata 'minecraft:white_stained_glass'
 
 '93':
-    loc: 2,4,2
+    loc: 2,4,0
     block: !blockdata 'minecraft:white_stained_glass'
 
 '94':
-    loc: -2,4,3
+    loc: -2,4,1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '95':
-    loc: 2,4,3
+    loc: 2,4,1
     block: !blockdata 'minecraft:white_stained_glass'
 
 '96':
-    loc: -2,4,4
+    loc: -2,4,2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '97':
-    loc: 2,4,4
+    loc: 2,4,2
     block: !blockdata 'minecraft:white_stained_glass'
 
 '98':
-    loc: -1,4,5
+    loc: -1,4,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '99':
-    loc: 0,4,5
+    loc: 0,4,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '100':
-    loc: 1,4,5
+    loc: 1,4,3
     block: !blockdata 'minecraft:white_stained_glass'
 
 '101':
-    loc: -1,5,-2
+    loc: -1,5,-4
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '102':
-    loc: 0,5,-2
+    loc: 0,5,-4
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '103':
-    loc: 1,5,-2
+    loc: 1,5,-4
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '104':
-    loc: -1,5,-1
+    loc: -1,5,-3
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '105':
-    loc: 0,5,-1
+    loc: 0,5,-3
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '106':
-    loc: 1,5,-1
+    loc: 1,5,-3
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '107':
-    loc: -1,5,0
+    loc: -1,5,-2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '108':
-    loc: 0,5,0
+    loc: 0,5,-2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '109':
-    loc: 1,5,0
+    loc: 1,5,-2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '110':
-    loc: -1,5,1
+    loc: -1,5,-1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '111':
-    loc: 0,5,1
+    loc: 0,5,-1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '112':
-    loc: 1,5,1
+    loc: 1,5,-1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '113':
-    loc: -1,5,2
+    loc: -1,5,0
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '114':
-    loc: 0,5,2
+    loc: 0,5,0
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '115':
-    loc: 1,5,2
+    loc: 1,5,0
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '116':
-    loc: -1,5,3
+    loc: -1,5,1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '117':
-    loc: 0,5,3
+    loc: 0,5,1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '118':
-    loc: 1,5,3
+    loc: 1,5,1
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '119':
-    loc: -1,5,4
+    loc: -1,5,2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '120':
-    loc: 0,5,4
+    loc: 0,5,2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
 
 '121':
-    loc: 1,5,4
+    loc: 1,5,2
     block: !blockdata 'minecraft:oak_slab[type=bottom,waterlogged=false]'
