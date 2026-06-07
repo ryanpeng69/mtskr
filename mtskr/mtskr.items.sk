@@ -208,7 +208,7 @@ on right click:
                     set {_l1} to mtskrYamlNodeLocFormat({_loc})
                     set {_l2} to mtskrYamlNodeLocFormat(event-block)
                     if yaml node "%{_l1}%.%{_l2}%" of {_yaml} exists:
-                        delete yaml value "%{_l1}%.%{_l2}%" of {_yaml}
+                        delete yaml value "%{_l1}%.%{_l2}%" from {_yaml}
                         if yaml node keys {_l1} of {_yaml} is not set:
                             delete yaml value {_l1} of {_yaml}
                         send actionbar "&eRail removed" to player
@@ -217,7 +217,7 @@ on right click:
                 else:
                     set {_type} to {_item}
                     replace "_rail_connector" in {_type} with ""
-                    set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" of {_yaml} to {_type}
+                    set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" from {_yaml} to {_type}
                     send actionbar "&eRail connected" to player
                 save yaml {_yaml}
             else:
@@ -263,7 +263,7 @@ on break:
     loop yaml node keys "" of {_yaml}:
         loop-value is not {_ls}
         yaml node "%loop-value%.%{_ls}%" of {_yaml} exists
-        delete yaml value "%loop-value%.%{_ls}%" of {_yaml}
+        delete yaml value "%loop-value%.%{_ls}%" from {_yaml}
         if yaml node keys loop-value of {_yaml} is not set:
             delete yaml value loop-value of {_yaml}
     save yaml {_yaml}

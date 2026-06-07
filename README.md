@@ -12,7 +12,14 @@
 
 ## Installation:
 
-  Grab [mtskr.sk](https://github.com/ryanpeng69/mtskr/blob/main/mtskr.sk) into your scripts folder, reload script, it will automatically generate folder & config and move the script to the folder.
+<ol>
+  <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk" target="_blank">mtskr.installer.sk</a> into your scripts folder.</li>
+  <li>Run <code>/mtskrinstaller</code>, it will download more files and automatically reload.</li>
+  <li>When it is reloaded, it will download files into a folder named "MTskR", scripts will move into it and generate config.</li>
+  <li>Run <code>/mtskr</code> to get started.</li>
+</ol>
+
+##### Requirements
 
   Required plugins: [skript](https://github.com/SkriptLang/Skript) [skbee](https://github.com/ShaneBeee/SkBee), [skript-gui](https://github.com/APickledWalrus/skript-gui), [skript-reflect](https://github.com/SkriptLang/skript-reflect), [skript-yml](https://github.com/Sashie/skript-yaml)
 
@@ -97,7 +104,7 @@ info:
 ## Train function:
 
 * [X] Model: Display blocks riding on a minecart
-* [ ] Spawn: By selecting train in the gui for a siding, the train will spawn.
+* [X] Spawn: By selecting train in the gui for a siding, the train will spawn.
 * [ ] Movement: Set velocity of train to vector from loc1 to loc2
 * [ ] Passengers: Must be on a seat
 * [ ] Arrival countdown: ?

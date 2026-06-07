@@ -40,7 +40,7 @@ on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
         set tab completions for position 3 to "x,y,z"
         tab arg 2 matches "\d+,\d+,\d+"
         tab arg 3 matches "\d+,\d+,\d+"
-        set {_type} to yaml value "%tab arg 1%.%tab arg 2%.type" of "MTskR.data.rails.%world of player%"
+        set {_type} to yaml value "%tab arg 1%.%tab arg 2%.type" from "MTskR.data.rails.%world of player%"
         {_type} is set
         set tab completions for position 4 to split "name, goto" at ", "
         if {_type} is "siding":
@@ -48,7 +48,7 @@ on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
             if tab arg 4 is "trains":
                 set tab completions for position 5 to split "remove, add, list" at ", "
                 if tab arg 5 is "remove":
-                    set tab completions for position 6 to integers from 0 to size of (yaml list "%{_node}%.siding.trains" of "MTskR.data.rails.%world of player%")
+                    set tab completions for position 6 to integers from 0 to size of (yaml list "%{_node}%.siding.trains" from "MTskR.data.rails.%world of player%")
                 else if tab arg 5 is "add":
                     set tab completions for position 6 to train models
         else if {_type} is "platform":
@@ -68,14 +68,14 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
             else if arg-2 is "rebuild":
                 if mtskr model arg-3 exists:
                     load yaml "%mtskr config "model_path"%%arg-3%.yml" as "MTskR.model.%arg-3%"
-                    set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%arg-3%"
+                    set {_facing_yaw} to yaml value "info.facing" from "MTskR.model.%arg-3%"
                     set {_rotates} to closest quater of player's yaw - {_facing_yaw}
                     if {_rotates} is smaller than 0:
                         add 360 to {_rotates}
                     set {_times} to {_rotates} / 90
                     loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "info"]:
-                        set {_loc} to rotateRelativeCoor(player's location, {_facing_yaw}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
-                        set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%arg-3%")
+                        set {_loc} to rotateRelativeCoor(player's location, {_facing_yaw}, yaml value "%loop-value%.loc" from "MTskR.model.%arg-3%")
+                        set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%arg-3%")
                         loop {_times} times:
                             set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
                         update block at {_loc} to be {_data}
@@ -127,23 +127,25 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                 set {_node} to "%arg-2%.%arg-3%"
                 set {_world} to world of player
                 set {_yaml} to "MTskR.data.rails.%{_world}%"
-                if yaml value "%{_node}%.type" of {_yaml} is set:
+                if yaml value "%{_node}%.type" from {_yaml} is set:
                     if arg-4 is "trains":
                         if {_type} is "siding":
                             if arg-5 is "remove":
                                 set {_id} to arg-6 parsed as int
-                                set {_list::*} to (yaml list "%{_node}%.siding.trains" of {_yaml})
+                                set {_list::*} to (yaml list "%{_node}%.siding.trains" from {_yaml})
                                 if {_id} is between 0 and size of {_list::*}:
                                     clear {_list::%{_id}%}
-                                    set (yaml list "%{_node}%.siding.trains" of {_yaml}) to {_list::*}
+                                    set (yaml list "%{_node}%.siding.trains" from {_yaml}) to {_list::*}
                                     save yaml {_yaml}
+                                    update trains for siding {_node} in world {_world}
                                     stop trigger
                                 else:
                                     send "&cArg-6 must be a integer between 0 and %size of {_list::*}%"
                             else if arg-5 is "add":
                                 if mtskr model arg-6 exists:
-                                    add arg-6 to (yaml list "%{_node}%.siding.trains" of {_yaml})
+                                    add arg-6 to (yaml list "%{_node}%.siding.trains" from {_yaml})
                                     save yaml {_yaml}
+                                    update trains for siding {_node} in world {_world}
                                     stop trigger
                                 else:
                                     send "&cModel named %arg-6% does not exists"
@@ -160,13 +162,13 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                             else if {_stoptime} is not evenly divisible by 5:
                                 send "&cStop time must be divisible by 5"
                             else:
-                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_time}
+                                set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_time}
                                 play sound "entity.experience_orb.pickup"
                                 stop trigger
                         else:
                             send "&cStop time is only avaliable for platforms"
                     else if arg-4 is "name":
-                        set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to arg-5
+                        set yaml value "%{_node}%.%{_type}%.name" from {_yaml} to arg-5
                         save yaml {_yaml}
                         play sound "entity.experience_orb.pickup"
                         stop trigger
@@ -177,9 +179,9 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                         play sound "entity.enderman.teleport" with seed 4096
                         stop trigger
                     else:
-                        if yaml value "%{_node}%.type" of {_yaml} is {_type}:
-                            if yaml value "%{_node}%.%{_type}%.name" of {_yaml} is set:
-                                set {_name} to yaml value "%{_node}%.%{_type}%.name" of {_yaml}
+                        if yaml value "%{_node}%.type" from {_yaml} is {_type}:
+                            if yaml value "%{_node}%.%{_type}%.name" from {_yaml} is set:
+                                set {_name} to yaml value "%{_node}%.%{_type}%.name" from {_yaml}
                             open multi action dialog to player:
                                 title: "MTskR Edit %{_type}%"
                                 body:
@@ -210,10 +212,10 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                                         label: "Update"
                                         trigger:
                                             set {_name} to string tag "name" of event-nbt
-                                            set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to {_name}
+                                            set yaml value "%{_node}%.%{_type}%.name" from {_yaml} to {_name}
                                             if {_type} is "platform":
                                                 set {_stoptime} to int tag "stop_time" of event-nbt
-                                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_stoptime}
+                                                set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_stoptime}
                                             save yaml {_yaml}
                                             play sound "entity.experience_orb.pickup"
                                     if {_type} is "siding":
@@ -229,5 +231,9 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
             else:
                 send "&cPlease specify rail with 2 locations of rail nodes formatted as <x>,<y>,<z> at arg-2 and 3"
             play sound "entity.villager.no" with seed 0
+        else if arg-1 matches "station|depot":
+            if arg-2 is "create":
+                if arg-3 is set:
+
         else:
             open mtskr tutorial to player 

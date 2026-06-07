@@ -82,6 +82,7 @@ expression route from %location% to %location% [(from|[execute[d]] by) %sender%]
                     return {_path::*}
         else:
             send "[MTskR] &cLocations must be in the same world" to expr-3
+        return
 expression mtskr [rail|track] color of %string%:
     return type: color
     get:
@@ -93,6 +94,27 @@ expression mtskr [rail|track] color of %string%:
             return blue
         else:
             return white
+expression: # length of [mtskr] [train] model %string% 
+    return type: integer
+    patterns:
+        length of [mtskr] [train] model %string%
+       [mtskr] [train] model length of %string%
+       [mtskr] [train] model %string%'s length
+       %string%'s [mtskr] [train] model length
+    get:
+        if train models contains expr-1:
+            load yaml "%mtskr config "model_path"%%expr-1%.yml" as "MTskR.model.%expr-1%"
+            set {_raw_rl1} to yaml value "info.loc1" from "MTskR.model.%expr-1%"
+            set {_raw_rl2} to yaml value "info.loc2" from "MTskR.model.%expr-1%"
+            loop 2 times:
+                set {_lv%loop-value%::*} to {_raw_rl%loop-value%} parsed as "%integer%,%integer%,%integer%"
+            if yaml value "info.facing" from "MTskR.model.%expr-1%" is evenly divisible by 180:
+                return abs({_lv1::3} - {_lv2::3})
+            else:
+                return abs({_lv1::1} - {_lv2::1})
+        else:
+            send "[MTskR] &cTrain model '%expr-1%' does not exists"
+        return
 effect (reset|fix) mtskr config:
     trigger:
         if mtskr config "model_maxium_blocks" is not set:
@@ -106,11 +128,11 @@ effect remove entit(y|ies) %entities%:
     trigger:
         loop exprs-1:
             (loop-value).remove()
-effect spawn train %string% [at %location%] [from %player%]:
+effect spawn train %string% [at %location%] [from %sender%]:
     trigger:
         if mtskr model expr-1 exists:
             load yaml "%mtskr config "model_path"%%expr-1%.yml" as "MTskR.model.%expr-1%"
-            set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%expr-1%"
+            set {_facing_yaw} to yaml value "info.facing" from "MTskR.model.%expr-1%"
             set {_id} to size of indexes of {-MTskR::trains::*}
             spawn regular minecart at expr-2
             set {-MTskR::trains::%{_id}%::minecart} to last spawned regular minecart 
@@ -122,14 +144,14 @@ effect spawn train %string% [at %location%] [from %player%]:
                 add 360 to {_rotates}
             set {_times} to {_rotates} / 90
             loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "info"]:
-                set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%")
-                set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%expr-1%")
+                set {_loc} to rotateRelativeCoor(expr-2, {_facing}, yaml value "%loop-value%.loc" from "MTskR.model.%expr-1%")
+                set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%expr-1%")
                 loop {_times} times:
                     set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
                 spawn block display at location(x of {_loc} + 0.5, y of {_loc} + 0.5, z of {_loc} + 0.5, world of {_loc}, yaw of {_loc}, 0)
                 make (last spawned block display) ride on {-MTskR::trains::%{_id}%::minecart}
                 set {_base} to expr-2
-                set {_rls::*} to (yaml value "%loop-value%.loc" of "MTskR.model.%expr-1%") split at ","
+                set {_rls::*} to (yaml value "%loop-value%.loc" from "MTskR.model.%expr-1%") split at ","
                 set {_x} to {_rls::1} parsed as number
                 set {_y} to {_rls::2} parsed as number
                 set {_z} to {_rls::3} parsed as number
@@ -157,13 +179,13 @@ effect spawn train %string% [at %location%] [from %player%]:
                 set {_fml} to {_ml}
                 set yaw of {_fml} to closest quater of (yaw of {_fml} + 90)
                 # loop {-MTskR::trains::%{_id}%::shulkers::*}:
-                #     teleport loop-value to rotateRelativeCoor({_fml}, {_facing}, yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%")
+                #     teleport loop-value to rotateRelativeCoor({_fml}, {_facing}, yaml value "%loop-index%.loc" from "MTskR.model.%expr-1%")
                 set {_rotates} to closest quater of {_fml}'s yaw - {_facing_yaw}
                 if {_rotates} is smaller than 0:
                     add 360 to {_rotates}
                 set {_times} to {_rotates} / 90
                 loop {-MTskR::trains::%{_id}%::blocks::*}:
-                    set {_rls::*} to (yaml value "%loop-index%.loc" of "MTskR.model.%expr-1%") split at ","
+                    set {_rls::*} to (yaml value "%loop-index%.loc" from "MTskR.model.%expr-1%") split at ","
                     set {_x} to {_rls::1} parsed as number
                     set {_y} to {_rls::2} parsed as number
                     set {_z} to {_rls::3} parsed as number
@@ -171,7 +193,7 @@ effect spawn train %string% [at %location%] [from %player%]:
                     rotate {_v} around y-axis by ({_model_yaw} - yaw of {_fml})
                     set {_v} to vector(x of {_v} - 0.5, y of {_v} + 0.5, z of {_v} - 0.5)
                     set display translation of loop-value to {_v}
-                    set {_data} to (yaml value "%loop-index%.block" of "MTskR.model.%expr-1%")
+                    set {_data} to (yaml value "%loop-index%.block" from "MTskR.model.%expr-1%")
                     loop {_times} times:
                         set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
                     set block data of loop-value to {_data}
@@ -179,7 +201,7 @@ effect spawn train %string% [at %location%] [from %player%]:
         else:
             play sound "entity.villager.no" with seed 0 to expr-3
             send "&cThe model named %expr-1% does not exists" to (expr-3 and console)
-effect (kill|remove) (id:train [with id] %integer%|all:[all] trains|last:last [spawned] train)[ from %player%]:
+effect (kill|remove) (id:train [with id] %integer%|all:[all] trains|last:last [spawned] train)[ from %sender%]:
     trigger:
         if parse tags contains "id":
             if {-MTskR::trains::%expr-1%::blocks::*} is set:
@@ -245,21 +267,21 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                     if {_facing} is set:
                         send actionbar "&aCheck done, creating..." to expr-2
                         load yaml {_path} as "MTskR.model.%expr-1%"
-                        set yaml value "info.facing" of "MTskR.model.%expr-1%" to yaw of {_facing}
+                        set yaml value "info.facing" from "MTskR.model.%expr-1%" to yaw of direction {_facing}
                         loop 2 times:
                             set {_x} to x of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - x of {_base}
                             set {_y} to y of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - y of {_base}
                             set {_z} to z of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - z of {_base}
-                            set yaml value "info.loc%loop-value%" of "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
-                        set yaml value "info.model_version" of "MTskR.model.%expr-1%" to 1
-                        set yaml value "info.minecraft_version" of "MTskR.model.%expr-1%" to minecraft version
+                            set yaml value "info.loc%loop-value%" from "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
+                        set yaml value "info.model_version" from "MTskR.model.%expr-1%" to 1
+                        set yaml value "info.minecraft_version" from "MTskR.model.%expr-1%" to minecraft version
                         set {_i} to 0
                         loop {_blocks::*}:
                             set {_x} to x of loop-value - x of {_base}
                             set {_y} to y of loop-value - y of {_base}
                             set {_z} to z of loop-value - z of {_base}
-                            set yaml value "%{_i}%.loc" of "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
-                            set yaml value "%{_i}%.block" of "MTskR.model.%expr-1%" to blockdata of loop-value
+                            set yaml value "%{_i}%.loc" from "MTskR.model.%expr-1%" to "%{_x}%,%{_y}%,%{_z}%"
+                            set yaml value "%{_i}%.block" from "MTskR.model.%expr-1%" to blockdata of loop-value
                             if loop-value is an iron door:
                                 add 1 to {_door_count}
                                 set yaml value "%{_i}%.door" from "MTskR.model.%expr-1%" to doorType({_facing}, loop-value)
@@ -312,7 +334,7 @@ effect let %player% edit trains (of|in|for) [siding] %string% (of|in|for) [yaml|
             body:
                 add text body:
                     contents: "Click to add trains to the siding"
-                loop yaml list "%{_expr-2}%.siding.trains" of {_expr-3}:
+                loop yaml list "%{_expr-2}%.siding.trains" from {_expr-3}:
                     add text body:
                         contents: mini message from "<cmd:mtskr siding %join (split {_expr-2} by ".") with " "% trains remove %loop-counter%"
             actions:
@@ -321,9 +343,65 @@ effect let %player% edit trains (of|in|for) [siding] %string% (of|in|for) [yaml|
                     add callback action button:
                         label: {_lv}
                         trigger:
-                            add {_lv} to yaml list "%{_expr-2}%.siding.trains" of {_expr-3}
+                            add {_lv} to yaml list "%{_expr-2}%.siding.trains" from {_expr-3}
                             save yaml {_expr-3}
+                            update trains for siding {_node} in world {_world}
                             let {_expr-1} edit trains of siding {_expr-2} of {_expr-3}
+effect (update|refresh) train[s] (of|for|in|at) [siding] %string% (in|for|from|at|of) [world] (%world%|[named|with name|called] %string%):
+    trigger:
+        if expr-2 is set:
+            set {_world} to expr-2
+        else:
+            set {_world} to world(expr-3)
+        set {_yaml} to "MTskR.data.rails.%{_world}%"
+        if yaml {_yaml} is loaded:
+            if yaml path "%expr-1%.siding.trains" has value:
+                set {_avaliable_models::*} to train models
+                set {_split::*} to split expr-1 at "."
+                loop 2 times:
+                    set {_lv::*} to {_split::%loop-value%} parsed as "%integer%,%integer%,%integer%"
+                    set {_l%loop-value%} to location({_lv::1}, {_lv::2}, {_lv::3}, {_world})
+                set {_siding_length} to distance between {_l1} and {_l2}
+                set {_siding_yaw} to yaw of direction direction from {_l1} to {_l2}
+                set {_len} to 0
+                loop yaml list "%expr-1%.siding.trains" from {_yaml}:
+                    if {_avaliable_models::*} does not contain loop-value:
+                        send "[MTskR] &eTrain model '%loop-value%' does not exist, skipping it for trains of siding '%expr-1%' in world '%{_world}%'"
+                    else:
+                        if {_len} + length of train model loop-value <= {_siding_length}:
+                            add loop-value to {_adds::*}
+                        else:
+                            send "[MTskR] &eThe trains for siding '%expr-1%' in world '%{_world}%' is too long, skipping %loop-counter%"
+                        set {_blocks} to 1
+                        set {_space} to floor({_len} /2)
+                        add {_space} to {_blocks}
+                        loop {_adds::*}:
+                            set {_raw_rl1} to yaml value "info.loc1" from "MTskR.model.%loop-value%"
+                            set {_raw_rl2} to yaml value "info.loc2" from "MTskR.model.%loop-value%"
+                            loop 2 times:
+                                set {_lv%loop-value%::*} to {_raw_rl%loop-value%} parsed as "%integer%,%integer%,%integer%"
+                            set {_yaw} to yaml value "info.facing" from "MTskR.model.%loop-value%"
+                            if {_yaw} is 0:
+                                set {_head} to abs(max({_lv1::3}, {_lv2::3}))
+                            else if {_yaw} is 180:
+                                set {_head} to abs(min({_lv1::3}, {_lv2::3}))
+                            else if {_yaw} is 270:
+                                set {_head} to abs(max({_lv1::1}, {_lv2::1}))
+                            else if {_yaw} is 90:
+                                set {_head} to abs(min({_lv1::1}, {_lv2::1}))
+                            add {_head} to {_blocks}
+                            if {_siding_yaw} is 0:
+                                spawn train model loop-value at location(x coord of {_l2}, y coord of {_l2}, z coord of {_l2} + {_blocks})
+                            else if {_siding_yaw} is 180:
+                                spawn train model loop-value at location(x coord of {_l2}, y coord of {_l2}, z coord of {_l2} - {_blocks})
+                            else if {_siding_yaw} is 270:
+                                spawn train model loop-value at location(x coord of {_l2} - {_blocks}, y coord of {_l2}, z coord of {_l2})
+                            else if {_siding_yaw} is 90:
+                                spawn train model loop-value at location(x coord of {_l2} + {_blocks}, y coord of {_l2}, z coord of {_l2} - {_blocks})
+            else:
+                send "[MTskR] &eNo trains found for siding '%expr-1%' in world '%{_world}%'" to console
+        else:
+            send "[MTskR] &cData for world %{_world}% is missing" to console
 effect open [mtskr] tutorial (to|for) %player%:
     trigger:
         open notice dialog to expr-1:
