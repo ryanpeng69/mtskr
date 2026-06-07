@@ -1,0 +1,233 @@
+# MTskR: Minecraft TrainSkript Railway
+# Minecraft Trainsit Railway in Paper without resource packs
+# https://github.com/ryanpeng69/mtskr/
+import:
+    java.io.File
+on load:
+    set {_dir} to "%current script%"
+    regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+    if {_dir} does not contain "mtskr":
+        set {_dir} to "%{_dir}%mtskr\"
+        set {_script} to new File("plugins\Skript\scripts\%current script%")
+        set {_target} to new File("plugins\Skript\scripts\%{_dir}%mtskr.sk")
+        if {_script}.renameTo({_target}) is true:
+            send "[MTskR] Moved %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk, reloading"
+            set {_new_script} to "%current script%"
+            unload the current script
+            regex replace "(.*\\)([^\\]+)$" in {_new_script} with "$1-$2"
+            load script {_new_script}
+            send "[MTskR] &aInitialize done"
+        else:
+            send "[MTskR] &cFailed to move %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk"
+    load mtskr config
+    load mtskr data
+on unload:
+    unload mtskr config
+    unload mtskr data
+on skript stop:
+    kill all trains
+on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
+    set tab completions for position 1 to ("model", "gui", "reload", "siding", "platform", and "help")
+    if tab arg 1 is "model":
+        set tab completions for position 2 to ("create" and "rebuild")
+        if tab arg 2 is "rebuild":
+            set tab completions for position 3 to train models
+        else if tab arg 2 is "create":
+            set tab completions for position 3 to train models
+            set tab completions for position 4 to "-f"
+    else if tab arg 1 matches "siding|platform":
+        set tab completions for position 2 to "x,y,z"
+        set tab completions for position 3 to "x,y,z"
+        tab arg 2 matches "\d+,\d+,\d+"
+        tab arg 3 matches "\d+,\d+,\d+"
+        set {_type} to yaml value "%tab arg 1%.%tab arg 2%.type" of "MTskR.data.rails.%world of player%"
+        {_type} is set
+        set tab completions for position 4 to split "name, goto" at ", "
+        if {_type} is "siding":
+            add "trains" to tab completions for position 4
+            if tab arg 4 is "trains":
+                set tab completions for position 5 to split "remove, add, list" at ", "
+                if tab arg 5 is "remove":
+                    set tab completions for position 6 to integers from 0 to size of (yaml list "%{_node}%.siding.trains" of "MTskR.data.rails.%world of player%")
+                else if tab arg 5 is "add":
+                    set tab completions for position 6 to train models
+        else if {_type} is "platform":
+            add "stop_time" to tab completions for position 4
+    else if tab arg 1 is "reload":
+        set tab completions for position 2 to ("config", "data", "script", and "all")
+command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
+    permission: op
+    prefix: ryanpeng69.mtskr
+    trigger:
+        if arg-1 is "model":
+            if arg-2 is "create":
+                if arg-4 is "-f":
+                    force create train model arg-3
+                else:
+                    create train model arg-3
+            else if arg-2 is "rebuild":
+                if mtskr model arg-3 exists:
+                    load yaml "%mtskr config "model_path"%%arg-3%.yml" as "MTskR.model.%arg-3%"
+                    set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%arg-3%"
+                    set {_rotates} to closest quater of player's yaw - {_facing_yaw}
+                    if {_rotates} is smaller than 0:
+                        add 360 to {_rotates}
+                    set {_times} to {_rotates} / 90
+                    loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "info"]:
+                        set {_loc} to rotateRelativeCoor(player's location, {_facing_yaw}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
+                        set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%arg-3%")
+                        loop {_times} times:
+                            set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
+                        update block at {_loc} to be {_data}
+                else:
+                    play sound "entity.villager.no" with seed 0
+                    send "&cThe model named %arg-3% does not exists"
+        else if arg-1 is "gui":
+            create a new gui with virtual chest inventory with 6 rows named "MTskR":
+                set {_index} to 0
+                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr model seat, and mtskr railway dashboard):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
+                    add 1 to {_index}
+                set {_index} to 9
+                loop (mtskr rail node):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
+                    add 1 to {_index}
+                set {_index} to 18
+                loop (rail connector, platform rail connector, siding rail connector, turnback rail connector, and remove rail connector):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
+                    add 1 to {_index}
+                set {_index} to 27
+                loop (5 blocks wide bridge creator, 5 by 5 tunnel creator, 5 by 6 tunnel creator, 5 by 7 tunnel creator, 5 by 8 tunnel creator, 5 by 5 tunnel wall creator, 5 by 6 tunnel wall creator, 5 by 7 tunnel wall creator, 5 by 8 tunnel wall creator):
+                    set {_item} to loop-value
+                    make gui slot {_index} with {_item}:
+                        give player {_item}
+                    add 1 to {_index}
+            open last gui to player
+        else if arg-1 is "reload":
+            if arg-2 is "config":
+                reload mtskr config
+            else if arg-2 is "data":
+                reload mtskr data
+            else:
+                set {_dir} to "%current script%"
+                regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+                make sender execute command "sk reload %{_dir}%"
+        else if arg-1 matches "siding|platform":
+            if:
+                arg-2 matches "\d+,\d+,\d+"
+                arg-3 matches "\d+,\d+,\d+"
+            then:
+                set {_type} to arg-1
+                set {_node} to "%arg-2%.%arg-3%"
+                set {_world} to world of player
+                set {_yaml} to "MTskR.data.rails.%{_world}%"
+                if yaml value "%{_node}%.type" of {_yaml} is set:
+                    if arg-4 is "trains":
+                        if {_type} is "siding":
+                            if arg-5 is "remove":
+                                set {_id} to arg-6 parsed as int
+                                set {_list::*} to (yaml list "%{_node}%.siding.trains" of {_yaml})
+                                if {_id} is between 0 and size of {_list::*}:
+                                    clear {_list::%{_id}%}
+                                    set (yaml list "%{_node}%.siding.trains" of {_yaml}) to {_list::*}
+                                    save yaml {_yaml}
+                                    stop trigger
+                                else:
+                                    send "&cArg-6 must be a integer between 0 and %size of {_list::*}%"
+                            else if arg-5 is "add":
+                                if mtskr model arg-6 exists:
+                                    add arg-6 to (yaml list "%{_node}%.siding.trains" of {_yaml})
+                                    save yaml {_yaml}
+                                    stop trigger
+                                else:
+                                    send "&cModel named %arg-6% does not exists"
+                            else:
+                                let player edit trains of {_node} of {_yaml}
+                                stop trigger
+                        else:
+                            send "&cTrains is only avaliable for sidings"
+                    else if arg-4 is "stop_time":
+                        if {_type} is "platform":
+                            set {_stoptime} to arg-5 parsed as int
+                            if {_stoptime} is not between 0 and 60:
+                                send "&cStop time must be between 0 and 60"
+                            else if {_stoptime} is not evenly divisible by 5:
+                                send "&cStop time must be divisible by 5"
+                            else:
+                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_time}
+                                play sound "entity.experience_orb.pickup"
+                                stop trigger
+                        else:
+                            send "&cStop time is only avaliable for platforms"
+                    else if arg-4 is "name":
+                        set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to arg-5
+                        save yaml {_yaml}
+                        play sound "entity.experience_orb.pickup"
+                        stop trigger
+                    else if arg-4 is "goto":
+                        set {_l1v::*} to split (first element of split {_node} at ".") at ","
+                        set {_l2v::*} to split (last element of split {_node} at ".") at ","
+                        teleport player to location(mean({_l1v::1}, {_l2v::1}), mean({_l1v::2}, {_l2v::2}), mean({_l1v::3}, {_l2v::3}), {_world})
+                        play sound "entity.enderman.teleport" with seed 4096
+                        stop trigger
+                    else:
+                        if yaml value "%{_node}%.type" of {_yaml} is {_type}:
+                            if yaml value "%{_node}%.%{_type}%.name" of {_yaml} is set:
+                                set {_name} to yaml value "%{_node}%.%{_type}%.name" of {_yaml}
+                            open multi action dialog to player:
+                                title: "MTskR Edit %{_type}%"
+                                body:
+                                    add text body:
+                                        contents: "&fEdit %{_type}% rail from %join (split {_node} by ".") with " to "%"
+                                inputs:
+                                    add text input:
+                                        key: "name"
+                                        label: "Track Name"
+                                        initial: ({_name} if {_name} is set, else 1)
+                                    if {_type} is "platform":
+                                        add number range input:
+                                            key: "stop_time"
+                                            label: "Train Stop Time"
+                                            start: 5
+                                            end: 60
+                                            step: 5
+                                            initial: 5
+                                actions:
+                                    add callback action button:
+                                        label: "Goto"
+                                        trigger:
+                                            set {_l1v::*} to split (first element of split {_node} at ".") at ","
+                                            set {_l2v::*} to split (last element of split {_node} at ".") at ","
+                                            teleport player to location(mean({_l1v::1}, {_l2v::1}), mean({_l1v::2}, {_l2v::2}), mean({_l1v::3}, {_l2v::3}), {_world})
+                                            play sound "entity.enderman.teleport" with seed 4096
+                                    add callback action button:
+                                        label: "Update"
+                                        trigger:
+                                            set {_name} to string tag "name" of event-nbt
+                                            set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to {_name}
+                                            if {_type} is "platform":
+                                                set {_stoptime} to int tag "stop_time" of event-nbt
+                                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_stoptime}
+                                            save yaml {_yaml}
+                                            play sound "entity.experience_orb.pickup"
+                                    if {_type} is "siding":
+                                        add callback action button:
+                                            label: "Select trains"
+                                            trigger:
+                                                let player edit trains of siding {_node} of {_yaml}
+                            stop trigger
+                        else:
+                            send "&cType of rail from %arg-2% to %arg-3% is not %arg-1%"
+                else:
+                    send "&cRail from %arg-2% to %arg-3% does not exist"
+            else:
+                send "&cPlease specify rail with 2 locations of rail nodes formatted as <x>,<y>,<z> at arg-2 and 3"
+            play sound "entity.villager.no" with seed 0
+        else:
+            open mtskr tutorial to player 

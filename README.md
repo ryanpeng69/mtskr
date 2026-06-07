@@ -22,11 +22,20 @@
 
 * `Paper 1.21.11-130`, `Skript 2.14.2`, `Skbee 3.20.0`, `skript-gui 1.3.1`, `skript-reflect 2.6.3`, `skript-yml 1.7.2`
 
+## Getting Started
+
+  View ingame tutorial with `/mtskr`
+
+##### Models
+
+  To get started, you will need train models.
+  You can create one by your self or download one from [models page on web](https://mtskr.up.railway.app/models).
+
 ## Items/Blocks:
 
 ##### Items:
 
-* [ ] Brush: brush
+* [X] Brush: brush
 * [X] Loc Selector: iron axe
 * [ ] Seat
 * [ ] Railway Dashboard: map
@@ -86,10 +95,10 @@ info:
 
 ## Train function:
 
-* [ ] Model: Display blocks riding on a minecart
+* [X] Model: Display blocks riding on a minecart
 * [ ] Spawn: By selecting train in the gui for a depot track, the train will spawn.
 * [ ] Movement: Set velocity of train to velocity from loc1 to loc2
-* [ ] Passengers: Must be on a seat 
+* [ ] Passengers: Must be on a seat
 * [ ] Arrival countdown: ?
 
 ## Stations & Depots

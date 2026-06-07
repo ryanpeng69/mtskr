@@ -1,0 +1,41 @@
+import:
+    java.net.URL
+    java.io.File
+    java.nio.file.Files
+    java.nio.file.StandardCopyOption
+
+command /mtskrinstaller:
+    prefix: ryanpeng69.mtskr
+    permission: op
+    trigger:
+        set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
+        loop "mtskr.main.sk, mtskr.functions.sk, mtskr.items.sk" split at ", ":
+            if {_scripts::*} does not contain loop-value:
+                add loop-value to {_needs::*}
+        set {_dir} to "%current script%"
+        regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+        if {_dir} does not contain "mtskr":
+            set {_dir} to "%{_dir}%mtskr\"
+        loop {_needs::*}:
+            send actionbar "&eInstalling MTskR &7(&6%loop-counter%&7/&6%size of {_needs::*}%&7)"
+            set {_url} to new URL("https://raw.githubusercontent.com/ryanpeng69/mtskr/refs/heads/main/mtskr/%loop-value%")
+            set {_file} to new File("plugins\Skript\scripts\scripts\%{_dir}%loop-value")
+            {_file}.getParentFile().mkdirs()
+            set {_inputStream} to {_url}.openStream()
+            Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            {_inputStream}.close()
+        if {_needs::*} is set:
+            send "&aMTskR installed, reloading. &7(&fDonloaded &6%size of {_needs::*}% files)"
+            make sender execute command "sk reload %{_dir}%"
+            if sender is console:
+                send "&aDone reloading."
+            else:
+                send "<ttp:&9/mtskr><cmd:mtskr>&aDone reloading, click to get started."
+                play sound "entity.firework_rocket.large_blast"
+                wait 8 ticks
+                play sound "entity.firework_rocket.blast"
+        else:
+            if sender is console:
+                send "&eMTskR is already installed."
+            else:
+                send "<ttp:&9/mtskr><cmd:mtskr>&eMTskR is already installed, click to get started."
