@@ -64,7 +64,8 @@ on left click:
         send actionbar "&eLoc 1 set to &6%mtskrYamlNodeLocFormat({-MTskR::item::%player%::loc_selector::loc1})%" to player
 on right click:
     nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
-    set {_yaml} to "MTskR.data.rails.%world of player%"
+    set {_world} to world of player
+    set {_yaml} to "MTskR.data.rails.%{_world}%"
     if player's tool is not a block:
         if event-block is not stone button:
             cancel event
@@ -100,7 +101,7 @@ on right click:
                 set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
                 set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
                 clear line 5 of lore of player's tool
-                if x and z of {_loc} and event-block are different:
+                if x and z of block at {_loc} and event-block are different:
                     set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
                     set {_block} to {_rawblock} parsed as blockdata
                     set {_start_block} to the block below block at {_loc}
@@ -172,6 +173,8 @@ on right click:
                         loop {_height} times:
                             update blocks between (the block loop-value blocks above {_start1::%{_r}%}) and (the block loop-value blocks above {_end1::%{_r}%}) to be {_wallblock}
                             update blocks between (the block loop-value blocks above {_start2::%{_r}%}) and (the block loop-value blocks above {_end2::%{_r}%}) to be {_wallblock}
+                else:
+                    send actionbar "&cTwo locations' x or z must be different" to player
     else if {_item} contains "rail_connector":
         event-block is stone button
         if line 3 of lore of player's tool is not set:
@@ -179,44 +182,71 @@ on right click:
             send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
         else:
             set {_rawloc} to last element of ((line 3 of lore of player's tool) split at "&f")
-            set {_v::*} to {_rawloc} parsed as "%number%, %number%, %number%, %world%"
+            set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
             set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
             clear line 3 of lore of player's tool
             if world of {_loc} is not world of event-block:
                 send "&cTwo locations must be in the same world" to player
-            else if x and z of {_loc} and event-block are different:
+            else if x and z of block at {_loc} and event-block are different:
                 clear line 3 of lore of player's tool
                 if {_item} is "remove_rail_connector":
-                    remove mtskrYamlNodeLocFormat(event-block) from yaml node keys mtskrYamlNodeLocFormat({_loc}) of {_yaml}
-                    send actionbar "&eRail removed" to player
+                    set {_l1} to mtskrYamlNodeLocFormat({_loc})
+                    set {_l2} to mtskrYamlNodeLocFormat(event-block)
+                    if yaml node "%{_l1}%.%{_l2}%" of {_yaml} exists:
+                        delete yaml value "%{_l1}%.%{_l2}%" of {_yaml}
+                        if yaml node keys {_l1} of {_yaml} is not set:
+                            delete yaml value {_l1} of {_yaml}
+                        send actionbar "&eRail removed" to player
+                    else:
+                        send actionbar "&cRail does not exist"
                 else:
                     set {_type} to {_item}
                     replace "_rail_connector" in {_type} with ""
                     set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" of {_yaml} to {_type}
                     send actionbar "&eRail connected" to player
                 save yaml {_yaml}
+            else:
+                send actionbar "&cTwo locations' x or z must be different" to player
     else if {_item} is "brush":
         if event-block is stone button:
-            set {_loc_str} to mtskrYamlNodeLocFormat(location of event-block)
-            if yaml node keys "" of {_yaml} contains {_loc_str}:
-                loop yaml node keys {_loc_str} of {_yaml}:
-                    set {_results::%loop-counter%} to "%{_loc_str}%.%loop-value%" 
-                    set {_type::%loop-counter%} to (yaml value "%{_loc_str}%.%loop-value%.type" of {_yaml})
+            set {_event_str} to mtskrYamlNodeLocFormat(location of event-block)
+            loop yaml nodes with keys "" from {_yaml}:
+                if loop-value is {_event_str}:
+                    set {_keys::*} to yaml nodes with keys {_event_str} from {_yaml}
+                    loop {_keys::*}:
+                        add "%{_event_str}%.%loop-value-2%" to {_results::*} # next1
+                        loop yaml nodes with keys loop-value-2 of {_yaml}:
+                            add "%loop-value-2%.%loop-value-3%" to {_results::*} # next2
+                loop yaml nodes with keys loop-value-1 from {_yaml}:
+                    if loop-value-2 is {_event_str}:
+                        set {_prev1} to loop-value-1
+                        add "%{_prev1}%.%{_event_str}%" to {_results::*} # prev1
+                        loop yaml nodes with keys "" from {_yaml}:
+                            loop yaml nodes with keys loop-value-3 from {_yaml}:
+                                if loop-value-4 is {_prev1}:
+                                    add "%loop-value-3%.%{_prev1}%" to {_results::*} # prev2
             loop {_results::*}:
-                set {_splited::*} to loop-value split at "."
-                set {_l1v::*} to {_splited::1} parsed as "%integer%,%integer%,%integer%"
-                set {_l1::%loop-index%} to the block at location({_l1v::1}, {_l1v::2}, {_l1v::3}, player's world)
-                set {_l2v::*} to {_splited::2} parsed as "%integer%,%integer%,%integer%"
-                if {_type::%loop-index%} is "platform":
-                    set {_color} to red
-                else if {_type::%loop-index%} is "siding":
-                    set {_color} to yellow
-                else if {_type::%loop-index%} is "turnback":
-                    set {_color} to blue
-                else:
-                    set {_color} to white
-                set {_trail::%loop-index%} to trail(the block at location({_l2v::1}, {_l2v::2}, {_l2v::3}, player's world), {_color}, 1 second)
+                set {_split::*} to loop-value split at "."
+                set {_v1::*} to {_split::1} parsed as "%integer%,%integer%,%integer%"
+                set {_start::%loop-index%} to block at location({_v1::1}, {_v1::2}, {_v1::3}, {_world})
+                set {_v2::*} to {_split::2} parsed as "%integer%,%integer%,%integer%"
+                set {_end} to block at location({_v2::1}, {_v2::2}, {_v2::3}, {_world})
+                set {_type} to yaml value "%loop-value%.type" from {_yaml}
+                set {_trail::%loop-index%} to trail({_end}, mtskr color of {_type}, 1 second)
             loop 10 times:
                 loop indexes of {_results::*}:
-                    make 10 of trail using {_trail::%loop-value-2%} at {_l1::%loop-value-2%}
+                    make 10 of trail using {_trail::%loop-value-2%} at {_start::%loop-value-2%}
                 wait 1 tick
+on break:
+    block is stone button
+    set {_yaml} to "MTskR.data.rails.%event-world%"
+    set {_ls} to mtskrYamlNodeLocFormat(event-location)
+    if yaml node {_ls} of {_yaml} exists:
+        delete yaml value {_ls} of {_yaml}
+    loop yaml node keys "" of {_yaml}:
+        loop-value is not {_ls}
+        yaml node "%loop-value%.%{_ls}%" of {_yaml} exists
+        delete yaml value "%loop-value%.%{_ls}%" of {_yaml}
+        if yaml node keys loop-value of {_yaml} is not set:
+            delete yaml value loop-value of {_yaml}
+    save yaml {_yaml}

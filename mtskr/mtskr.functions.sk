@@ -77,11 +77,22 @@ expression route from %location% to %location% [(from|[execute[d]] by) %sender%]
                     set {_results::*} to ({_history::*}, loop-value)
                     return {_results::*}
                 else:
-                    set {_locvs::*} to loop-value parsed as "%number%,%number%,%number%"
+                    set {_locvs::*} to loop-value parsed as "%integer%,%integer%,%integer%"
                     set {_path::*} to route from location({_locvs::1}, {_locvs::2}, {_locvs::3}, {_world}) to expr-2 executed by expr-3 with history ({_history::*}, loop-value)
                     return {_path::*}
         else:
             send "[MTskR] &cLocations must be in the same world" to expr-3
+expression mtskr [rail|track] color of %string%:
+    return type: color
+    get:
+        if expr-1 is "platform":
+            return red
+        else if expr-1 is "siding":
+            return yellow
+        else if expr-1 is "turnback":
+            return blue
+        else:
+            return white
 effect (reset|fix) mtskr config:
     trigger:
         if mtskr config "model_maxium_blocks" is not set:
