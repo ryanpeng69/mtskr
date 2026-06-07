@@ -330,7 +330,7 @@ effect open [mtskr] tutorial (to|for) %player%:
             title: "MTskR: Minecraft TrainSkript Railway"
             body:
                 add text body:
-                    contents: mini message from "<u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u> is a <u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u> work made by <u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u>.%nl%Making <u><click:open_url:https://www.youtube.com/@JonathanHo33>Jonathan Ho</click></u>'s <u><click:open_url:https://modrinth.com/project/XKPAmI6u>Minecraft Transit Railway mod</click></u> into a Paper Server."
+                    contents: mini message from "<u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u> is a <u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u> work made by <u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u>.%nl%Putting <u><click:open_url:https://www.youtube.com/@JonathanHo33>Jonathan Ho</click></u>'s <u><click:open_url:https://modrinth.com/project/XKPAmI6u>Minecraft Transit Railway mod</click></u> into a Paper Server."
                     width: 400
 condition: # x and z is same
     patterns:

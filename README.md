@@ -35,6 +35,7 @@
 
 ##### Items:
 
+* [X] Tutorial: book
 * [X] Brush: brush
 * [X] Loc Selector: iron axe
 * [ ] Seat
@@ -96,16 +97,15 @@ info:
 ## Train function:
 
 * [X] Model: Display blocks riding on a minecart
-* [ ] Spawn: By selecting train in the gui for a depot track, the train will spawn.
-* [ ] Movement: Set velocity of train to velocity from loc1 to loc2
+* [ ] Spawn: By selecting train in the gui for a siding, the train will spawn.
+* [ ] Movement: Set velocity of train to vector from loc1 to loc2
 * [ ] Passengers: Must be on a seat
 * [ ] Arrival countdown: ?
 
 ## Stations & Depots
 
-  Use bound from SkBee for area
-
-  Both have `name` and `color`
+* [ ] Use bound from SkBee for area
+* [ ] Both have `name` and `color`
 
 ##### Depots
 
