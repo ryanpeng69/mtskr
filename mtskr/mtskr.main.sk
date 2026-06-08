@@ -4,21 +4,6 @@
 import:
     java.io.File
 on load:
-    set {_dir} to "%current script%"
-    regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
-    if {_dir} does not contain "mtskr":
-        set {_dir} to "%{_dir}%mtskr\"
-        set {_script} to new File("plugins\Skript\scripts\%current script%")
-        set {_target} to new File("plugins\Skript\scripts\%{_dir}%mtskr.sk")
-        if {_script}.renameTo({_target}) is true:
-            send "[MTskR] Moved %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk, reloading"
-            set {_new_script} to "%current script%"
-            unload the current script
-            regex replace "(.*\\)([^\\]+)$" in {_new_script} with "$1-$2"
-            load script {_new_script}
-            send "[MTskR] &aInitialize done"
-        else:
-            send "[MTskR] &cFailed to move %current script% to plugins\Skript\scripts\%{_dir}%mtskr.sk"
     load mtskr config
     load mtskr data
 on unload:
@@ -244,12 +229,12 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
             if arg-2 is "create":
                 if arg-3 is set:
                     loop yaml node keys "" of {_yaml}:
-                        if yaml value "%loop-value%.name" is arg-3:
+                        if yaml value "%loop-value%.name" from {_yaml} is arg-3:
                             send "&cThe %arg-1% named %arg-3% already exists"
                             play sound "entity.villager.no" with seed 0
                             stop trigger
                     set {_id} to (last element of yaml node keys "" of {_yaml}) parsed as int + 1
-                    set yaml value "%{_id}%.name" to arg-3
+                    set yaml value "%{_id}%.name" from {_yaml} to arg-3
                     save yaml {_yaml}
                     send "&eThe %arg-1% named &6%arg-3% &ecreated"
                     play sound "entity.experience_orb.pickup"

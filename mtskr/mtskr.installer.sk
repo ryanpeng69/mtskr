@@ -4,6 +4,19 @@ import:
     java.nio.file.Files
     java.nio.file.StandardCopyOption
 
+on load:
+    {-MTskR::installer::require_install} is not set
+    set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
+    loop "mtskr.main.sk, mtskr.functions.sk, mtskr.items.sk" split at ", ":
+        if {_scripts::*} does not contain loop-value:
+            add loop-value to {_needs::*}
+    if {_needs::*} is set:
+        set {-MTskR::installer::require_install} to true
+        send "[MTskR Installer] Type &6mtskrinstaller <reset>to install MTskR" to console
+on join:
+    player is op
+    {-MTskR::installer::require_install} is set
+    send "<ttp:&9Click to use><cmd:mtskrinstaller>[MTskR Installer] Type &6/mtskrinstaller &fto install MTskR"
 command /mtskrinstaller:
     prefix: ryanpeng69.mtskr
     permission: op
@@ -13,24 +26,38 @@ command /mtskrinstaller:
             if {_scripts::*} does not contain loop-value:
                 add loop-value to {_needs::*}
         set {_dir} to "%current script%"
+        set {_file_name} to "%current script%"
         regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+        replace {_dir} in {_file_name} with ""
         if {_dir} does not contain "mtskr":
             set {_dir} to "%{_dir}%mtskr\"
         loop {_needs::*}:
             send actionbar "&eInstalling MTskR &7(&6%loop-counter%&7/&6%size of {_needs::*}%&7)"
             set {_url} to new URL("https://raw.githubusercontent.com/ryanpeng69/mtskr/refs/heads/main/mtskr/%loop-value%")
-            set {_file} to new File("plugins\Skript\scripts\scripts\%{_dir}%loop-value")
+            set {_file} to new File("plugins\Skript\scripts\%{_dir}%%loop-value%")
             {_file}.getParentFile().mkdirs()
             set {_inputStream} to {_url}.openStream()
             Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
             {_inputStream}.close()
         if {_needs::*} is set:
-            send "&aMTskR installed, reloading. &7(&fDonloaded &6%size of {_needs::*}% files)"
-            make sender execute command "sk reload %{_dir}%"
-            if sender is console:
-                send "&aDone reloading."
+            send "[MTskR Installer] &aMTskR installed. &7(<reset>Downloaded &6%size of {_needs::*}% <reset>files)"
+            send "[MTskR Installer] Moving installer to 'plugins\Skript\scripts\%{_dir}%%{_file_name}%'."
+            set {_o_script} to new File("plugins\Skript\scripts\%current script%")
+            set {_new_script} to new File("plugins\Skript\scripts\%{_dir}%%{_file_name}%")
+            if {_o_script}.renameTo({_new_script}) is true:
+                send "[MTskR Installer] &aInstaller moved, reloading MTskR."
+                set {_new} to "%current script%"
+                unload the current script
+                regex replace "(.*\\)([^\\]+)$" in {_new} with "$1-$2"
+                load script {_new}
             else:
-                send "<ttp:&9/mtskr><cmd:mtskr>&aDone reloading, click to get started."
+                send "[MTskR Installer] &cFailed to move installer, continue reloading MTskR."
+            reload scripts in directory {_dir}
+            clear {-MTskR::installer::require_install}
+            if sender is console:
+                send "[MTskR Installer] &aDone installing, head in game and type &6/mtskr <reset>to get started."
+            else:
+                send "<ttp:&9/mtskr><cmd:mtskr>&aDone installing, click to get started."
                 play sound "entity.firework_rocket.large_blast"
                 wait 8 ticks
                 play sound "entity.firework_rocket.blast"
