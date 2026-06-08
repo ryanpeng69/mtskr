@@ -1,5 +1,5 @@
 # MTskR: Minecraft TrainSkript Railway
-# Minecraft Trainsit Railway in Paper without resource packs
+# Minecraft Transit Railway mod in Paper without resource packs
 # https://github.com/ryanpeng69/mtskr/
 import:
     java.io.File
@@ -27,9 +27,9 @@ on unload:
 on skript stop:
     kill all trains
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
-    set tab completions for position 1 to ("model", "gui", "reload", "siding", "platform", and "help")
+    set tab completions for position 1 to "model, gui, reload, siding, platform, depot, station, help" split at ", "
     if tab arg 1 is "model":
-        set tab completions for position 2 to ("create" and "rebuild")
+        set tab completions for position 2 to "create, rebuild, list" split at ", "
         if tab arg 2 is "rebuild":
             set tab completions for position 3 to train models
         else if tab arg 2 is "create":
@@ -67,7 +67,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                     create train model arg-3
             else if arg-2 is "rebuild":
                 if mtskr model arg-3 exists:
-                    load yaml "%mtskr config "model_path"%%arg-3%.yml" as "MTskR.model.%arg-3%"
+                    load yaml "plugins\Skript\scripts\%mtskr dir%models\%arg-3%.yml" as "MTskR.model.%arg-3%"
                     set {_facing_yaw} to yaml value "info.facing" from "MTskR.model.%arg-3%"
                     set {_rotates} to closest quater of player's yaw - {_facing_yaw}
                     if {_rotates} is smaller than 0:
@@ -82,6 +82,11 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                 else:
                     play sound "entity.villager.no" with seed 0
                     send "&cThe model named %arg-3% does not exists"
+            else if arg-2 is "list":
+                send "&e%join train models by "&7, &e"%"
+            else:
+                loop "create, rebuild, list" split at ", ":
+                    send formatted "<ttp:&9Click to use><sgt:/mtskr model %loop-value%>&6/mtskr model %loop-value% ..."
         else if arg-1 is "gui":
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
                 set {_index} to 0
@@ -103,11 +108,13 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                         give player {_item}
                     add 1 to {_index}
                 set {_index} to 27
-                loop (5 blocks wide bridge creator, 5 by 5 tunnel creator, 5 by 6 tunnel creator, 5 by 7 tunnel creator, 5 by 8 tunnel creator, 5 by 5 tunnel wall creator, 5 by 6 tunnel wall creator, 5 by 7 tunnel wall creator, 5 by 8 tunnel wall creator):
-                    set {_item} to loop-value
-                    make gui slot {_index} with {_item}:
-                        give player {_item}
-                    add 1 to {_index}
+                loop (5 and 7):
+                    loop (loop-value blocks wide bridge creator, 7 by 5 tunnel creator, 7 by 6 tunnel creator, 7 by 7 tunnel creator, 7 by 8 tunnel creator, 7 by 5 tunnel wall creator, 7 by 6 tunnel wall creator, 7 by 7 tunnel wall creator, 7 by 8 tunnel wall creator):
+                        set {_item} to loop-value-2
+                        make gui slot {_index} with {_item}:
+                            give player {_item}
+                        add 1 to {_index}
+                    set {_index} to 36
             open last gui to player
         else if arg-1 is "reload":
             if arg-2 is "config":
@@ -232,8 +239,22 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                 send "&cPlease specify rail with 2 locations of rail nodes formatted as <x>,<y>,<z> at arg-2 and 3"
             play sound "entity.villager.no" with seed 0
         else if arg-1 matches "station|depot":
+            load yaml "plugins\Skript\scripts\%mtskr dir%data\%arg-1%s.yml" as "MtskR.data.%arg-1%s"
+            set {_yaml} to "MtskR.data.%arg-1%s"
             if arg-2 is "create":
                 if arg-3 is set:
-
+                    loop yaml node keys "" of {_yaml}:
+                        if yaml value "%loop-value%.name" is arg-3:
+                            send "&cThe %arg-1% named %arg-3% already exists"
+                            play sound "entity.villager.no" with seed 0
+                            stop trigger
+                    set {_id} to (last element of yaml node keys "" of {_yaml}) parsed as int + 1
+                    set yaml value "%{_id}%.name" to arg-3
+                    save yaml {_yaml}
+                    send "&eThe %arg-1% named &6%arg-3% &ecreated"
+                    play sound "entity.experience_orb.pickup"
+                else:
+                    send "&cPlease write a name for the %arg-1% at arg-3"
+                    play sound "entity.villager.no" with seed 0
         else:
             open mtskr tutorial to player 

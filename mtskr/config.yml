@@ -1,5 +1,8 @@
+# MTskR config
+# https://github.com/ryanpeng69/mtskr/
+
+# The block limit of a model, should not be too small.
 model_maxium_blocks: 1000
 
+# The regex for a model's name, should prevent file name exceptions.
 model_name_regex: '[a-zA-Z0-9_]{1,64}'
-
-model_path: plugins\Skript\scripts\mtskr\models\

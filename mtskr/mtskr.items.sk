@@ -1,3 +1,5 @@
+# Items of MTskR
+# https://github.com/ryanpeng69/mtskr/
 expression [a] mtskr brush[es]:
     return type: itemtype
     get:
@@ -13,10 +15,17 @@ expression [a] [mtskr] rail node[s]:
     return type: itemtype
     get:
         return stone button named "&fRail Node" with lore "&7Rail node used to connect rails, direction matters." with nbt from "{""minecraft:custom_data"":{mtskr.item:""rail_node""}}"
-expression [a] [mtskr] [normal|regular|speed limit] rail connector[s]:
+expression [a] [mtskr] [normal|regular|speed limit|(double|two)[-| ](way|direction)] rail connector[s]:
     return type: itemtype
     get:
-        return iron ingot named "&fNormal Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""normal_rail_connector""}}"
+        return iron ingot named "&fDouble way Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""normal_rail_connector""}}"
+expression:
+    patterns:
+        [a] [mtskr] [normal|regular|speed limit] (single|one)[-| ](way|direction) rail connector[s]
+        [a] [mtskr] (single|one)[-| ](way|direction) [normal|regular|speed limit] rail connector[s]
+    return type: itemtype
+    get:
+        return iron nugget named "&fOne Way Rail Connector" with lore ("&7Rails specify the path your vehicles will take." and "&7Click on a rail node to place.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""one_way_rail_connector""}}"
 expression [a] [mtskr] platform[s] rail connector[s]:
     return type: itemtype
     get:
@@ -87,14 +96,18 @@ on right click:
             player is sneaking
             {_item} is not "tunnel_creator"
         then:
-            if event-block is a full collision block:
+            if:
+                event-block is a full collision block
+                tag values of minecraft tag "leaves" does not contain event-block
+            then:
                 set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
                 send actionbar "&eSelected block: &6%blockdata of event-block%" to player
             else:
-                send actionbar "&cThis block is not solid"
+                send actionbar "&cThis block is not allowed"
         else if event-block is a stone button:
             if line 5 of lore of player's tool is not set:
                 set line 5 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
+                make player's tool glint
                 send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
             else:
                 set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
@@ -103,6 +116,7 @@ on right click:
                 set {_start_node} to block at {_loc}
                 set {_start_node_button} to blockdata of {_start_node}
                 clear line 5 of lore of player's tool
+                make player's tool stop glint
                 if x and z of {_start_node} and event-block are different:
                     set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
                     set {_block} to {_rawblock} parsed as blockdata
@@ -195,11 +209,13 @@ on right click:
         if line 3 of lore of player's tool is not set:
             set line 3 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
             send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
+            make player's tool glint
         else:
             set {_rawloc} to last element of ((line 3 of lore of player's tool) split at "&f")
             set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
             set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
             clear line 3 of lore of player's tool
+            make player's tool stop glint
             if world of {_loc} is not world of event-block:
                 send "&cTwo locations must be in the same world" to player
             else if x and z of block at {_loc} and event-block are different:
@@ -217,7 +233,11 @@ on right click:
                 else:
                     set {_type} to {_item}
                     replace "_rail_connector" in {_type} with ""
-                    set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" from {_yaml} to {_type}
+                    if {_type} is "one_way":
+                        set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" from {_yaml} to "normal"
+                    else:
+                        set yaml value "%mtskrYamlNodeLocFormat({_loc})%.%mtskrYamlNodeLocFormat(event-block)%.type" from {_yaml} to {_type}
+                        set yaml value "%mtskrYamlNodeLocFormat(event-block)%.%mtskrYamlNodeLocFormat({_loc})%.type" from {_yaml} to {_type}
                     send actionbar "&eRail connected" to player
                 save yaml {_yaml}
             else:
@@ -242,12 +262,14 @@ on right click:
                                     add "%loop-value-3%.%{_prev1}%" to {_results::*} # prev2
             loop {_results::*}:
                 set {_split::*} to loop-value split at "."
-                set {_v1::*} to {_split::1} parsed as "%integer%,%integer%,%integer%"
-                set {_start::%loop-index%} to block at location({_v1::1}, {_v1::2}, {_v1::3}, {_world})
-                set {_v2::*} to {_split::2} parsed as "%integer%,%integer%,%integer%"
-                set {_end} to block at location({_v2::1}, {_v2::2}, {_v2::3}, {_world})
+                set {_start::%loop-index%} to locFromMtskrYamlNodeLocFormat({_split::1}, {_world})
+                set {_end} to locFromMtskrYamlNodeLocFormat({_split::2}, {_world})
                 set {_type} to yaml value "%loop-value%.type" from {_yaml}
                 set {_trail::%loop-index%} to trail({_end}, mtskr color of {_type}, 1 second)
+            loop yaml nodes with keys {_event_str} from {_yaml}:
+                set {_type} to yaml value "%{_event_str}%.%loop-value%.type" from {_yaml}
+                add "%{_type}%(%distance between event-block and locFromMtskrYamlNodeLocFormat(loop-value, {_world})%)" to {_info::*}
+            send actionbar "&e%{_event_str}% &6%join {_info::*} by "&7, &6"%" to player
             loop 10 times:
                 loop indexes of {_results::*}:
                     make 10 of trail using {_trail::%loop-value-2%} at {_start::%loop-value-2%}
