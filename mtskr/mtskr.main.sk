@@ -1,8 +1,6 @@
 # MTskR: Minecraft TrainSkript Railway
 # Minecraft Transit Railway mod in Paper without resource packs
 # https://github.com/ryanpeng69/mtskr/
-import:
-    java.io.File
 on load:
     load mtskr config
     load mtskr data
@@ -12,14 +10,14 @@ on unload:
 on skript stop:
     kill all trains
 on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
-    set tab completions for position 1 to "model, gui, reload, siding, platform, depot, station, help" split at ", "
+    set tab completions for position 1 to "model, gui, reload, siding, platform, help, route" split at ", "
     if tab arg 1 is "model":
-        set tab completions for position 2 to "create, rebuild, list" split at ", "
+        set tab completions for position 2 to "create, rebuild, list, download" split at ", "
         if tab arg 2 is "rebuild":
             set tab completions for position 3 to train models
         else if tab arg 2 is "create":
-            set tab completions for position 3 to train models
-            set tab completions for position 4 to "-f"
+            loop train models:
+                add "%loop-value% -f" to tab completions for position 3
     else if tab arg 1 matches "siding|platform":
         set tab completions for position 2 to "x,y,z"
         set tab completions for position 3 to "x,y,z"
@@ -29,18 +27,22 @@ on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
         {_type} is set
         set tab completions for position 4 to split "name, goto" at ", "
         if {_type} is "siding":
-            add "trains" to tab completions for position 4
-            if tab arg 4 is "trains":
-                set tab completions for position 5 to split "remove, add, list" at ", "
-                if tab arg 5 is "remove":
-                    set tab completions for position 6 to integers from 0 to size of (yaml list "%{_node}%.siding.trains" from "MTskR.data.rails.%world of player%")
-                else if tab arg 5 is "add":
-                    set tab completions for position 6 to train models
+            add "train, schedule, route, stop" to tab completions for position 4
+            if tab arg 4 is "train":
+                set tab completions for position 5 to train models
+            else if tab arg 4 is "schedule":
+                set tab completions for position 5 to integers from 0 to 300
+            else if tab arg 4 is "route":
+                set tab completions for position 5 to yaml node keys "" of "MTskR.data.routes.%world of player%"
         else if {_type} is "platform":
             add "stop_time" to tab completions for position 4
+    else if tab arg 1 is "route":
+        set tab completions for position 2 to "remove, list" split at ", "
+        if tab completions for position 2 is "remove":
+            set tab completions for position 3 to (yaml node keys "" of "MTskR.data.routes.%world of player%")
     else if tab arg 1 is "reload":
         set tab completions for position 2 to ("config", "data", "script", and "all")
-command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
+command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     permission: op
     prefix: ryanpeng69.mtskr
     trigger:
@@ -54,7 +56,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                 if mtskr model arg-3 exists:
                     load yaml "plugins\Skript\scripts\%mtskr dir%models\%arg-3%.yml" as "MTskR.model.%arg-3%"
                     set {_facing_yaw} to yaml value "info.facing" from "MTskR.model.%arg-3%"
-                    set {_rotates} to closest quater of player's yaw - {_facing_yaw}
+                    set {_rotates} to closest quarter of player's yaw - {_facing_yaw}
                     if {_rotates} is smaller than 0:
                         add 360 to {_rotates}
                     set {_times} to {_rotates} / 90
@@ -62,20 +64,24 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                         set {_loc} to rotateRelativeCoor(player's location, {_facing_yaw}, yaml value "%loop-value%.loc" from "MTskR.model.%arg-3%")
                         set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%arg-3%")
                         loop {_times} times:
-                            set block data tag "facing" of {_data} to (quater clockwise direction of block data tag "facing" of {_data})
+                            set block data tag "facing" of {_data} to (quarter clockwise direction of block data tag "facing" of {_data})
                         update block at {_loc} to be {_data}
                 else:
-                    play sound "entity.villager.no" with seed 0
-                    send "&cThe model named %arg-3% does not exists"
+                    send error "&cThe model named %arg-3% does not exists"
             else if arg-2 is "list":
                 send "&e%join train models by "&7, &e"%"
+            else if arg-2 is "download":
+                if arg-3 is set:
+                    open page (arg-3 parsed as int) of models online to player
+                else:
+                    open models online to player
             else:
                 loop "create, rebuild, list" split at ", ":
                     send formatted "<ttp:&9Click to use><sgt:/mtskr model %loop-value%>&6/mtskr model %loop-value% ..."
         else if arg-1 is "gui":
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
                 set {_index} to 0
-                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr model seat, and mtskr railway dashboard):
+                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr model seat, mtskr route creator, and mtskr railway dashboard):
                     set {_item} to loop-value
                     make gui slot {_index} with {_item}:
                         give player {_item}
@@ -87,19 +93,47 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                         give player {_item}
                     add 1 to {_index}
                 set {_index} to 18
-                loop (rail connector, platform rail connector, siding rail connector, turnback rail connector, and remove rail connector):
+                loop (rail connector, single way rail connector, platform rail connector, siding rail connector, turnback rail connector, and remove rail connector):
                     set {_item} to loop-value
                     make gui slot {_index} with {_item}:
                         give player {_item}
                     add 1 to {_index}
                 set {_index} to 27
-                loop (5 and 7):
-                    loop (loop-value blocks wide bridge creator, 7 by 5 tunnel creator, 7 by 6 tunnel creator, 7 by 7 tunnel creator, 7 by 8 tunnel creator, 7 by 5 tunnel wall creator, 7 by 6 tunnel wall creator, 7 by 7 tunnel wall creator, 7 by 8 tunnel wall creator):
-                        set {_item} to loop-value-2
-                        make gui slot {_index} with {_item}:
-                            give player {_item}
-                        add 1 to {_index}
-                    set {_index} to 36
+                loop (stone shovel named "&fBridge Creator" with lore "&7Instant build bridges for tracks.", stone pickaxe named "&fTunnel Creator" with lore "&7Instant dig tunnels for tracks.", and stone axe named "&fTunnel Wall Creator" with lore "&7Instant build walls for tunnels."):
+                    set {_type} to name of loop-value
+                    regex replace "^&f" in {_type} with ""
+                    set {_item} to loop-value
+                    add "&fClick to customize size" to lore of {_item}
+                    make gui slot {_index} with {_item}:
+                        open multi action dialog to player:
+                            title: "Customize a %{_type}%"
+                            inputs:
+                                add number range input:
+                                    key: "width"
+                                    label: "Width"
+                                    start: 5
+                                    end: 21
+                                    step: 2
+                                    initial: 5
+                                if {_type} starts with "Tunnel":
+                                    add number range input:
+                                        key: "height"
+                                        label: "Height"
+                                        start: 7
+                                        end: 21
+                                        step: 1
+                                        initial: 7
+                            actions:
+                                add callback action button:
+                                    label: "Get"
+                                    trigger:
+                                        if {_type} starts with "Bridge Creator":
+                                            give player (float tag "width" of event-nbt) blocks wide bridge creator
+                                        else if {_type} starts with "Tunnel Creator":
+                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel creator
+                                        else if {_type} starts with "Tunnel Wall Creator":
+                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator
+                    add 1 to {_index}
             open last gui to player
         else if arg-1 is "reload":
             if arg-2 is "config":
@@ -119,61 +153,70 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                 set {_node} to "%arg-2%.%arg-3%"
                 set {_world} to world of player
                 set {_yaml} to "MTskR.data.rails.%{_world}%"
-                if yaml value "%{_node}%.type" from {_yaml} is set:
-                    if arg-4 is "trains":
+                if yaml value "%{_node}%.type" from {_yaml} matches "siding|platform":
+                    if arg-4 is "train":
                         if {_type} is "siding":
-                            if arg-5 is "remove":
-                                set {_id} to arg-6 parsed as int
-                                set {_list::*} to (yaml list "%{_node}%.siding.trains" from {_yaml})
-                                if {_id} is between 0 and size of {_list::*}:
-                                    clear {_list::%{_id}%}
-                                    set (yaml list "%{_node}%.siding.trains" from {_yaml}) to {_list::*}
-                                    save yaml {_yaml}
-                                    update trains for siding {_node} in world {_world}
-                                    stop trigger
-                                else:
-                                    send "&cArg-6 must be a integer between 0 and %size of {_list::*}%"
-                            else if arg-5 is "add":
-                                if mtskr model arg-6 exists:
-                                    add arg-6 to (yaml list "%{_node}%.siding.trains" from {_yaml})
-                                    save yaml {_yaml}
-                                    update trains for siding {_node} in world {_world}
-                                    stop trigger
-                                else:
-                                    send "&cModel named %arg-6% does not exists"
+                            if train models contains arg-5:
+                                set yaml value "%{_node}%.siding.train" from {_yaml} to {_lv}
+                                save yaml {_yaml}
+                                update train for siding {_node} in world {_expr-3}
+                                play sound "entity.experience_orb.pickup"
                             else:
-                                let player edit trains of {_node} of {_yaml}
-                                stop trigger
+                                let player edit train of {_node} in world {_world}
                         else:
-                            send "&cTrains is only avaliable for sidings"
+                            send error "&cTrain is only avaliable for sidings."
+                    else if arg-4 is "schedule":
+                        if {_type} is "siding":
+                            set {_t} to arg-5 parsed as int
+                            if arg-5 is set:
+                                if {_t} is not smaller than 0:
+                                    set yaml value "%{_node}%.schedule" of {_yaml} to {_t}
+                                    save yaml {_yaml}
+                                else:
+                                    send error "&cSchedule should not be smaller than 0."
+                            else:
+                                send error "&cPlease specify the schedule in seconds at arg-5."
+                        else:
+                            send error "&cSchedule is only avaliable for sidings."
+                    else if arg-4 is "route":
+                        if {_type} is "siding":
+                            set {_routeyaml} to "MTskR.data.routes.%{_world}%"
+                            if (yaml node keys "" of {_routeyaml}) contains arg-5:
+                                set yaml value "%{_node}%.siding.route" from {_yaml} to arg-5
+                                save yaml {_yaml}
+                                play sound "entity.experience_orb.pickup"
+                            else:
+                                send error "&cRoute with id %arg-5% does not exist."
+                        else:
+                            send error "&cRoute is only avaliable for sidings."
                     else if arg-4 is "stop_time":
                         if {_type} is "platform":
-                            set {_stoptime} to arg-5 parsed as int
-                            if {_stoptime} is not between 0 and 60:
-                                send "&cStop time must be between 0 and 60"
-                            else if {_stoptime} is not evenly divisible by 5:
-                                send "&cStop time must be divisible by 5"
+                            set {_stop_time} to arg-5 parsed as int
+                            if {_stop_time} is not between 0 and 60:
+                                send error "&cStop time must be between 0 and 60"
                             else:
                                 set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_time}
+                                save yaml {_yaml}
                                 play sound "entity.experience_orb.pickup"
-                                stop trigger
                         else:
-                            send "&cStop time is only avaliable for platforms"
+                            send error "&cStop time is only avaliable for platforms."
                     else if arg-4 is "name":
                         set yaml value "%{_node}%.%{_type}%.name" from {_yaml} to arg-5
                         save yaml {_yaml}
                         play sound "entity.experience_orb.pickup"
-                        stop trigger
                     else if arg-4 is "goto":
-                        set {_l1v::*} to split (first element of split {_node} at ".") at ","
-                        set {_l2v::*} to split (last element of split {_node} at ".") at ","
-                        teleport player to location(mean({_l1v::1}, {_l2v::1}), mean({_l1v::2}, {_l2v::2}), mean({_l1v::3}, {_l2v::3}), {_world})
-                        play sound "entity.enderman.teleport" with seed 4096
-                        stop trigger
+                        goto arg-2 arg-3
+                    else if arg-4 is "stop":
+                        if {-MTskR::siding::%{_world}%::%{_node}%::running::*} contains true:
+                            send stopRoute({_world}, {_node})
+                        else:
+                            send error "&cSiding %{_node}% in world %{_world}% is not running."
                     else:
                         if yaml value "%{_node}%.type" from {_yaml} is {_type}:
                             if yaml value "%{_node}%.%{_type}%.name" from {_yaml} is set:
                                 set {_name} to yaml value "%{_node}%.%{_type}%.name" from {_yaml}
+                            if yaml value "%{_node}%.%{_type}%.color" from {_yaml} is set:
+                                set {_color} to yaml value "%{_node}%.%{_type}%.color" from {_yaml}
                             open multi action dialog to player:
                                 title: "MTskR Edit %{_type}%"
                                 body:
@@ -182,64 +225,101 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<text>]:
                                 inputs:
                                     add text input:
                                         key: "name"
-                                        label: "Track Name"
-                                        initial: ({_name} if {_name} is set, else 1)
+                                        label: "Name"
+                                        initial: ({_name} if {_name} is set, else "1")
+                                    add text input:
+                                        key: "color"
+                                        label: "Color (hex)"
+                                        initial: ({_color} if {_color} is set, else "")
                                     if {_type} is "platform":
+                                        if yaml value "%{_node}%.platform.stop_time" from {_yaml} is set:
+                                            set {_stop_time} to yaml value "%{_node}%.platform.stop_time" from {_yaml}
+                                        else:
+                                            set {_stop_time} to 5                                            
                                         add number range input:
                                             key: "stop_time"
-                                            label: "Train Stop Time"
+                                            label: "Stop Time"
                                             start: 5
                                             end: 60
-                                            step: 5
-                                            initial: 5
+                                            step: 1
+                                            initial: {_stop_time}
+                                    else if {_type} is "siding":
+                                        if yaml value "%{_node}%.siding.schedule" from {_yaml} is set:
+                                            set {_schedule} to yaml value "%{_node}%.siding.schedule" from {_yaml}
+                                        else:
+                                            set {_schedule} to 0
+                                        add number range input:
+                                            key: "schedule"
+                                            label: "Takeoff Interval (0 for never)"
+                                            start: 0
+                                            end: 300
+                                            step: 1
+                                            initial: {_schedule}
                                 actions:
                                     add callback action button:
                                         label: "Goto"
                                         trigger:
-                                            set {_l1v::*} to split (first element of split {_node} at ".") at ","
-                                            set {_l2v::*} to split (last element of split {_node} at ".") at ","
-                                            teleport player to location(mean({_l1v::1}, {_l2v::1}), mean({_l1v::2}, {_l2v::2}), mean({_l1v::3}, {_l2v::3}), {_world})
-                                            play sound "entity.enderman.teleport" with seed 4096
+                                            set {_split::*} to {_node} split at "."
+                                            goto {_split::1} {_split::2}
                                     add callback action button:
                                         label: "Update"
                                         trigger:
-                                            set {_name} to string tag "name" of event-nbt
-                                            set yaml value "%{_node}%.%{_type}%.name" from {_yaml} to {_name}
+                                            set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to string tag "name" of event-nbt
+                                            set yaml value "%{_node}%.%{_type}%.color" of {_yaml} to string tag "color" of event-nbt
                                             if {_type} is "platform":
-                                                set {_stoptime} to int tag "stop_time" of event-nbt
-                                                set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_stoptime}
+                                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to float tag "stop_time" of event-nbt
+                                            else if {_type} is "siding":
+                                                set yaml value "%{_node}%.siding.schedule" of {_yaml} to float tag "schedule" of event-nbt
                                             save yaml {_yaml}
                                             play sound "entity.experience_orb.pickup"
                                     if {_type} is "siding":
                                         add callback action button:
-                                            label: "Select trains"
+                                            label: "Select train"
                                             trigger:
-                                                let player edit trains of siding {_node} of {_yaml}
-                            stop trigger
+                                                let player edit train of siding {_node} in world {_world}
+                                        add callback action button:
+                                            label: "Select route"
+                                            trigger:
+                                                let player edit route of siding {_node} in world {_world}
+                                        add callback action button:
+                                            label: "Refresh Route"
+                                            trigger:
+                                                refreshRoute({_node}, {_world})
+                                        add callback action button:
+                                            label: "Stop Running"
+                                            trigger:
+                                                replace "." in {_node} with " "
+                                                make player execute command "mtskr siding %{_node}% stop"
                         else:
-                            send "&cType of rail from %arg-2% to %arg-3% is not %arg-1%"
+                            send error "&cType of rail from %arg-2% to %arg-3% is not %arg-1%."
                 else:
-                    send "&cRail from %arg-2% to %arg-3% does not exist"
+                    send error "&cRail from %arg-2% to %arg-3% does not exist or is not editable."
             else:
-                send "&cPlease specify rail with 2 locations of rail nodes formatted as <x>,<y>,<z> at arg-2 and 3"
-            play sound "entity.villager.no" with seed 0
-        else if arg-1 matches "station|depot":
-            load yaml "plugins\Skript\scripts\%mtskr dir%data\%arg-1%s.yml" as "MtskR.data.%arg-1%s"
-            set {_yaml} to "MtskR.data.%arg-1%s"
-            if arg-2 is "create":
-                if arg-3 is set:
-                    loop yaml node keys "" of {_yaml}:
-                        if yaml value "%loop-value%.name" from {_yaml} is arg-3:
-                            send "&cThe %arg-1% named %arg-3% already exists"
-                            play sound "entity.villager.no" with seed 0
-                            stop trigger
-                    set {_id} to (last element of yaml node keys "" of {_yaml}) parsed as int + 1
-                    set yaml value "%{_id}%.name" from {_yaml} to arg-3
-                    save yaml {_yaml}
-                    send "&eThe %arg-1% named &6%arg-3% &ecreated"
-                    play sound "entity.experience_orb.pickup"
+                send error "&cPlease specify rail with 2 locations of rail nodes formatted as x,y,z at arg-2 and 3."
+        else if arg-1 is "route":
+            set {_yaml} to "MTskR.data.routes.%world of player%"
+            set {_id::*} to (yaml node keys "" of {_yaml})
+            if arg-2 is "remove":
+                if {_id::*} contains arg-3:
+                    set {_color} to yaml value "%arg-3%.color" of {_yaml}
+                    set {_name} to yaml value "%arg-3%.name" of {_yaml}
+                    send formatted "&eRoute <#%{_color}%>%{_name}%<reset> &eremoved."
+                    delete yaml value arg-3 of {_yaml}
+                    save yaml {_yaml}                    
                 else:
-                    send "&cPlease write a name for the %arg-1% at arg-3"
-                    play sound "entity.villager.no" with seed 0
+                    make player execute command "mtskr route list"
+            else:
+                send "&eRoutes in world &6%world of player%&7: &eClick to remove."
+                loop (yaml node keys "" of {_yaml}):
+                    set {_color} to yaml value "%loop-value%.color" of {_yaml}
+                    set {_name} to yaml value "%loop-value%.name" of {_yaml}
+                    set {_nodes::*} to yaml list "%loop-value%.nodes" of {_yaml}
+                    set {_short} to "&f"
+                    loop 5 times:
+                        set {_c} to {_nodes::%loop-value-2%}
+                        if {_c} is set:
+                            set {_short} to "%{_short}% %{_c}%"
+                    add "&7%loop-value%: <ttp:&f%join {_nodes::*} by " "%><cmd:mtskr route remove %loop-value%><#%{_color}%>%{_name}%" to {_list::*}
+                send formatted join {_list::*} by "<reset>&7, " 
         else:
             open mtskr tutorial to player 

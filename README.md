@@ -40,11 +40,15 @@
 
 ## Items/Blocks:
 
+  Items of MTskR are stored in [mtskr.items.sk](https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.items.sk), meaning that you can modify the name, lores, and even custom models.
+  Although MTskR is made for resource pack free servers, you can add one if you want. (see [MTskR Wiki](https://github.com/ryanpeng69/mtskr/wiki/Using-resource-packs))
+
 ##### Items:
 
 * [X] Tutorial: book
 * [X] Brush: brush
 * [X] Loc Selector: iron axe
+* [X] Route Creator: stick
 * [ ] Seat
 * [ ] Railway Dashboard: map
 
@@ -67,7 +71,9 @@
 * [X] Tunnel: stone pickaxe
 * [X] Tunnel walls: stone axe
 
-## Data (Yaml) structure:
+## Data:
+
+#### Yaml:
 
 ##### model:
 
@@ -82,7 +88,7 @@ info:
 %index%:
   loc: %relative loc to base%
   block: %blockdata%
-  door: %facing%%move% # optional
+  door: %text% # %facing%%move% # optional
 ```
 
 ##### rail:
@@ -95,28 +101,42 @@ info:
     platform: # optional
       name: %text = "1"%
       stop_time: %int = 5% # seconds
-    depot: # optional
+    siding: # optional
       name: %text = "1"%
-      trains:
-        - %text% # train model
+      schedule: %int = 0% # seconds
+      route: %int% # route id
+      train: %text%
 ```
+
+##### route:
+
+```yml
+# data\routes\%world%.yml
+%id%:
+  name: %text%
+  color: %text% # hex
+  nodes:
+    - %x,y,z%
+```
+
+#### Variables:
+
+  MTskR only use one variable key: {-MTskR::*}.
+
+  **Advantages**:
+    {-variable}s will not be saved when server stops, meaning they won't be in variables.csv or your disk.
+  **Disadvantages**:
+    Every time you restart(reload) the server, it will recalculate routes.
 
 ## Train function:
 
-* [X] Model: Display blocks riding on a minecart
+* [X] Model: Display blocks riding on a minecart.
 * [X] Spawn: By selecting train in the gui for a siding, the train will spawn.
-* [ ] Movement: Set velocity of train to vector from loc1 to loc2
-* [ ] Passengers: Must be on a seat
+* [X] Movement: Set velocity of train to vector from loc1 to loc2.
+* [ ] Passengers: Must be on a seat.
 * [ ] Arrival countdown: ?
 
 ## Stations & Depots
 
-* [ ] Use bound from SkBee for area
-* [ ] Both have `name` and `color`
-
-##### Depots
-
-  These are the extra values of a depot
-
-* [ ] Scedule
-* [ ] Routes
+  Currently, MTskR does not have stations and depots.
+  Their functions are moved to platforms and sidings, allowing stronger railway system.

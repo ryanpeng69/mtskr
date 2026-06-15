@@ -1,5 +1,5 @@
-# MTskR config
-# https://github.com/ryanpeng69/mtskr/
+## MTskR config
+## https://github.com/ryanpeng69/mtskr/
 
 # The block limit of a model, should not be too small.
 model_maxium_blocks: 1000

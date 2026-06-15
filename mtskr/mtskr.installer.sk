@@ -1,9 +1,12 @@
+# MTskR Installer
+# Put this file into plugins\Skript\scripts\...
+# Run /mtskrinstaller to install MTskR
+# # https://github.com/ryanpeng69/mtskr/
 import:
     java.net.URL
     java.io.File
     java.nio.file.Files
     java.nio.file.StandardCopyOption
-
 on load:
     {-MTskR::installer::require_install} is not set
     set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
@@ -22,7 +25,7 @@ command /mtskrinstaller:
     permission: op
     trigger:
         set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
-        loop "mtskr.main.sk, mtskr.functions.sk, mtskr.items.sk" split at ", ":
+        loop "mtskr.models.sk, mtskr.models_download.sk, mtskr.main.sk, mtskr.functions.sk, mtskr.items_function.sk, mtskr.train.sk, mtskr.items.sk" split at ", ":
             if {_scripts::*} does not contain loop-value:
                 add loop-value to {_needs::*}
         set {_dir} to "%current script%"

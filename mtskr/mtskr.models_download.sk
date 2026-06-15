@@ -1,0 +1,148 @@
+# Part - Download Models
+# https://github.com/ryanpeng69/mtskr/
+import:
+    java.io.File
+    java.nio.file.Files
+    java.nio.file.StandardCopyOption
+    org.bukkit.entity.Entity
+    org.bukkit.block.Block
+    java.net.URL
+    java.net.HttpURLConnection
+    java.io.BufferedReader
+    java.io.InputStreamReader
+    java.lang.StringBuilder
+    com.google.gson.JsonParser
+    com.google.gson.JsonArray
+    com.google.gson.JsonObject
+function getModelsOnline(urlText: string) :: string:
+    set {_url} to new URL({_urlText})
+    set {_connection} to {_url}.openConnection()
+    {_connection}.setRequestMethod("GET")
+    {_connection}.setConnectTimeout(5000)
+    {_connection}.setReadTimeout(5000)
+    if {_connection}.getResponseCode() is 200:
+        set {_streamReader} to new InputStreamReader({_connection}.getInputStream())
+        set {_reader} to new BufferedReader({_streamReader})
+        set {_stringBuilder} to new StringBuilder()
+        set {_line} to {_reader}.readLine()
+        while {_line} is set:
+            {_stringBuilder}.append({_line})
+            set {_line} to {_reader}.readLine()
+        {_reader}.close()
+        return {_stringBuilder}.toString()
+    if {_connection}.getResponseCode() is set:
+        return "&cError: No response code, please check your wifi connection."
+    else:
+        return "&cError: Response Code: %{_connection}.getResponseCode()%"
+effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
+    trigger:
+        delay effect
+        if {-MTskR::temp::last::fetchmodels} is set:
+            time since {-MTskR::temp::last::fetchmodels} is smaller than 30 seconds
+            continue
+        set {-MTskR::temp::last::fetchmodels} to now
+        set {_urlText} to "https://mtskr.up.railway.app/get/models" 
+        set {_jsonString} to getModelsOnline({_urlText})
+        replace "\r" in {_jsonString} with ""
+        if {_jsonString} starts with "&cError":
+            send {_jsonString} to expr-1
+        else:
+            set {_jsonElement} to JsonParser.parseString({_jsonString})
+            set {_jsonArray} to {_jsonElement}.getAsJsonArray()
+            set {_size} to {_jsonArray}.size()
+            if {_size} is 0:
+                send "[MTskR] &eNo result from url request" to expr-1
+            else:
+                loop {_size} times:
+                    set {_index} to loop-number - 1
+                    set {_jsonObject} to {_jsonArray}.get({_index}).getAsJsonObject()
+                    set {_id} to {_jsonObject}.get("id").getAsInt()
+                    set {_name} to {_jsonObject}.get("name").getAsString()
+                    set {_author} to {_jsonObject}.get("author").getAsString()
+                    set {_description} to {_jsonObject}.get("description").getAsString()
+                    set {_time} to {_jsonObject}.get("time").getAsString()
+                    set {-MTskR::temp::fetchmodels::%{_id}%::name} to {_name}
+                    set {-MTskR::temp::fetchmodels::%{_id}%::author} to {_author}
+                    set {-MTskR::temp::fetchmodels::%{_id}%::time} to {_time}
+                    set {-MTskR::temp::fetchmodels::%{_id}%::description} to {_description}
+        continue
+effect: # open [page %integer% of] [list of] [all] [online] models [list] [online|on [mtskr] web] [list] (to|for) %player%
+    patterns:
+        open [page %integer% of] [list of] [all] [online] models [list] [online|on [mtskr] web] [list] (to|for) %player%
+        open [%integer%[st|nd|rd|th]|(first|second|third) page of] [list of] [all] [online] models [list] [online|on [mtskr] web] [list] (to|for) %player%
+    trigger:
+        if expr-1 is set:
+            set {_want_page} to expr-1
+        else:
+            set {_want_page} to 1
+        fetch models on web by expr-2
+        create a new gui with virtual chest inventory with 6 rows named "MTskR Online Models":
+            make gui slots (integers from 45 to 53) with black stained glass pane without entire tooltip
+            set {_max_page} to ceil(size of indexes of {-MTskR::temp::fetchmodels::*} / 45)
+            make gui slot 45 with paper named "&eFirst Page":
+                play sound "item.book.page_turn" with seed 0
+                open page 1 of models on web to player
+            if {_want_page} is not 1:
+                make gui slot 46 with paper named "&ePrevious Page":
+                    play sound "item.book.page_turn" with seed 2
+                    open page {_want_page} - 1 of models on web to player
+            else:
+                make gui slot 46 with paper named "&cPrevious Page":
+                    play sound "entity.villager.no" with seed 0
+            if {_want_page} is not {_max_page}:
+                make gui slot 52 with paper named "&eNext Page":
+                    play sound "item.book.page_turn" with seed 2
+                    open page {_want_page} + 1 of models on web to player
+            else:
+                make gui slot 46 with paper named "&cNext Page":
+                    play sound "entity.villager.no" with seed 0
+            make gui slot 53 with paper named "&eLast Page":
+                play sound "item.book.page_turn" with seed 3
+                open page {_max_page} of models on web to player
+            make gui slot 49 with paper named "&eView On Web":
+                open notice dialog to player:
+                    title: "MTskR - View Web"
+                    body:
+                        add text body:
+                            contents: mini message from "<click:open_url:https://mtskr.up.railway.app/models>Click here to go to web%nl%https://mtskr.up.railway.app/models"
+            set {_idx} to -1
+            set {_page} to 1
+            loop indexes of {-MTskR::temp::fetchmodels::*}:
+                add 1 to {_idx}
+                if {_idx} is "45":
+                    add 1 to {_page}
+                if {_page} is {_want_page}:
+                    set {_id} to loop-value
+                    set {_name} to {-MTskR::temp::fetchmodels::%loop-value%::name}
+                    set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
+                    set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
+                    set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
+                    set {_item} to paper named "&e%{_name}%" with lore "&7ID: %{_id}%", "&eAuthor: &6%{_author}%", "&7Time: %{_time}%", and "&eDescription:"
+                    set {_lines::*} to split {_description} at nl
+                    loop {_lines::*}:
+                        add "&f%loop-value-2%" to lore of {_item}
+                    make gui slot {_idx} with {_item}:
+                        open multi action dialog to player:
+                            title: "MTskR - Download Model"
+                            body:
+                                add text body:
+                                    contents: "&7ID: %{_id}%%nl%&eAuthor: &6%{_author}%%nl%&7Time: %{_time}%%nl%&eDescription:%nl%&f%{_description}%"
+                            inputs:
+                                add text input:
+                                    label: "Name for download"
+                                    key: "name"
+                            actions:
+                                add callback action button:
+                                    label: "Download"
+                                    trigger:
+                                        set {_fname} to string tag "name" of event-nbt
+                                        replace ("\, /, :, *, ?, "", <, >, |" split at ", ") in {_fname} with "_"
+                                        set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%/yaml")
+                                        set {_file} to new File("plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml")
+                                        {_file}.getParentFile().mkdirs()
+                                        set {_inputStream} to {_url}.openStream()
+                                        Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                                        {_inputStream}.close()
+                                        send "&aDownloaded %{_name}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%"
+                                        send "[MTskR] %player% downloaded model %{_fname}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%" to console
+        open last gui to expr-2

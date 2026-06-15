@@ -1,0 +1,156 @@
+# Part - routes
+# https://github.com/ryanpeng69/mtskr/
+effect move train [with id[entifier]] %integer% from [node] %string% to [node] %string% (in|of) [world] %world% with runnig check %string%:
+    trigger: 
+        delay effect
+        set {_start} to middle of mtskrNodeLoc(expr-2, expr-4)
+        set {_end} to middle of mtskrNodeLoc(expr-3, expr-4)
+        if yaml path "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%" has value:
+            if yaml value "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%" is "platfrom":
+                if yaml value "%expr-2%.%expr-3%.platform.stop_time" of "MTskR.data.rails.%expr-4%" is greater than 0:
+                    set {_stop_time} to yaml value "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%"
+                else:
+                    set {_stop_time} to 5
+                set {_end} to spawnloc of {-MTskR::trains::%expr-1%::model} for platform "%expr-2%.%expr-3%" in expr-4
+        if {-MTskR::trains::%expr-1%::base} is alive:
+            set {_v} to vector from {_start} to {_end}
+            set yaw of ({_start} and {_end}) to yaw of {_v}
+            set pitch of ({_start} and {_end}) to pitch of {_v}
+            teleport {-MTskR::trains::%expr-1%::base} to {_start}
+            set vector length of {_v} to 0
+            set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
+            set {_steps} to distance between {_start} and {_end} * 2
+            set {_vector} to vector from {_start} to {_end}
+            set vector length of {_vector} to 0.5
+            loop {_steps} times:
+                if {-MTskR::%expr-5%} is true:
+                    if {-MTskR::trains::%expr-1%::base} is alive:
+                        teleport {-MTskR::trains::%expr-1%::base} to (location of {-MTskR::trains::%expr-1%::base} ~ {_vector})
+                        wait 1 tick
+                    else:
+                        continue
+                else:
+                    continue
+            teleport {-MTskR::trains::%expr-1%::base} to {_end}
+            if {_stop_time} is set:
+                wait timespan({_stop_time}, seconds)
+                move train expr-1 from mtskrNodeString({_end}) to expr-3 in world expr-4 with runnig check expr-5
+        continue
+effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
+    trigger:
+        delay effect
+        set {_siding_loc::*} to expr-2 split at "."
+        if yaml path "%expr-1%.nodes" of "MTskR.data.routes.%expr-3%" has value:
+            set {_nodes::*} to yaml list "%expr-1%.nodes" from "MTskR.data.routes.%expr-3%"
+            set {-MTskR::routes::%expr-3%::%expr-2%::*} to {_siding_loc::2}
+            set {_start} to {_siding_loc::2}
+            loop {_nodes::*}:
+                add getPath({_start}, loop-value, expr-3) to {-MTskR::routes::%expr-3%::%expr-2%::*}
+                set {_start} to loop-value
+            add getPath(last element of {_nodes::*}, {_siding_loc::1}, expr-3) to {-MTskR::routes::%expr-3%::%expr-2%::*}
+        else:
+            send "[MTskR] &cRoute with id %expr-1% in world %expr-3% has no nodes." to console
+        continue
+effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %world%:
+    trigger:
+        set {_expr-1} to expr-1
+        set {_expr-2} to expr-2
+        set {_expr-3} to expr-3
+        set {_yaml} to "MTskR.data.rails.%expr-3%"
+        set {_routeyaml} to "MTskR.data.routes.%expr-3%"
+        open multi action dialog to {_expr-1}:
+            title: "MTskR Select Siding Route"
+            body:
+                add text body:
+                    contents: "Click to select route for this siding"
+                set {_routeid} to yaml value "%{_expr-2}%.siding.route" from {_yaml}
+                set {_route} to yaml value "%{_routeid}%.name" from {_routeyaml}
+                add text body:
+                    contents: mini message from "Current route: %{_route}%"
+            actions:
+                loop yaml node keys "" of {_routeyaml}:
+                    set {_name} to yaml value "%loop-value%.name" of {_routeyaml}
+                    set {_color} to yaml value "%loop-value%.color" of {_routeyaml}
+                    set {_results::%loop-value%} to "<#%{_color}%>%{_name}%"
+                if {_results::*} is set:
+                    loop {_results::*}:
+                        set {_lv} to loop-value
+                        set {_li} to loop-index
+                        add callback action button:
+                            label: mini message from {_lv}
+                            trigger:
+                                set yaml value "%{_expr-2}%.siding.route" from {_yaml} to {_li}
+                                save yaml {_yaml}
+                                let {_expr-1} edit route of siding {_expr-2} in world {_expr-3}
+
+                else:
+                    add callback action button:
+                        label: "<red>No Avaliable Route"
+                        trigger:
+                            send error "&cNo route was created, you should make one with a route creator in the gui."
+function refreshRoute(siding: string, world: world):
+    if yaml path "%{_siding}%.siding.route" of "MTskR.data.rails.%{_world}%" has value:
+        if yaml path "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%" has value:
+            if yaml path "%{_siding}%.siding.train" of "MTskR.data.rails.%{_world}%" has value:
+                set {_routeid} to yaml value "%{_siding}%.siding.route" of "MTskR.data.rails.%{_world}%"
+                set {_schedule} to yaml value "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%"
+                load route {_routeid} of siding {_siding} in world {_world}
+                while {-MTskR::routes::%{_world}%::%{_siding}%::*} is not set:
+                    wait 1 tick
+                set {_nodes::*} to {-MTskR::routes::%{_world}%::%{_siding}%::*}
+                if {_schedule} is greater than 0:
+                    set {_thread} to (last element of indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}) parsed as int + 1
+                    set {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} to true
+                    while {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
+                        startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
+                        wait timespan({_schedule}, seconds)
+            else:
+                send "[MTskR] &eNo train has been selected for siding '%{_siding}%' in world '%{_world}%'" to console
+        else:
+            send "[MTskR] &eNo schedule found for siding '%{_siding}%' in world '%{_world}%'" to console
+    else:
+        send "[MTskR] &eNo route found for siding '%{_siding}%' in world '%{_world}%'" to console
+function stopRoute(world: world, siding: string) :: string:
+    loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}:
+        set {-MTskR::siding::%{_world}%::%{_siding}%::running::%loop-value%} to false
+    return "&eSiding %{_siding}% in world %{_world}% stopped running."
+function getPath(c: string, end: string, world: world, history: strings = "") :: strings:
+    set {_yaml} to "MTskR.data.rails.%{_world}%"
+    if {_history::1} is "":
+        clear {_history::*}
+    if yaml node keys {_c} of {_yaml} contains {_end}:
+        return ({_history::*}, {_c}, {_end})
+    else:
+        loop yaml node keys {_c} of {_yaml}:
+            if {_history::*} is set:
+                if yaml value "%{_c}%.%loop-value%.type" of {_yaml} is "turnback":
+                    size of {_history::*} is greater than 1
+                    2nd last element of {_history::*} is {_c}
+                    last element of {_history::*} is loop-value
+                    continue this loop
+                else if last element of {_history::*} is loop-value:
+                    continue this loop
+            set {_results::*} to getPath(loop-value, {_end}, {_world}, ({_history::*}, {_c}))
+            if {_results::*} is set:
+                return {_results::*}
+function startTrain(siding: string, world: world, nodes: strings, thread: int):
+    update train of {_siding} in {_world}
+    set {_id} to last element of indexes of {-MTskR::trains::*} parsed as int
+    set {_c} to {-MTskR::trains::%{_id}%::spawnloc}
+    loop {_nodes::*}:
+        if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
+            move train {_id} from {_c} to loop-value in {_world} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+            set {_c} to loop-value
+        else:
+            stop loop
+    if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
+        move train {_id} from {_c} to mtskrNodeString({-MTskR::trains::%{_id}%::spawnloc}) in {_world} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+    kill train {_id}
+on skript start:
+    wait 1 tick
+    loop worlds:
+        loop yaml node keys "" of "MTskR.data.rails.%loop-value-1%":
+            loop yaml node keys loop-value-2 of "MTskR.data.rails.%loop-value-1%":
+                if yaml value "%loop-value-2%.%loop-value-3%.type" of "MTskR.data.rails.%loop-value-1%" is "siding":
+                    update train of siding "%loop-value-2%.%loop-value-3%" in world loop-value-1
+                    refreshRoute("%loop-value-2%.%loop-value-3%", loop-value-1)
