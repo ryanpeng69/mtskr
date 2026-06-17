@@ -9,7 +9,7 @@ on unload:
     unload mtskr data
 on skript stop:
     kill all trains
-on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
+on tab complete of ("mtskr" or "minecrafttrainskriptrailway:mtskr"):
     set tab completions for position 1 to "model, gui, reload, siding, platform, help, route" split at ", "
     if tab arg 1 is "model":
         set tab completions for position 2 to "create, rebuild, list, download" split at ", "
@@ -44,7 +44,7 @@ on tab complete of ("mtskr" or "ryanpeng69:mtskr"):
         set tab completions for position 2 to ("config", "data", "script", and "all")
 command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     permission: op
-    prefix: ryanpeng69.mtskr
+    prefix: minecrafttrainskriptrailway
     trigger:
         if arg-1 is "model":
             if arg-2 is "create":
@@ -226,11 +226,11 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                     add text input:
                                         key: "name"
                                         label: "Name"
-                                        initial: ({_name} if {_name} is set, else "1")
+                                        initial: ("%{_name}%" if {_name} is set, else "1")
                                     add text input:
                                         key: "color"
                                         label: "Color (hex)"
-                                        initial: ({_color} if {_color} is set, else "")
+                                        initial: ("%{_color}%" if {_color} is set, else "")
                                     if {_type} is "platform":
                                         if yaml value "%{_node}%.platform.stop_time" from {_yaml} is set:
                                             set {_stop_time} to yaml value "%{_node}%.platform.stop_time" from {_yaml}

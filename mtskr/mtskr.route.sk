@@ -1,41 +1,48 @@
 # Part - routes
 # https://github.com/ryanpeng69/mtskr/
-effect move train [with id[entifier]] %integer% from [node] %string% to [node] %string% (in|of) [world] %world% with runnig check %string%:
+effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to [loc[ation]] %location% with runnig check %string%:
     trigger: 
-        delay effect
-        set {_start} to middle of mtskrNodeLoc(expr-2, expr-4)
-        set {_end} to middle of mtskrNodeLoc(expr-3, expr-4)
-        if yaml path "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%" has value:
-            if yaml value "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%" is "platfrom":
-                if yaml value "%expr-2%.%expr-3%.platform.stop_time" of "MTskR.data.rails.%expr-4%" is greater than 0:
-                    set {_stop_time} to yaml value "%expr-2%.%expr-3%.type" of "MTskR.data.rails.%expr-4%"
-                else:
-                    set {_stop_time} to 5
-                set {_end} to spawnloc of {-MTskR::trains::%expr-1%::model} for platform "%expr-2%.%expr-3%" in expr-4
-        if {-MTskR::trains::%expr-1%::base} is alive:
-            set {_v} to vector from {_start} to {_end}
-            set yaw of ({_start} and {_end}) to yaw of {_v}
-            set pitch of ({_start} and {_end}) to pitch of {_v}
-            teleport {-MTskR::trains::%expr-1%::base} to {_start}
-            set vector length of {_v} to 0
-            set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
-            set {_steps} to distance between {_start} and {_end} * 2
-            set {_vector} to vector from {_start} to {_end}
-            set vector length of {_vector} to 0.5
-            loop {_steps} times:
-                if {-MTskR::%expr-5%} is true:
-                    if {-MTskR::trains::%expr-1%::base} is alive:
-                        teleport {-MTskR::trains::%expr-1%::base} to (location of {-MTskR::trains::%expr-1%::base} ~ {_vector})
-                        wait 1 tick
+        if {-MTskR::%expr-4%} is true:
+            delay effect
+            set {_start} to middle of expr-2
+            set {_end} to middle of expr-3
+            set {_world} to world of {_end}
+            set {_node} to "%mtskrNodeString({_start})%.%mtskrNodeString({_end})%"
+            if yaml path "%{_node}%.type" of "MTskR.data.rails.%{_world}%" has value:
+                if yaml value "%{_node}%.type" of "MTskR.data.rails.%{_world}%" is "platform":
+                    if yaml value "%{_node}%.platform.stop_time" of "MTskR.data.rails.%{_world}%" is greater than 0:
+                        set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of "MTskR.data.rails.%{_world}%"
+                    else:
+                        set {_stop_time} to 5
+                    set {_end} to spawnloc of {-MTskR::trains::%expr-1%::model} for platform {_node} in {_world}
+            if {-MTskR::trains::%expr-1%::base} is alive:
+                set {_v} to vector from {_start} to {_end}
+                set yaw of ({_start} and {_end}) to yaw of {_v}
+                set pitch of ({_start} and {_end}) to pitch of {_v}
+                teleport {-MTskR::trains::%expr-1%::base} to {_start}
+                set vector length of {_v} to 0
+                set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
+                set {_steps} to distance between {_start} and {_end} * 2
+                set {_vector} to vector from {_start} to {_end}
+                set vector length of {_vector} to 0.5
+                loop {_steps} times:
+                    if {-MTskR::%expr-4%} is true:
+                        if {-MTskR::trains::%expr-1%::base} is alive:
+                            teleport {-MTskR::trains::%expr-1%::base} to (location of {-MTskR::trains::%expr-1%::base} ~ {_vector})
+                            wait 1 tick
+                        else:
+                            continue
                     else:
                         continue
-                else:
-                    continue
-            teleport {-MTskR::trains::%expr-1%::base} to {_end}
-            if {_stop_time} is set:
-                wait timespan({_stop_time}, seconds)
-                move train expr-1 from mtskrNodeString({_end}) to expr-3 in world expr-4 with runnig check expr-5
-        continue
+                teleport {-MTskR::trains::%expr-1%::base} to {_end}
+                if {_stop_time} is set:
+                    loop {_stop_time} times:
+                        if {-MTskR::%expr-4%} is true:
+                            wait 1 second
+                        else:
+                            continue
+                    move train expr-1 from {_end} to expr-3 with runnig check expr-4
+            continue
 effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
     trigger:
         delay effect
@@ -138,13 +145,15 @@ function startTrain(siding: string, world: world, nodes: strings, thread: int):
     set {_id} to last element of indexes of {-MTskR::trains::*} parsed as int
     set {_c} to {-MTskR::trains::%{_id}%::spawnloc}
     loop {_nodes::*}:
+        set {_lvl} to mtskrNodeLoc(loop-value, {_world})
         if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
-            move train {_id} from {_c} to loop-value in {_world} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
-            set {_c} to loop-value
+            move train {_id} from {_c} to {_lvl} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+            set {_c} to {_lvl}
         else:
-            stop loop
+            kill train {_id}
+            stop trigger
     if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
-        move train {_id} from {_c} to mtskrNodeString({-MTskR::trains::%{_id}%::spawnloc}) in {_world} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+        move train {_id} from {_c} to {-MTskR::trains::%{_id}%::spawnloc} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
     kill train {_id}
 on skript start:
     wait 1 tick

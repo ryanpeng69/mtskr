@@ -14,7 +14,7 @@ import:
     com.google.gson.JsonParser
     com.google.gson.JsonArray
     com.google.gson.JsonObject
-function getModelsOnline(urlText: string) :: string:
+function urlRequestJson(urlText: string) :: string:
     set {_url} to new URL({_urlText})
     set {_connection} to {_url}.openConnection()
     {_connection}.setRequestMethod("GET")
@@ -31,9 +31,9 @@ function getModelsOnline(urlText: string) :: string:
         {_reader}.close()
         return {_stringBuilder}.toString()
     if {_connection}.getResponseCode() is set:
-        return "&cError: No response code, please check your wifi connection."
-    else:
         return "&cError: Response Code: %{_connection}.getResponseCode()%"
+    else:
+        return "&cError: No response code, please check your wifi connection."
 effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
     trigger:
         delay effect
@@ -41,8 +41,7 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             time since {-MTskR::temp::last::fetchmodels} is smaller than 30 seconds
             continue
         set {-MTskR::temp::last::fetchmodels} to now
-        set {_urlText} to "https://mtskr.up.railway.app/get/models" 
-        set {_jsonString} to getModelsOnline({_urlText})
+        set {_jsonString} to urlRequestJson("https://mtskr.up.railway.app/get/models" )
         replace "\r" in {_jsonString} with ""
         if {_jsonString} starts with "&cError":
             send {_jsonString} to expr-1
@@ -51,10 +50,10 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             set {_jsonArray} to {_jsonElement}.getAsJsonArray()
             set {_size} to {_jsonArray}.size()
             if {_size} is 0:
-                send "[MTskR] &eNo result from url request" to expr-1
+                send "&eNo result from url request" to expr-1
             else:
                 loop {_size} times:
-                    set {_index} to loop-number - 1
+                    set {_index} to loop-value - 1
                     set {_jsonObject} to {_jsonArray}.get({_index}).getAsJsonObject()
                     set {_id} to {_jsonObject}.get("id").getAsInt()
                     set {_name} to {_jsonObject}.get("name").getAsString()
