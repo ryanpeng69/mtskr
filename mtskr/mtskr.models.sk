@@ -105,11 +105,15 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                             if loop-value is an iron door:
                                 add 1 to {_door_count}
                                 set yaml value "%{_i}%.door" from "MTskR.model.%expr-1%" to doorType({_facing}, loop-value)
+                            else if loop-value is yellow carpet:
+                                if {MTskR::seats::*} contains loop-value:
+                                    add 1 to {_seat_count}
+                                    set yaml value "%{_i}%.seat" from "MTskR.model.%expr-1%" to true
                             add 1 to {_i}
                         save yaml "MTskR.model.%expr-1%"
                         play sound "entity.experience_orb.pickup" to expr-2
-                        send "&eTrain model &6%expr-1% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2%&7)" to expr-2
-                        send "[MTskR] %expr-2% created train model %expr-1% with %{_door_count} / 2% door%"s" if {_door_count} / 2 > 1, else ""% among %size of {_blocks::*}% block%"s" if size of {_blocks::*} > 1, else ""%" to console
+                        send "&eTrain model &6%expr-1% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2% &eSeats&7: &6%{_seat_count}%&7)" to expr-2
+                        send "[MTskR] %expr-2% created train model %expr-1% with %{_door_count} / 2% doors and %{_seat_count}% seats among %size of {_blocks::*}% blocks" to console
                     else:
                         send error "&cYou must put an oak sign that says '[Model]'" to expr-2
                 else:
@@ -144,5 +148,5 @@ function rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: string
     set pitch of {_base} to 0
     set {_base_yaw} to yaw of {_base}
     set {_v} to vector({_rls::1}, {_rls::2}, {_rls::3})
-    rotate {_v} around y-axis by ({_model_yaw} - {_base_yaw})
+    rotate {_v} around y-axis by ({_base_yaw} - {_model_yaw})
     return {_base} offset by {_v}

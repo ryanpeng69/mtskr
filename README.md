@@ -13,9 +13,10 @@
 ## Installation:
 
 <ol>
-  <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk" target="_blank">mtskr.installer.sk</a> into your scripts folder.</li>
+  <li>Get the required plugins into <code>plugins\</code> folder.</li>
+  <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk" target="_blank">mtskr.installer.sk</a> into <code>plugins\Skript\scripts</code>.</li>
   <li>Run <code>/mtskrinstaller</code>, it will download more files and automatically reload.</li>
-  <li>When it is reloaded, it will download files into a folder named "MTskR", scripts will move into it and generate config.</li>
+  <li>Edit the config at <code>plugins\Skript\scripts\.\mtskr\config.yml</code> if you want.</li>
   <li>Run <code>/mtskr</code> to get started.</li>
 </ol>
 
@@ -49,13 +50,13 @@
 * [X] Brush: brush
 * [X] Loc Selector: iron axe
 * [X] Route Creator: stick
-* [ ] Seat
+* [X] Seat
 * [ ] Railway Dashboard: map
 
 ##### Blocks:
 
 * [X] Rail node: stone button (blocks used to connect rails, direction matters)
-* [ ] Platform block (maybe)
+* [ ] Platform block
 
 ##### Rail connectors: (interact with rail nodes)
 
@@ -121,7 +122,8 @@ info:
 
 #### Variables:
 
-  MTskR only use one variable key: {-MTskR::*}.
+  MTskR mainly use one variable key: {-MTskR::*}.
+  {MTskR::*} is only used for seats for building models.
 
   **Advantages**:
     {-variable}s will not be saved when server stops, meaning they won't be in variables.csv or your disk.

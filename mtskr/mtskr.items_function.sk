@@ -307,3 +307,7 @@ on break:
         if yaml node keys loop-value of {_yaml} is not set:
             delete yaml value loop-value of {_yaml}
     save yaml {_yaml}
+on place:
+    if player's tool is mtskr seat:
+        add event-block to {MTskR::seats::*}
+        send actionbar "&ePlace a seat at &6%mtskrNodeString(event-location)%" to player

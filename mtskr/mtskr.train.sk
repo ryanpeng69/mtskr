@@ -85,21 +85,32 @@ effect spawn [mtskr] train [model] %string% [at %location%]:
                 add 360 to {_rotates}
             set {_times} to {_rotates} / 90
             loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "info"]:
-                spawn block display at {_spawnloc}
-                make (last spawned block display) ride on {-MTskR::trains::%{_id}%::base}
-                set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
-                set {_rls::*} to (yaml value "%loop-value%.loc" from "MTskR.model.%expr-1%") split at ","
-                set {_x} to {_rls::1} parsed as number
-                set {_y} to {_rls::2} parsed as number
-                set {_z} to {_rls::3} parsed as number
-                set {_v} to vector({_x}, {_y}, {_z})
-                rotate {_v} around y-axis by (closest quarter of yaw of {_spawnloc} - {_model_yaw})
-                set {_v} to vector(x of {_v} - 0.5, y of {_v} - 1, z of {_v} - 0.5)
-                set display translation of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_v}
-                set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%expr-1%")
-                loop {_times} times:
-                    set block data tag "facing" of {_data} to (quarter clockwise direction of block data tag "facing" of {_data})
-                set block data of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_data}
+                set {_locstr} to yaml value "%loop-value%.loc" from "MTskR.model.%expr-1%"
+                if yaml value "%loop-value%.seat" from "MTskR.model.%expr-1%" is true:
+                    spawn armor stand at {_spawnloc}
+                    set {-MTskR::trains::%{_id}%::seats::%{_locstr}%} to (last spawned armor stand)
+                else:
+                    spawn block display at {_spawnloc}
+                    make (last spawned block display) ride on {-MTskR::trains::%{_id}%::base}
+                    set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
+                    set {_rls::*} to {_locstr} split at ","
+                    set {_x} to {_rls::1} parsed as number
+                    set {_y} to {_rls::2} parsed as number
+                    set {_z} to {_rls::3} parsed as number
+                    set {_v} to vector({_x}, {_y}, {_z})
+                    rotate {_v} around y-axis by (closest quarter of yaw of {_spawnloc} - {_model_yaw})
+                    set {_v} to vector(x of {_v} - 0.5, y of {_v} - 1, z of {_v} - 0.5)
+                    set display translation of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_v}
+                    set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%expr-1%")
+                    loop {_times} times:
+                        set block data tag "facing" of {_data} to (quarter clockwise direction of block data tag "facing" of {_data})
+                    set block data of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_data}
+            while {-MTskR::trains::%{_id}%::base} is alive:
+                wait 5 ticks
+                {_loc} is not location of {-MTskR::trains::%{_id}%::base}
+                set {_loc} to {-MTskR::trains::%{_id}%::base}
+                loop {-MTskR::trains::%{_id}%::seats::*}:
+                    teleport loop-value to rotateRelativeCoor({-MTskR::trains::%{_id}%::base}, {_model_yaw}, loop-index)
         else:
             send "[MTskR] &cThe model named %expr-1% does not exists" to console
 effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|last:last [spawned] train):
