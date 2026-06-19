@@ -295,18 +295,22 @@ on right click: # FIXME:
     else if {_item} is "tutorial":
         open mtskr tutorial to player
 on break:
-    block is stone button
-    set {_yaml} to "MTskR.data.rails.%event-world%"
-    set {_ls} to mtskrNodeString(event-location)
-    if yaml node {_ls} of {_yaml} exists:
-        delete yaml value {_ls} of {_yaml}
-    loop yaml node keys "" of {_yaml}:
-        loop-value is not {_ls}
-        yaml node "%loop-value%.%{_ls}%" of {_yaml} exists
-        delete yaml value "%loop-value%.%{_ls}%" from {_yaml}
-        if yaml node keys loop-value of {_yaml} is not set:
-            delete yaml value loop-value of {_yaml}
-    save yaml {_yaml}
+    if event-block is stone button:
+        set {_yaml} to "MTskR.data.rails.%event-world%"
+        set {_ls} to mtskrNodeString(event-location)
+        if yaml node {_ls} of {_yaml} exists:
+            delete yaml value {_ls} of {_yaml}
+        loop yaml node keys "" of {_yaml}:
+            loop-value is not {_ls}
+            yaml node "%loop-value%.%{_ls}%" of {_yaml} exists
+            delete yaml value "%loop-value%.%{_ls}%" from {_yaml}
+            if yaml node keys loop-value of {_yaml} is not set:
+                delete yaml value loop-value of {_yaml}
+        save yaml {_yaml}
+    else if event-block is yellow carpet:
+        if {MTskR::seats::*} contains event-block:
+            remove event-block from {MTskR::seats::*}
+            send actionbar "&eRemoved seat at &6%mtskrNodeString(event-location)%" to player
 on place:
     if player's tool is mtskr seat:
         add event-block to {MTskR::seats::*}

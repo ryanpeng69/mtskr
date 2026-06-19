@@ -120,6 +120,7 @@ function refreshRoute(siding: string, world: world):
 function stopRoute(world: world, siding: string) :: string:
     loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}:
         set {-MTskR::siding::%{_world}%::%{_siding}%::running::%loop-value%} to false
+    clear {-MTskR::routes::%{_world}%::%{_siding}%::*}
     return "&eSiding %{_siding}% in world %{_world}% stopped running."
 function getPath(c: string, end: string, world: world, history: strings = "") :: strings:
     set {_yaml} to "MTskR.data.rails.%{_world}%"
@@ -150,16 +151,16 @@ function startTrain(siding: string, world: world, nodes: strings, thread: int):
             move train {_id} from {_c} to {_lvl} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
             set {_c} to {_lvl}
         else:
-            kill train {_id}
-            stop trigger
+            stop loop
     if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
         move train {_id} from {_c} to {-MTskR::trains::%{_id}%::spawnloc} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
-    kill train {_id}
-on skript start:
-    wait 1 tick
+    remove entity {-MTskR::trains::%{_id}%::base}
+on load:
+    {-MTskR::started} is not set
     loop worlds:
         loop yaml node keys "" of "MTskR.data.rails.%loop-value-1%":
             loop yaml node keys loop-value-2 of "MTskR.data.rails.%loop-value-1%":
                 if yaml value "%loop-value-2%.%loop-value-3%.type" of "MTskR.data.rails.%loop-value-1%" is "siding":
                     update train of siding "%loop-value-2%.%loop-value-3%" in world loop-value-1
                     refreshRoute("%loop-value-2%.%loop-value-3%", loop-value-1)
+    set {-MTskR::started} to true

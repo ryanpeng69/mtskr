@@ -140,13 +140,10 @@ function doorType(facing: direction, b: block) :: text:
     set {_move} to "R" if "%{_data}%" contains "hinge=left" else "L"
     return "%{_side}%%{_move}%"
 function rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: string) :: location:
-    set {_rls::*} to {_rloc_str} parsed as "%number%,%number%,%number%"
-    set x of {_base} to floor(x of {_base}) + 0.5
-    set y of {_base} to floor(y of {_base}) + 0.5
-    set z of {_base} to floor(z of {_base}) + 0.5
-    set yaw of {_base} to closest quarter of yaw of {_base}
-    set pitch of {_base} to 0
-    set {_base_yaw} to yaw of {_base}
-    set {_v} to vector({_rls::1}, {_rls::2}, {_rls::3})
-    rotate {_v} around y-axis by ({_base_yaw} - {_model_yaw})
-    return {_base} offset by {_v}
+    set {_rls::*} to {_rloc_str} split at ","
+    set {_x} to {_rls::1} parsed as number
+    set {_y} to {_rls::2} parsed as number
+    set {_z} to {_rls::3} parsed as number
+    set {_v} to vector({_x}, {_y}, {_z})
+    rotate {_v} around y-axis by ({_model_yaw} - yaw of {_base})
+    return {_base} offset by vector(x of {_v} - 0.5, y of {_v} - 1, z of {_v} - 0.5)

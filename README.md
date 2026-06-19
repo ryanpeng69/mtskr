@@ -6,9 +6,9 @@
 
   My goal is to put this mod into a Paper Server with [Skript](https://github.com/SkriptLang/Skript) **without any resource packs**.
 
-  Join [MTskR Discrd](http://discord.gg/kSSmEyVSRR) for more help!
+  Join [MTskR Discrd](http://discord.gg/kSSmEyVSRR) for support or help us translate!
 
-  See more on [MTskR web](https://mtskr.up.railway.app).
+  See [Web](https://mtskr.up.railway.app) or [Wiki](https://github.com/ryanpeng69/mtskr/wiki) for more informations.
 
 ## Installation:
 
@@ -51,7 +51,6 @@
 * [X] Loc Selector: iron axe
 * [X] Route Creator: stick
 * [X] Seat
-* [ ] Railway Dashboard: map
 
 ##### Blocks:
 
@@ -89,6 +88,7 @@ info:
 %index%:
   loc: %relative loc to base%
   block: %blockdata%
+  seat: %boolean% # optional
   door: %text% # %facing%%move% # optional
 ```
 
@@ -101,9 +101,11 @@ info:
     type: (normal|platform|siding|turnback)
     platform: # optional
       name: %text = "1"%
+      color: %text% # hex
       stop_time: %int = 5% # seconds
     siding: # optional
       name: %text = "1"%
+      color: %text% # hex
       schedule: %int = 0% # seconds
       route: %int% # route id
       train: %text%

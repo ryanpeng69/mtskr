@@ -57,6 +57,13 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
                         add callback action button:
                             label: {_lv}
                             trigger:
+                                set {_split::*} to split {_expr-2} at "."
+                                set {_l1} to mtskrNodeLoc({_split::1}, {_expr-3})
+                                set {_l2} to mtskrNodeLoc({_split::2}, {_expr-3})
+                                set {_armorstands::*} to armor stands within {_l1} and {_l2}
+                                loop {_armorstands::*}:
+                                    if metadata tag "mtskr.train_id" of loop-value is set:
+                                        remove entity loop-value
                                 set yaml value "%{_expr-2}%.siding.train" from {_yaml} to {_lv}
                                 save yaml {_yaml}
                                 update train for siding {_expr-2} in world {_expr-3}
@@ -66,57 +73,11 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
                         label: "<red>No Avaliable Model"
                         trigger:
                             send error "&cNo model was created, you should make one with a model creator in the gui."
-effect spawn [mtskr] train [model] %string% [at %location%]:
-    trigger:
-        if mtskr model expr-1 exists:
-            set {_spawnloc} to middle of expr-2
-            set yaw of {_spawnloc} to yaw of expr-2
-            set pitch of {_spawnloc} to pitch of expr-2
-            load yaml "plugins\Skript\scripts\%mtskr dir%models\%expr-1%.yml" as "MTskR.model.%expr-1%"
-            set {_model_yaw} to yaml value "info.facing" from "MTskR.model.%expr-1%"
-            set {_id} to (last element of indexes of {-MTskR::trains::*}) parsed as int + 1
-            set {-MTskR::trains::%{_id}%::spawnloc} to {_spawnloc}
-            set {-MTskR::trains::%{_id}%::model} to expr-1
-            spawn armor stand at {_spawnloc}
-            set {-MTskR::trains::%{_id}%::base} to last spawned entity
-            add nbt from "{NoGravity:1b,Invulnerable:1b,Bukkit.invisible:1b,Small:1b,NoBasePlate:1b}" to nbt compound of {-MTskR::trains::%{_id}%::base}
-            set {_rotates} to closest quarter of yaw of {_spawnloc} - {_model_yaw}
-            if {_rotates} is smaller than 0:
-                add 360 to {_rotates}
-            set {_times} to {_rotates} / 90
-            loop (yaml node keys "" of "MTskR.model.%expr-1%") where [input is not "info"]:
-                set {_locstr} to yaml value "%loop-value%.loc" from "MTskR.model.%expr-1%"
-                if yaml value "%loop-value%.seat" from "MTskR.model.%expr-1%" is true:
-                    spawn armor stand at {_spawnloc}
-                    set {-MTskR::trains::%{_id}%::seats::%{_locstr}%} to (last spawned armor stand)
-                else:
-                    spawn block display at {_spawnloc}
-                    make (last spawned block display) ride on {-MTskR::trains::%{_id}%::base}
-                    set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
-                    set {_rls::*} to {_locstr} split at ","
-                    set {_x} to {_rls::1} parsed as number
-                    set {_y} to {_rls::2} parsed as number
-                    set {_z} to {_rls::3} parsed as number
-                    set {_v} to vector({_x}, {_y}, {_z})
-                    rotate {_v} around y-axis by (closest quarter of yaw of {_spawnloc} - {_model_yaw})
-                    set {_v} to vector(x of {_v} - 0.5, y of {_v} - 1, z of {_v} - 0.5)
-                    set display translation of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_v}
-                    set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%expr-1%")
-                    loop {_times} times:
-                        set block data tag "facing" of {_data} to (quarter clockwise direction of block data tag "facing" of {_data})
-                    set block data of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_data}
-            while {-MTskR::trains::%{_id}%::base} is alive:
-                wait 5 ticks
-                {_loc} is not location of {-MTskR::trains::%{_id}%::base}
-                set {_loc} to {-MTskR::trains::%{_id}%::base}
-                loop {-MTskR::trains::%{_id}%::seats::*}:
-                    teleport loop-value to rotateRelativeCoor({-MTskR::trains::%{_id}%::base}, {_model_yaw}, loop-index)
-        else:
-            send "[MTskR] &cThe model named %expr-1% does not exists" to console
 effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|last:last [spawned] train):
     trigger:
+        delay effect
         if parse tags contains "id":
-            if {-MTskR::trains::%expr-1%::blocks::*} is set:
+            if indexes of {-MTskR::trains::%expr-1%::*} is set:
                 set {_indexes::*} to expr-1
             else:
                 send "[MTskR] &cThe train with id %expr-1% does not exist" to console
@@ -125,9 +86,13 @@ effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|la
         else if parse tags contains "last":
             set {_indexes::*} to last element of indexes of {-MTskR::trains::*} 
         loop {_indexes::*}:
+            dismountTrain(loop-value)
+            wait 1 tick
             remove entities {-MTskR::trains::%loop-value%::blocks::*}
-            remove entities {-MTskR::trains::%loop-value%::base}
+            remove entity {-MTskR::trains::%loop-value%::base}
+            remove entities {-MTskR::trains::%loop-value%::seats::*}
             clear {-MTskR::trains::%loop-value%::*}
+        continue
 effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %world%:
     trigger:
         set {_yaml} to "MTskR.data.rails.%expr-2%"
@@ -140,15 +105,88 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
                 set {_siding_length} to distance between {_l1} and {_l2}
                 set {_model_length} to model length of {_train}
                 if {_model_length} is not greater than {_siding_length}:
-                    spawn train {_train} at spawnloc of train {_train} in siding expr-1 in world expr-2
+                    spawnTrain({_train}, (spawnloc of train {_train} in siding expr-1 in world expr-2))
                 else:
                     send "[MTskR] &cTrain of siding '%expr-1%' in world '%expr-2%' is too long" to console
             else:
                 send "[MTskR] &eNo trains found for siding '%expr-1%' in world '%expr-2%'" to console
         else:
             send "[MTskR] &cData for world %expr-2% is missing" to console
-on death:
-    loop indexes of {-MTskR::trains::*}:
-        if {-MTskR::trains::%loop-value%::base} is victim:
-            kill train with id (loop-value parsed as integer) 
-            stop trigger
+function spawnTrain(train: string, loc: location):
+    if mtskr model {_train} exists:
+        set {_spawn::loc} to middle of {_loc}
+        set yaw of {_spawn::loc} to yaw of {_loc}
+        set pitch of {_spawn::loc} to pitch of {_loc}
+        load yaml "plugins\Skript\scripts\%mtskr dir%models\%{_train}%.yml" as "MTskR.model.%{_train}%"
+        set {_model_yaw} to yaml value "info.facing" from "MTskR.model.%{_train}%"
+        set {_id} to (last element of indexes of {-MTskR::trains::*}) parsed as int + 1
+        set {-MTskR::trains::%{_id}%::spawnloc} to {_spawn::loc}
+        set {-MTskR::trains::%{_id}%::model} to {_train}
+        spawn armor stand at {_spawn::loc}
+        set {-MTskR::trains::%{_id}%::base} to last spawned armor stand
+        add nbt from "{NoGravity:1b,Invulnerable:1b,Bukkit.invisible:1b,Small:1b,NoBasePlate:1b}" to nbt compound of {-MTskR::trains::%{_id}%::base}
+        set metadata tag "mtskr.train_id" of {-MTskR::trains::%{_id}%::base} to {_id}
+        set {_spawn::rotates} to closest quarter of yaw of {_spawn::loc} - {_model_yaw}
+        if {_spawn::rotates} is smaller than 0:
+            add 360 to {_spawn::rotates}
+        set {_spawn::times} to {_spawn::rotates} / 90
+        loop (yaml node keys "" of "MTskR.model.%{_train}%") where [input is not "info"]:
+            set {_spawn::locstr} to yaml value "%loop-value%.loc" from "MTskR.model.%{_train}%"
+            if yaml value "%loop-value%.seat" from "MTskR.model.%{_train}%" is true:
+                spawn armor stand at {_spawn::loc}
+                set {-MTskR::trains::%{_id}%::seats::%{_spawn::locstr}%} to (last spawned armor stand)
+                add nbt from "{NoGravity:1b,Invulnerable:1b,Bukkit.invisible:1b,Small:1b,NoBasePlate:1b}" to nbt compound of {-MTskR::trains::%{_id}%::seats::%{_spawn::locstr}%}
+            else:
+                spawn block display at {_spawn::loc}
+                make (last spawned block display) ride on {-MTskR::trains::%{_id}%::base}
+                set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
+                set {_spawn::rls::*} to {_spawn::locstr} split at ","
+                set {_spawn::x} to {_spawn::rls::1} parsed as number
+                set {_spawn::y} to {_spawn::rls::2} parsed as number
+                set {_spawn::z} to {_spawn::rls::3} parsed as number
+                set {_spawn::v} to vector({_spawn::x}, {_spawn::y}, {_spawn::z})
+                rotate {_spawn::v} around y-axis by (closest quarter of yaw of {_spawn::loc} - {_model_yaw})
+                set {_spawn::v} to vector(x of {_spawn::v} - 0.5, y of {_spawn::v} - 1, z of {_spawn::v} - 0.5)
+                set display translation of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_spawn::v}
+                set {_spawn::data} to (yaml value "%loop-value%.block" from "MTskR.model.%{_train}%")
+                loop {_spawn::times} times:
+                    set block data tag "facing" of {_spawn::data} to (quarter clockwise direction of block data tag "facing" of {_spawn::data})
+                set block data of {-MTskR::trains::%{_id}%::blocks::%loop-value%} to {_spawn::data}
+        clear {_spawn::*} and {_loc}
+        while {-MTskR::trains::%{_id}%::base} is alive:
+            wait 1 tick
+            {_nowloc} is not location of {-MTskR::trains::%{_id}%::base}
+            set {_nowloc} to location of {-MTskR::trains::%{_id}%::base}
+            loop {-MTskR::trains::%{_id}%::seats::*}:
+                teleport loop-value to rotateRelativeCoor({_nowloc}, {_model_yaw}, loop-index)
+        kill train {_id}
+    else:
+        send "[MTskR] &cThe model named %{_train}% does not exists" to console
+function rideTrain(train: integer, player: player):
+    if indexes of {-MTskR::trains::%{_train}%::*} is set:
+        if size of {-MTskR::trains::%{_train}%::seats::*} - size of {-MTskR::trains::%{_train}%::passengers::*} is greater than 0:
+            loop {-MTskR::trains::%{_train}%::seats::*}:
+                if {-MTskR::trains::%{_train}%::passengers::%loop-index%} is not set:
+                    make {_player} ride loop-value
+                    set {-MTskR::trains::%{_train}%::passengers::%loop-index%} to {_player}
+                    set metadata tag "mtskr.riding" of {_player} to {_train}
+                    stop trigger
+    else:
+        send "[MTskR] &cThe train does not exist" to console
+function dismountTrain(train: integer = -1, player: objects = ""):
+    if {_train} is not -1:
+        if indexes of {-MTskR::trains::%{_train}%::*} is set:
+            loop {-MTskR::trains::%{_train}%::passengers::*}:
+                make loop-value leave vehicle
+                remove loop-value from {-MTskR::trains::%{_train}%::passengers::*}
+                clear metadata tag "mtskr.riding" of loop-value
+        else:
+            send "[MTskR] &cThe train does not exist" to console
+    else if "%class of {_player}%" is "org.bukkit.craftbukkit.entity.CraftPlayer":
+        make {_player} leave vehicle
+on vehicle exit:
+    if metadata tag "mtskr.riding" of {_player} is set:
+        remove {_player} from {-MTskR::trains::%metadata tag "mtskr.riding" of {_player}%::passengers::*}
+        clear metadata tag "mtskr.riding" of {_player}
+on skript stop:
+    kill all trains

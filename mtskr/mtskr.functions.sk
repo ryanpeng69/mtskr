@@ -38,17 +38,19 @@ expression closest quarter of %float%:
         if {_yaw} is 360:
             set {_yaw} to 0
         return {_yaw}
-expression quarter clockwise direction of %object%:
+expression quarter clockwise direction of %-object%:
     return type: direction
     get:
-        if expr-1 is south or "south":
-            return west
-        else if expr-1 is west or "west":
-            return north
-        else if expr-1 is north or "north":
-            return east
-        else if expr-1 is east or "east":
-            return south
+        if expr-1 is set:
+            if expr-1 is south or "south":
+                return west
+            else if expr-1 is west or "west":
+                return north
+            else if expr-1 is north or "north":
+                return east
+            else if expr-1 is east or "east":
+                return south
+        return
 expression mtskr [rail|track] color of %string%:
     return type: color
     get:

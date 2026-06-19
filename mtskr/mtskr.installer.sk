@@ -29,7 +29,7 @@ on join:
     send "[MTskR Installer] <ttp:&9Click to use><cmd:mtskrinstaller>Type &6/mtskrinstaller &fto install MTskR"
 on tab complete of ("mtskrinstaller" or "minecrafttrainskriptrailway:mtskrinstaller"):
     set tab completions for position 1 to "update"
-command /mtskrinstaller <text>:
+command /mtskrinstaller [<text>]:
     prefix: minecrafttrainskriptrailway
     permission: op
     trigger:
