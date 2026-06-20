@@ -9,7 +9,7 @@ on left click:
         set {-MTskR::item::%player%::loc_selector::loc1} to location of event-block
         play sound "entity.experience_orb.pickup"
         send actionbar "&eLoc 1 set to &6%mtskrNodeString({-MTskR::item::%player%::loc_selector::loc1})%" to player
-on right click: # FIXME:
+on right click:
     nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
     set {_world} to world of player
     set {_yaml} to "MTskR.data.rails.%{_world}%"
@@ -24,7 +24,7 @@ on right click: # FIXME:
         play sound "entity.experience_orb.pickup"
         send actionbar "&eLoc 2 set to &6%mtskrNodeString({-MTskR::item::%player%::loc_selector::loc2})%" to player
         send formatted "<ttp:&9Click to use><sgt:/mtskr model create >&eUse &6/mtskr model create <name> &eto create a train" to player
-    else if {_item} is any of ("bridge_creator", "tunnel_creator", "tunnel_wall_creator"): # FIXME: require more calculations on direction
+    else if {_item} is any of ("bridge_creator", "tunnel_creator", "tunnel_wall_creator"):
         set {_width} to int tag "minecraft:custom_data;mtskr.width" of nbt of player's tool
         if {_item} is not "bridge_creator":
             set {_height} to int tag "minecraft:custom_data;mtskr.height" of nbt of player's tool
@@ -66,56 +66,74 @@ on right click: # FIXME:
                     if x coord of {_end_block} is not x coord of {_start_block}:
                         if z coord of {_end_block} is not z coord of {_start_block}:
                             loop {_r} times:
-                                if {_start_facing} is east or west:
+                                if {_start_facing} is west or east:
                                     set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
                                     set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
+                                    if {_end_facing} is west or east:
+                                        set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                        set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
+                                    else:
+                                        if x coord of {_start_block} is greater than x coord of {_end_block}:
+                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}  
+                                            else:
+                                                set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}  
+                                        else:
+                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                                set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}  
+                                            else:
+                                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}  
                                 else:
                                     set {_start1::%loop-value%} to the block loop-value blocks west of {_start_block}
                                     set {_start2::%loop-value%} to the block loop-value blocks east of {_start_block}
-                                if {_end_facing} is north or south:
-                                    set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
-                                    set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}
-                                else:
-                                    set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
-                                    set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
+                                    if {_end_facing} is north or south:
+                                        set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
+                                        set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}
+                                    else:
+                                        if x coord of {_start_block} is greater than x coord of {_end_block}:
+                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                                set {_end1::%loop-value%} to the block loop-value blocks south of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks north of {_end_block}  
+                                            else:
+                                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}  
+                                        else:
+                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}  
+                                            else:
+                                                set {_end1::%loop-value%} to the block loop-value blocks south of {_end_block}
+                                                set {_end2::%loop-value%} to the block loop-value blocks north of {_end_block}  
                         else:
                             if:
-                                {_start_facing} is north or south
-                                {_end_facing} is north or south
+                                {_start_facing} is west or east
+                                {_end_facing} is west or east
                             then:
-                                nothing
-                            else if:
-                                {_start_facing} is east or west
-                                {_end_facing} is east or west
-                            then:
-                                nothing
+                                loop {_r} times:
+                                    set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
+                                    set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
+                                    set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
+                                    set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
                             else:
                                 send actionbar "&cCould not connect rail; invalid orientation" to player
                                 stop trigger
-                            loop {_r} times:
-                                set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
-                                set {_start2::%loop-value%} to the block loop-value blocks south of {_start_block}
-                                set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
-                                set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
-                    else if x coord of {_end_block} is x coord of {_start_block}:
+                    else:
                         if:
                             {_start_facing} is north or south
                             {_end_facing} is north or south
                         then:
-                            nothing
-                        else if:
-                            {_start_facing} is east or west
-                            {_end_facing} is east or west
-                        then:
-                            nothing
+                            loop {_r} times:
+                                set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
+                                set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
+                                set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
+                                set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
                         else:
                             send actionbar "&cCould not connect rail; invalid orientation" to player
                             stop trigger
-                        loop {_r} times:
-                            set {_start1::%loop-value%} to the block loop-value blocks east of {_start_block}
-                            set {_start2::%loop-value%} to the block loop-value blocks west of {_start_block}
-                            set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
-                            set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}
                     if {_item} is "bridge_creator":
                         loop {_r} - 1 times:
                             update blocks between {_start1::%loop-value%} and {_end1::%loop-value%} to be {_block}
@@ -134,11 +152,9 @@ on right click: # FIXME:
                     else if {_item} is "tunnel_creator":
                         loop {_height} times:
                             loop {_r} - 1 times:
-                                update blocks between (the block loop-value-1 blocks above {_start1::%loop-value-2%}) and (the block loop-value-1 blocks above {_end1::%loop-value-2%}) to be air
-                                update blocks between (the block loop-value-1 blocks above {_start2::%loop-value-2%}) and (the block loop-value-1 blocks above {_end2::%loop-value-2%}) to be air
-                            update blocks between (the block loop-value blocks above {_start_block}) and (the block loop-value blocks above {_end_block}) to be air
-                    update {_start_node} to be {_start_node_button}
-                    update {_end_node} to be {_end_node}
+                                update (blocks between (the block loop-value-1 blocks above {_start1::%loop-value-2%}) and (the block loop-value-1 blocks above {_end1::%loop-value-2%})) where [input is not a stone button] to be air
+                                update (blocks between (the block loop-value-1 blocks above {_start2::%loop-value-2%}) and (the block loop-value-1 blocks above {_end2::%loop-value-2%})) where [input is not a stone button] to be air
+                            update (blocks between (the block loop-value blocks above {_start_block}) and (the block loop-value blocks above {_end_block})) where [input is not a stone button] to be air
                 else:
                     send actionbar "&cTwo locations' x or z must be different" to player
     else if {_item} contains "rail_connector":
