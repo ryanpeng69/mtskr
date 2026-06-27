@@ -135,7 +135,7 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                                     label: "Download"
                                     trigger:
                                         set {_fname} to string tag "name" of event-nbt
-                                        replace ("\, /, :, *, ?, "", <, >, |" split at ", ") in {_fname} with "_"
+                                        replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
                                         set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%/yaml")
                                         set {_file} to new File("plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml")
                                         {_file}.getParentFile().mkdirs()

@@ -323,11 +323,20 @@ on break:
             if yaml node keys loop-value of {_yaml} is not set:
                 delete yaml value loop-value of {_yaml}
         save yaml {_yaml}
+        send actionbar "&eRemoved rails connected to &6%mtskrNodeString(event-location)%" to player
     else if event-block is yellow carpet:
         if {MTskR::seats::*} contains event-block:
             remove event-block from {MTskR::seats::*}
             send actionbar "&eRemoved seat at &6%mtskrNodeString(event-location)%" to player
+    else if event-block is barrel:
+        if string tag "mtskr.block" of custom nbt of event-block is "platform":
+            send actionbar "&eRemoved platform block at &6%mtskrNodeString(event-location)%" to player
 on place:
     if player's tool is mtskr seat:
         add event-block to {MTskR::seats::*}
-        send actionbar "&ePlace a seat at &6%mtskrNodeString(event-location)%" to player
+        send actionbar "&ePlaced a seat at &6%mtskrNodeString(event-location)%" to player
+    else if player's tool is platform block:
+        set string tag "mtskr.block" of custom nbt of event-block to "platform"
+        if facing of event-block is up or down:
+            set facing of event-block to facing of player
+        send actionbar "&ePlaced a platform block at &6%mtskrNodeString(event-location)%" to player

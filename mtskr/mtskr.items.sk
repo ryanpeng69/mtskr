@@ -62,7 +62,7 @@ expression [a] [mtskr] tutorial[s| book[s]]:
     return type: itemtype
     get:
         return book named "&fMTskR Tutorial" with lore ("&dMinecraft TrainSkript Railway") with nbt from "{""minecraft:custom_data"":{mtskr.item:""tutorial""}}"
-expression [a] [mtskr] railway dashboard[s]:
+expression [a] [mtskr] platform block[s]:
     return type: itemtype
     get:
-        return # map named "&fRailway Dashboard" with lore "&7Edit your rail system with this dashboard." with nbt from "{""minecraft:custom_data"":{mtskr.item:""railway_dashboard""}}"
+        return barrel named "&fPlatform Block" with lore ("&7Passengers must be on this block to get on trains.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_block""}}"

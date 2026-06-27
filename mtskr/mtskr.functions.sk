@@ -67,10 +67,10 @@ effect (reset|fix) mtskr config:
         set the header of "MTskR.config" to ("MTskR config" and "https://github.com/ryanpeng69/mtskr/")
         if mtskr config "model_maxium_blocks" is not set:
             set mtskr config "model_maxium_blocks" to 1000
-        if mtskr config "model_name_regex" is not set:
-            set mtskr config "model_name_regex" to "[a-zA-Z0-9_]{1,64}"
+        if mtskr config "tick_for_ride_train_detection" is not set:
+            set mtskr config "tick_for_ride_train_detection" to 2
         save yaml "MTskR.config"
-effect [re|(:un)]load mtskr (:config|:data)[s] [(by|from) %sender%]:
+effect (re:[re]load|un:unload) mtskr (:config|:data)[s] [(by|from) %sender%]:
     trigger:
         if parse tags contains "un":
             if parse tags contains "config":
@@ -90,6 +90,10 @@ effect [re|(:un)]load mtskr (:config|:data)[s] [(by|from) %sender%]:
                 loop all worlds:
                     load yaml "plugins\Skript\scripts\%{_dir}%data\rails\%loop-value%.yml" as "MTskR.data.rails.%loop-value%"
                     load yaml "plugins\Skript\scripts\%{_dir}%data\routes\%loop-value%.yml" as "MTskR.data.routes.%loop-value%"
+        if expr-1 is a player:
+            send "&6%propercase 2nd element of parse tags% &e%first element of parse tags%loaded" to expr-1
+        else:
+            send "[MTskR] &a%propercase 2nd element of parse tags% %first element of parse tags%loaded" to console
 effect nothing:
     trigger:
         set {_} to {_}

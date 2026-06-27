@@ -1,0 +1,62 @@
+function formatArrivalCountdownTimespan(timespan: timespan) :: string:
+    set {_m} to minutes of {_timespan}
+    if {_m} is not greater than 0:
+        return "%seconds of {_timespan}%s"
+    else:
+        return "%{_m}%m"
+function arrivalCountdown(world: world, siding: string, platform: string) :: timespan:
+    set {_nodes::*} to {-MTskR::routes::%{_world}%::%{_siding}%::*}
+    set {_split_platform::*} to {_platform} split at "."
+    set {_split_siding::*} to {_siding} split at "."
+    set {_yaml} to "MTskR.data.rails.%{_world}%"
+    if {_nodes::*} contains {_split_platform::2}:
+        set {_model} to yaml value "%{_siding}%.siding.train" of {_yaml}
+        loop {_nodes::*}:
+            next loop-value is set
+            if loop-value is {_split_platform::2}:
+                return timespan({_time}, ticks)
+            set {_node} to "%loop-value%.%next loop-value%"
+            set {_end} to mtskrNodeLoc(next loop-value, {_world})
+            set {_stop_time} to 0
+            if yaml path "%{_node}%.type" of {_yaml} has value:
+                if yaml value "%{_node}%.type" of {_yaml} is "platform":
+                    if yaml value "%{_node}%.platform.stop_time" of {_yaml} is greater than 0:
+                        set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of {_yaml}
+                    else:
+                        set {_stop_time} to 5
+                    set {_end} to spawnloc of {_model} for platform {_node} in {_world}
+            set {_steps} to distance between mtskrNodeLoc(loop-value, {_world}) and {_end} * 2
+            add {_steps} to {_time}
+            add {_stop_time} to {_time}
+        return timespan({_time}, ticks)
+function startArrivalSign(world: world, siding: string, platform: string, running: string): # signs allign to left
+    set {_base} to arrivalCountdown({_world}, {_siding}, {_platform})
+    set {_first} to {_base}
+    set {_stop_time} to yaml value "%{_platform}%.platform.stop_time" of "MTskR.data.rails.%{_world}%"
+    set {_schedule} to yaml value "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%"
+    set {_terminal} to terminal of siding {_siding} in world {_world}
+    set {_terminal_length} to length of {_terminal}
+    while {-MTskR::%{_running}%} is true:
+        decrease {_first} by 1 second
+        if seconds of {_first} + {_stop_time} is 0:
+            increase {_first} by timespan({_schedule}, seconds)
+        loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*}: # signs
+            clear {_line::*}
+            loop {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::lines} times:
+                set {_time} to {_first}
+                add timespan(((loop-value-2) - 1) * {_schedule}, seconds) to {_time}
+                set {_formatted_time} to formatArrivalCountdownTimespan({_time})
+                set {_time_length} to length of {_formatted_time}
+                set {_left_length} to 20 - {_time_length}
+                set {_spaces_count} to {_left_length} - {_terminal_length}
+                if {_spaces_count} is greater than 0:
+                    set {_spaces} to ""
+                    loop {_spaces_count} times:
+                        set {_spaces} to "%{_spaces}% "
+                    set {_line::%loop-value-2%} to "%{_terminal}%%{_spaces}%%{_formatted_time}%"
+                else: 
+                    set {_spaces} to "   "
+                    set {_allowed_terminal_l} to 20 - {_time_length} - 3
+                    set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
+                    set {_line::%loop-value-2%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
+            set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::display} to join {_line::*} by "\n"
