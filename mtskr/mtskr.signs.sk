@@ -1,10 +1,10 @@
-function formatArrivalCountdownTimespan(timespan: timespan) :: string:
+function mtskr_formatArrivalCountdownTimespan(timespan: timespan) :: string:
     set {_m} to minutes of {_timespan}
     if {_m} is not greater than 0:
         return "%seconds of {_timespan}%s"
     else:
         return "%{_m}%m"
-function arrivalCountdown(world: world, siding: string, platform: string) :: timespan:
+function mtskr_arrivalCountdown(world: world, siding: string, platform: string) :: timespan:
     set {_nodes::*} to {-MTskR::routes::%{_world}%::%{_siding}%::*}
     set {_split_platform::*} to {_platform} split at "."
     set {_split_siding::*} to {_siding} split at "."
@@ -16,7 +16,7 @@ function arrivalCountdown(world: world, siding: string, platform: string) :: tim
             if loop-value is {_split_platform::2}:
                 return timespan({_time}, ticks)
             set {_node} to "%loop-value%.%next loop-value%"
-            set {_end} to mtskrNodeLoc(next loop-value, {_world})
+            set {_end} to mtskr_nodeLoc(next loop-value, {_world})
             set {_stop_time} to 0
             if yaml path "%{_node}%.type" of {_yaml} has value:
                 if yaml value "%{_node}%.type" of {_yaml} is "platform":
@@ -25,12 +25,12 @@ function arrivalCountdown(world: world, siding: string, platform: string) :: tim
                     else:
                         set {_stop_time} to 5
                     set {_end} to spawnloc of {_model} for platform {_node} in {_world}
-            set {_steps} to distance between mtskrNodeLoc(loop-value, {_world}) and {_end} * 2
+            set {_steps} to distance between mtskr_nodeLoc(loop-value, {_world}) and {_end} * 2
             add {_steps} to {_time}
             add {_stop_time} to {_time}
         return timespan({_time}, ticks)
-function startArrivalSign(world: world, siding: string, platform: string, running: string): # signs allign to left
-    set {_base} to arrivalCountdown({_world}, {_siding}, {_platform})
+function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string): # signs allign to left
+    set {_base} to mtskr_arrivalCountdown({_world}, {_siding}, {_platform})
     set {_first} to {_base}
     set {_stop_time} to yaml value "%{_platform}%.platform.stop_time" of "MTskR.data.rails.%{_world}%"
     set {_schedule} to yaml value "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%"
@@ -45,7 +45,7 @@ function startArrivalSign(world: world, siding: string, platform: string, runnin
             loop {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::lines} times:
                 set {_time} to {_first}
                 add timespan(((loop-value-2) - 1) * {_schedule}, seconds) to {_time}
-                set {_formatted_time} to formatArrivalCountdownTimespan({_time})
+                set {_formatted_time} to mtskr_formatArrivalCountdownTimespan({_time})
                 set {_time_length} to length of {_formatted_time}
                 set {_left_length} to 20 - {_time_length}
                 set {_spaces_count} to {_left_length} - {_terminal_length}

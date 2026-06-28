@@ -14,7 +14,7 @@ import:
     com.google.gson.JsonParser
     com.google.gson.JsonArray
     com.google.gson.JsonObject
-function urlRequestJson(urlText: string) :: string:
+function mtskr_urlRequestJson(urlText: string) :: string:
     set {_url} to new URL({_urlText})
     set {_connection} to {_url}.openConnection()
     {_connection}.setRequestMethod("GET")
@@ -41,7 +41,7 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             time since {-MTskR::temp::last::fetchmodels} is smaller than 30 seconds
             continue
         set {-MTskR::temp::last::fetchmodels} to now
-        set {_jsonString} to urlRequestJson("https://mtskr.up.railway.app/get/models" )
+        set {_jsonString} to mtskr_urlRequestJson("https://mtskr.up.railway.app/get/models" )
         replace "\r" in {_jsonString} with ""
         if {_jsonString} starts with "&cError":
             send {_jsonString} to expr-1
@@ -93,7 +93,7 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                     play sound "item.book.page_turn" with seed 2
                     open page {_want_page} + 1 of models on web to player
             else:
-                make gui slot 46 with paper named "&cNext Page":
+                make gui slot 52 with paper named "&cNext Page":
                     play sound "entity.villager.no" with seed 0
             make gui slot 53 with paper named "&eLast Page":
                 play sound "item.book.page_turn" with seed 3
@@ -136,7 +136,7 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                                     trigger:
                                         set {_fname} to string tag "name" of event-nbt
                                         replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
-                                        set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%/yaml")
+                                        set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%")
                                         set {_file} to new File("plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml")
                                         {_file}.getParentFile().mkdirs()
                                         set {_inputStream} to {_url}.openStream()

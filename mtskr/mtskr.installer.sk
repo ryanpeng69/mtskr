@@ -27,10 +27,10 @@ on join:
     player is op
     {-MTskR::installer::require_install} is set
     send "[MTskR Installer] <ttp:&9Click to use><cmd:mtskrinstaller>Type &6/mtskrinstaller &fto install MTskR"
-on tab complete of ("mtskrinstaller" or "minecrafttrainskriptrailway:mtskrinstaller"):
+on tab complete of ("mtskrinstaller" or "mtskr:mtskrinstaller"):
     set tab completions for position 1 to "update"
 command /mtskrinstaller [<text>]:
-    prefix: minecrafttrainskriptrailway
+    prefix: mtskr
     permission: op
     trigger:
         set {_url} to new URL("https://api.github.com/repositories/1254744123/contents/mtskr")

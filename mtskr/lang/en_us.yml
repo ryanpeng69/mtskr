@@ -1,0 +1,140 @@
+# MTskR language file: en_us
+# You should follow this guide: https://github.com/ryanpeng69/mtskr/wiki/Translating
+lang_info: "&6English US &7- &eOfficial Language Made By &6RyanPeng69" # You should change this.
+other_keys: "en_au, en_ca, en_gb, en_nz, en_pt, en_ud, enp, enws, lol_us" # Alternative keys that will use this lang when there isn't a file for it.
+main:
+  cmd:
+    model:
+      does_not_exist: "&cThe model named %model% does not exist."
+    click_to_use: "&9Click to use"
+    stop_route_false: "&cSiding %siding% in world %world% is not running."
+    edit:
+      train:
+        not_siding: "&cTrain is only available for sidings."
+      schedule:
+        small: "&cSchedule should not be smaller than 0."
+        none: "&cPlease specify the schedule in seconds at arg-5."
+        not_siding: "&cSchedule is only available for sidings."
+      route:
+        does_not_exist: "&cRoute with id %id% does not exist."
+        not_siding: "&cRoute is only available for sidings."
+      stop_time:
+        out: "&cStop time must be between 0 and 60."
+        not_platform: "&cStop time is only avaliable for platforms."
+      incorrect_type: "&cType of rail from %loc1% to %loc2% is not %type%."
+      false: "&cRail from %loc1% to %loc2% does not exist or is not editable."
+      none: "&cPlease specify rail with 2 locations of rail nodes formatted as x,y,z at arg-2 and 3."
+    removeroute:
+      removed: "&eRoute &6%route% &eremoved."
+      list: "&eRoutes in world &6%world%&7: &eClick to remove."
+    config:
+      key_none: "&cPlease specify a key at arg-3."
+      key_false: "&cThe config doesn't have %key%."
+      value_none: "&cPlease specify a value at arg-4."
+      reset: "&eConfig reset."
+tutorial:
+  home:
+    intro: <u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u> is a <u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u> work made by <u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u>.%nl%Putting <u><click:open_url:https://modrinth.com/project/XKPAmI6u>Jonathan Ho's Minecraft Transit Railway mod</click></u> into a Paper Server.
+    btn:
+      items_gui: "Items GUI"
+      cmd: "View Commands"
+      create_railway: "Create Your First Railway"
+  command:
+    non_op: |
+      &bMTskR Command
+      &7 - &e/mtskr
+      &7  - &ehelp&7|&etutorial &6Show tutorial of MTskR.
+      &7  - &elang <key> &6Change your language.
+    1: |
+      &bMTskR Command
+      &7 - &e/mtskr
+      &7  - &econfig
+      &7    - &eget <key> &6View the value of a key.
+      &7    - &elist &6See all keys and values.
+      &7    - &ereset &6Reset the config to default.
+      &7    - &eset <key> <value> &6Modify the config.
+      &7  - &eedit <x>,<y>,<z> <x>,<y>,<z> &6Open the dialog to edit rail.<ttp:&2You can simply click on the first node of the rail with MTskR Brush to do the same.>&2*<reset>
+      &7    - &egoto &6Teleport to the middle of the rail.
+      &7    - &ename <name> &6Set the name of the rail.
+      &7    - &eroute &7(siding) &6Select the route for the rail by id, use /mtskr route to view routes with id.
+      &7    - &eschedule &7(siding) &6Change the interval<ttp:&2seconds>&2*<reset> &6the train will start.
+      &7    - &estop &7(siding) &6Stop all trains of the siding.
+      &7    - &estop_time &7(platform) &6How long the trains will stop.<ttp:&2seconds>&2*<reset>
+      &7    - &etrain &7(siding) &6Select the train model for the siding.
+      &7<cmd:mtskr help cmd 1>←<reset> &fPage 1&7/&f2 <cmd:mtskr help cmd 2>&f→<reset>
+    2: |
+      &bMTskR Command
+      &7 - &e/mtskr
+      &7  - &egui &6Opens the gui to get items.
+      &7  - &ehelp&7|&etutorial &6Show tutorial of MTskR.
+      &7  - &elang <key> &6Change your language.
+      &7  - &emodel
+      &7    - &ecreate <name> [-f] &6Create a new model with the selected area.<ttp:&2Use -f to overwrite.>&2*<reset>
+      &7    - &edownload &6Open the list of models on the <link:https://mtskr.up.railway.app/models>web<reset> &6in a gui.
+      &7    - &elist &6Viwe all models.
+      &7    - &erebuild &6Spawn the model as blocks to rebuild.<ttp:&2When done, use the same command as create and add -f to overwrite the existed one.>&2*<reset>
+      &7  - &ereload
+      &7    - &eall&7|&escripts &6Reloads everything.
+      &7    - &econfig &6Reloads config.
+      &7    - &edata &6Reloads data.
+      &7    - &elang &6Reloads language files.
+      &7    - &escript <script> &6Reload one script.
+      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 2&7/&f2 <cmd:mtskr help cmd 2>&f→<reset>
+    3: |
+      &bMTskR Command
+      &7 - &e/mtskr
+      &7  - &eroute
+      &7    - &elist &6List all routes with id to remove.
+      &7    - &eremove <id> &6Delete the route.
+      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 3&7/&f2 <cmd:mtskr help cmd 2>&7→<reset>
+  create_railway:
+    1: |
+      &3Step 1 &7- &6Learning about Items
+      &eYou recieved the items<ttp:&2You can always get these items again using '/mtskr gui'.>&2*<reset>&e, let's start:
+      &7 - &eBrush&7: &6This item lets you to view and edit rails.<ttp:&2Click on a rail node to use; sneak click to edit.>&2*<reset>
+      &7 - &eRail Node&7: &6Every rails must be placed on this.
+      &7 - &eSiding Rail Connector&7: &6This rail connector makes siding for your route, a siding is where the train will spawn. 
+      &7 - &eOne Way Rail Connector&7: &6This rail connector creates a one way rail between nodes, use it to connect sidings and platforms.
+      &7 - &eDouble Way Rail Connector&7: &6This rail connector allows the train to move on both directions.
+      &7 - &ePlatform Rail Connector&7: &6This makes a platform for the train to stop and pickup passengers.
+      &7 - &ePlatform Block&7: &6Players must be on this block to get into trains when the train is stopped at a platform.
+      &7 - &eRoute Creator&7: &6Click on 1 or more nodes then sneak click to make a route.<ttp:&2Ensure the rails you connected can lead the train out and in the siding. The siding can be entered from both sides.>&2*<reset>
+
+      <ttp:&9Click to continue><cmd:mtskr help create_railway 2>&eAfter reading above, click to use &6/mtskr help create_railway 2 &eto continue.
+    2: |
+      &3Step 2 &7- &6Create Sidings
+      &b1. &ePlace a rail node.
+      &b2. &ePlace another one on the same x or z.<ttp:&2Make sure the length(distance between these 2 nodes) is not smaller than the train length. Recommend more than 10 blocks.>&2*<reset>
+      &b3. &eConnect these 2 nodes with a &6Siding Rail Connector&e.<ttp:&2The train will move away the siding from the second node you clicked, meaning the directions of the siding is the direction of the train.>&2*<reset>
+
+      <ttp:&9Click to continue><cmd:mtskr help create_railway 3>&eClick to use &6/mtskr help create_railway 3 &eto continue.
+    3: |
+      &3Step 3 &7- &6Create Platforms
+      &b1. &eChoose a place you want the train to stop at.
+      &b2. &eCreate a platform rail using a &6Platform Rail Connector &ejust as creating sidings.<ttp:&2Platforms are one direction rails, you have to stack the rail from another direction to allow trains from another side.>&2*<reset>
+      &b3. &eAdd as much platforms around the world as you want.
+
+      <ttp:&9Click to continue><cmd:mtskr help create_railway 4>&eClick to use &6/mtskr help create_railway 4 &eto continue.
+    4: |
+      &3Step 4 &7- &6Connecting Rails
+      &b1. &eUse the normal rail connectors<ttp:&2The one way rail connector and the double way rail connector.>&2*<reset> &eto connect your sidings to the platforms. Make sure the rail can lead the train back to the siding.
+      &b2. &eTake out a &6Route Creator.
+      &b3. &eClick on must have nodes for your train, the trains for this route will pass these nodes. More nodes will be calculated when the route is loaded by a siding.<ttp:&2You don't have to select every nodes, but it will improve the calculation when you have a complex system.>&2*<reset>
+      &b4. &eSneak right click with the same route creator, it will open a dialog to create route.
+      &b5. &eWrite a name and select a color for the new route.
+      &b6. &eClick 'Create'.
+
+      <ttp:&9Click to continue><cmd:mtskr help create_railway 5>&eClick to use &6/mtskr help create_railway 5 &eto continue.
+    5: |
+      &3Step 5 &7- &6Modifing Sidings
+      &b1. &eTake &6MTskR Brush.
+      &b2. &eSneak click on the first node of the siding<ttp:&2The node that you clicked first to create the siding.>&2*<reset> &eto open dialog.
+      &b3. &eThe schedule decides how long the train will takeoff. You can modify it if you want, click 'update' when done editing name or schedule.
+      &b4. &eSelect the train for the siding. If you don't hava any trains, do <ttp:&9Click to use><cmd:mtskr models download>&6/mtskr model download<reset> &eor visit <link:https://mtskr.up.railway.app/models>&6the web<reset> &eto download one.
+      &b5. &eSelect the route you just created in 'Select Route'.
+      &b6. &eClick on 'Refresh Route', it will calculate the path passing all mentioned nodes and back to the siding. Trains will start moving.
+      &eAs modifing sidings, you can customize a platform with the same way.
+
+      &aEnjoy your journey! &7- &o<link:https://github.com/ryanpeng69>RyanPeng69 2026/6/28<reset>
+
+      &7<link:https://github.com/ryanpeng69/mtskr>Github<reset> &8| &7<link:https://discord.gg/kSSmEyVSRR>Discord<reset> &8| &7<link:https://mtskr.up.railway.app/>Web<reset>      

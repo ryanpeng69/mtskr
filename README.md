@@ -15,10 +15,13 @@
 <ol>
   <li>Get the required plugins into <code>plugins\</code> folder.</li>
   <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk" target="_blank">mtskr.installer.sk</a> into <code>plugins\Skript\scripts</code>.</li>
+  <li>Run <code>/sk reload scripts</code> to reload the script.</li>
   <li>Run <code>/mtskrinstaller</code>, it will download more files and automatically reload.</li>
-  <li>Edit the config at <code>plugins\Skript\scripts\.\mtskr\config.yml</code> if you want.</li>
+  <li>Use <code>/mtskr config</code> to edit config if you want.</li>
   <li>Run <code>/mtskr</code> to get started.</li>
 </ol>
+
+  See more installation guide on [wiki](https://github.com/ryanpeng69/mtskr/wiki/Installation)
 
 ##### Requirements
 
@@ -42,6 +45,7 @@
 ## Items/Blocks:
 
   Items of MTskR are stored in [mtskr.items.sk](https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.items.sk), meaning that you can modify the name, lores, and even custom models.
+  
   Although MTskR is made for resource pack free servers, you can add one if you want. (see [MTskR Wiki](https://github.com/ryanpeng69/mtskr/wiki/Using-resource-packs))
 
 ##### Items:
@@ -55,7 +59,7 @@
 ##### Blocks:
 
 * [X] Rail node: stone button (blocks used to connect rails, direction matters)
-* [ ] Platform block
+* [X] Platform block
 
 ##### Rail connectors: (interact with rail nodes)
 
@@ -101,11 +105,9 @@ info:
     type: (normal|platform|siding|turnback)
     platform: # optional
       name: %text = "1"%
-      color: %text% # hex
       stop_time: %int = 5% # seconds
     siding: # optional
       name: %text = "1"%
-      color: %text% # hex
       schedule: %int = 0% # seconds
       route: %int% # route id
       train: %text%
@@ -137,8 +139,8 @@ info:
 * [X] Model: Display blocks riding on a minecart.
 * [X] Spawn: By selecting train in the gui for a siding, the train will spawn.
 * [X] Movement: Set velocity of train to vector from loc1 to loc2.
-* [ ] Passengers: Must be on a seat.
-* [ ] Arrival countdown: ?
+* [X] Passengers: Must be on a seat.
+* [X] Arrival countdown: `distance between {_start} and {_end} * 2 / 20`
 
 ## Stations & Depots
 
