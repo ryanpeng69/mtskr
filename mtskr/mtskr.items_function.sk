@@ -9,7 +9,7 @@ on left click:
         set {-MTskR::item::%player%::loc_selector::loc1} to location of event-block
         play sound "entity.experience_orb.pickup"
         send actionbar "&eLoc 1 set to &6%mtskr_nodeString({-MTskR::item::%player%::loc_selector::loc1})%" to player
-on right click:
+on right click: # TODO: re edit arrival signs
     nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
     set {_world} to world of player
     set {_yaml} to "MTskR.data.rails.%{_world}%"
@@ -167,16 +167,25 @@ on right click:
         else:
             set {_rawloc} to last element of ((line 3 of lore of player's tool) split at "&f")
             set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
-            set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
+            set {_loc} to block at location({_v::1}, {_v::2}, {_v::3}, {_v::4})
             clear line 3 of lore of player's tool
             make player's tool stop glint
             if world of {_loc} is not world of event-block:
                 send error "&cTwo locations must be in the same world" to player
             else if x and z of block at {_loc} and event-block are different:
                 clear line 3 of lore of player's tool
-                if {_item} is "remove_rail_connector":
+                set {_type} to {_item}
+                replace "_rail_connector" in {_type} with ""
+                if {_type} is "remove":
                     set {_l1} to mtskr_nodeString({_loc})
                     set {_l2} to mtskr_nodeString(event-block)
+                    set {_rail} to yaml value "%{_l1}%.%{_l2}%.type" of {_yaml}
+                    if {_rail} is "siding":
+                        mtskr_stopRoute(world of {_loc}, "%{_l1}%.%{_l2}%")
+                        set {_armorstands::*} to armor stands within {_loc} and event-block
+                        loop {_armorstands::*}:
+                            if metadata tag "mtskr.train_id" of loop-value is set:
+                                remove entity loop-value
                     if yaml node "%{_l1}%.%{_l2}%" of {_yaml} exists:
                         delete yaml value "%{_l1}%.%{_l2}%" from {_yaml}
                         if yaml node keys {_l1} of {_yaml} is not set:
@@ -187,8 +196,6 @@ on right click:
                             delete yaml value {_l2} of {_yaml}
                     send actionbar "&eRail removed" to player
                 else:
-                    set {_type} to {_item}
-                    replace "_rail_connector" in {_type} with ""
                     if {_type} matches "siding|platform":
                         set {_first} to block at {_loc}
                         if x of {_first} is x of event-block:
@@ -318,6 +325,8 @@ on right click:
                     loop indexes of {_results::*}:
                         make 10 of trail using {_trail::%loop-value-2%} at {_start::%loop-value-2%}
                     wait 1 tick
+        else if string tag "mtskr.block" of custom nbt of event-block is "arrival_sign":
+            modify arrival sign event-block
     else if {_item} is "tutorial":
         open mtskr tutorial to player
 on break:
@@ -341,12 +350,22 @@ on break:
     else if event-block is barrel:
         if string tag "mtskr.block" of custom nbt of event-block is "platform":
             send actionbar "&eRemoved platform block at &6%mtskr_nodeString(event-location)%" to player
+    else if event-block is oak sign:
+        if string tag "mtskr.block" of custom nbt of event-block is "arrival_sign":
+            send actionbar "&eRemoved arrival sign at &6%mtskr_nodeString(event-location)%" to player
 on place:
     if player's tool is mtskr seat:
         add event-block to {MTskR::seats::*}
-        send actionbar "&ePlaced a seat at &6%mtskr_nodeString(event-location)%" to player
+        send actionbar "&ePlaced seat at &6%mtskr_nodeString(event-location)%" to player
     else if player's tool is platform block:
         set string tag "mtskr.block" of custom nbt of event-block to "platform"
         if facing of event-block is up or down:
             set facing of event-block to facing of player
-        send actionbar "&ePlaced a platform block at &6%mtskr_nodeString(event-location)%" to player
+        send actionbar "&ePlaced platform block at &6%mtskr_nodeString(event-location)%" to player
+    else if player's tool is arrival sign:
+        if block data tag "facing" of block data of event-block is set:
+            set string tag "mtskr.block" of custom nbt of event-block to "arrival_sign"
+            send actionbar "&ePlaced arrival sign at &6%mtskr_nodeString(event-location)%&e. Edit with brush." to player
+        else:
+            send actionbar "&cThe sign should be placed on walls."
+            play sound "entity.experience_orb.pickup"

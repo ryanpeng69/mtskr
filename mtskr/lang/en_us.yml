@@ -1,7 +1,7 @@
 # MTskR language file: en_us
 # You should follow this guide: https://github.com/ryanpeng69/mtskr/wiki/Translating
-lang_info: "&6English US &7- &eOfficial Language Made By &6RyanPeng69" # You should change this.
 other_keys: "en_au, en_ca, en_gb, en_nz, en_pt, en_ud, enp, enws, lol_us" # Alternative keys that will use this lang when there isn't a file for it.
+language_changed: "&eYou language have been changed to the &6official &elanguage &6en_us &eby &6RyanPeng69" # Please change this line. Don't state "official" without permission.
 main:
   cmd:
     model:

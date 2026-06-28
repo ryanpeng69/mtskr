@@ -60,3 +60,80 @@ function mtskr_startArrivalSign(world: world, siding: string, platform: string, 
                     set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
                     set {_line::%loop-value-2%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
             set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::display} to join {_line::*} by "\n"
+effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
+    trigger:
+        set {_facing} to block data tag "facing" of block data of expr-1
+        set {_loc} to location of expr-1
+        set {_str} to mtskr_nodeString({_loc})
+        open multi action dialog to expr-2:
+            title: "MTskR - Edit Arrival Sign"
+            body:
+                add text body:
+                    contents: "By selecting the siding and platform, the sign will become a text display."
+                add text body:
+                    contents: "Select a world then you can select sidings."
+            actions:
+                loop worlds:
+                    set {_world} to "%loop-value%"
+                    add callback action button:
+                        label: {_world}
+                        trigger:
+                            set {_yaml} to "MTskR.data.rails.%{_world}%"
+                            open multi action dialog to player:
+                                title: "MTskR - Edit Arrival Sign"
+                                body:
+                                    add text body:
+                                        contents: "Now, select a siding."
+                                actions:
+                                    loop yaml node keys "" of {_yaml}:
+                                        loop yaml node keys loop-value of {_yaml}:
+                                            set {_node} to "%loop-value-1%.%loop-value-2%"
+                                            if yaml value "%{_node}%.type" of {_yaml} is "siding":
+                                                set {_siding::%{_node}%} to yaml value "%{_node}%.siding.name" of {_yaml}
+                                            else if yaml value "%{_node}%.type" of {_yaml} is "platform":
+                                                set {_platform::%{_node}%} to yaml value "%{_node}%.platform.name" of {_yaml}
+                                    clear {_node}
+                                    if {_siding::*} is set:
+                                        loop {_siding::*}:
+                                            set {_siding} to loop-index
+                                            add callback action button:
+                                                label: "(%loop-value%) %{_siding}%"
+                                                trigger:
+                                                    loop {_platform::*}:
+                                                        open multi action dialog to player:
+                                                            title: "MTskR - Edit Arrival Sign"
+                                                            body:
+                                                                add text body:
+                                                                    contents: "Now, select a platform."
+                                                            actions:
+                                                                if {_platform::*} is set:
+                                                                    loop {_platform::*}:
+                                                                        set {_platform} to loop-index
+                                                                        add callback action button:
+                                                                            label: "(%loop-value%) %{_platform}%"
+                                                                            trigger:
+                                                                                set {_spawn} to the block right of {_loc}
+                                                                                set {_x} to x coord of {_spawn}
+                                                                                set {_y} to y coord of {_spawn}
+                                                                                set {_z} to z coord of {_spawn}
+                                                                                if {_facing} is "north":
+                                                                                    increase {_z} by 0.5
+                                                                                else if {_facing} is "south":
+                                                                                    decrease {_z} by 0.5
+                                                                                else if {_facing} is "west":
+                                                                                    increase {_x} by 0.5
+                                                                                else if {_facing} is "east":
+                                                                                    decrease {_x} by 0.5
+                                                                                set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::lines} to 3 # lines
+                                                                                spawn text display at {_spawn}
+                                                                                set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} to last spawned text display
+                                                                else:
+                                                                    add callback action button:
+                                                                        label: "&cNo Platforms Found"
+                                                                        trigger:
+                                                                            play sound "entity.villager.no" with seed 0
+                                    else:
+                                        add callback action button:
+                                            label: "&cNo Sidings Found"
+                                            trigger:
+                                                play sound "entity.villager.no" with seed 0

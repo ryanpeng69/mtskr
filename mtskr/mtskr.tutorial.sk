@@ -1,6 +1,7 @@
 effect open [mtskr] tutorial (to|for) %player%:
     trigger:
         set {_lang} to {-MTskR::lang::%expr-1%}
+        set {_p} to expr-1
         open multi action dialog to expr-1:
             title: "MTskR: Minecraft TrainSkript Railway"
             body:
@@ -12,7 +13,7 @@ effect open [mtskr] tutorial (to|for) %player%:
                     label: mtskr_message({_lang}, "tutorial.home.btn.cmd")
                     trigger:
                         make player execute command "mtskr help cmd"
-                expr-1 is op
+                {_p} is op
                 add callback action button:
                     label: mtskr_message({_lang}, "tutorial.home.btn.create_railway")
                     trigger:
@@ -26,7 +27,7 @@ function showTutorial(player: player, arg-1: text, arg-2: text, arg-3: text):
         if {_arg-2} is "create_railway":
             {_player} is op
             if {_arg-3} matches "[2-5]":
-                send formatted mtskr_message({_lang}, "tutorial.create_railway.%{_arg-3}%")
+                send formatted mtskr_message({_lang}, "tutorial.create_railway.%{_arg-3}%") to {_player}
             else:
                 give mtskr brush to {_player}'s inventory
                 give mtskr rail node to {_player}'s inventory
@@ -36,15 +37,15 @@ function showTutorial(player: player, arg-1: text, arg-2: text, arg-3: text):
                 give mtskr platform rail connector to {_player}'s inventory
                 give mtskr platform block to {_player}'s inventory
                 give mtskr route creator to {_player}'s inventory
-                send formatted mtskr_message({_lang}, "tutorial.create_railway.1")
+                send formatted mtskr_message({_lang}, "tutorial.create_railway.1") to {_player}
         else if {_arg-2} matches "command|cmd":
             if {_player} is op:
                 if {_arg-3} matches "[1-3]":
-                    send formatted mtskr_message({_lang}, "tutorial.command.%{_arg-3}%")
+                    send formatted mtskr_message({_lang}, "tutorial.command.%{_arg-3}%") to {_player}
                 else:
-                    send formatted mtskr_message({_lang}, "tutorial.command.1")
+                    send formatted mtskr_message({_lang}, "tutorial.command.1") to {_player}
             else:
-                send formatted mtskr_message({_lang}, "tutorial.command.non_op")
+                send formatted mtskr_message({_lang}, "tutorial.command.non_op") to {_player}
         else:
             open mtskr tutorial to {_player}
     else:

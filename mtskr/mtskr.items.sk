@@ -66,3 +66,7 @@ expression [a] [mtskr] platform block[s]:
     return type: itemtype
     get:
         return barrel named "&fPlatform Block" with lore ("&7Passengers must be on this block to get on trains.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_block""}}"
+expression [a] [mtskr] [platform] [train] arrival [countdown] sign[s]:
+    return type: itemtype
+    get:
+        return oak sign named "&fArrival Sign" with lore ("&7This will place a 3 blocks wide arrival sign from left to right.") with nbt from "{""minecraft:custom_data"":{mtskr.item:""arrival_sign""},""minecraft:block_entity_data"":{back_text:{color:""black"",has_glowing_text:0b,messages:["""","""","""",""""]},front_text:{color:""black"",has_glowing_text:0b,messages:[""Right Click with"",""MTskR Brush"",""to Select Siding"",""""]},id:""minecraft:sign"",is_waxed:0b}}"

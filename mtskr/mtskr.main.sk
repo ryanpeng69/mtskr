@@ -9,6 +9,7 @@ on join:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
 on language change:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
+    send mtskr_message({-MTskR::lang::%player%}, "language_changed")
 on tab complete of ("mtskr" or "mtskr:mtskr"):
     set tab completions for position 1 to "help, tutorial, lang" split at ", "
     if player is op:
@@ -76,7 +77,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     prefix: mtskr
     trigger:
         set {_lang} to {-MTskR::lang::%player%}
-        if whether arg-1 is "model" and whether player is op are true:
+        if (whether arg-1 is "model") and (whether player is op) are true:
             if arg-2 is "create":
                 if arg-4 is "-f":
                     force create train model arg-3
@@ -113,10 +114,10 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 set {_click_to_use} to mtskr_message({_lang}, "main.cmd.click_to_use")
                 loop "create, rebuild, list" split at ", ":
                     send formatted "<ttp:%{_click_to_use}%><sgt:/mtskr model %loop-value% >&6/mtskr model %loop-value% ..."
-        else if whether arg-1 matches "gui|items" and whether player is op are true:
+        else if (whether arg-1 matches "gui|items") and (whether player is op) are true:
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
                 set {_index} to 0
-                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr route creator, mtskr model seat, and mtskr platform block):
+                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr route creator, mtskr model seat, mtskr platform block, and mtskr arrival sign):
                     set {_item} to loop-value
                     make gui slot {_index} with {_item}:
                         give player {_item}
@@ -170,7 +171,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                             give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator
                     add 1 to {_index}
             open last gui to player
-        else if whether arg-1 is "reload" and whether player is op are true:
+        else if (whether arg-1 is "reload") and (whether player is op) are true:
             if arg-2 matches "scripts|all":
                 set {_dir} to "%current script%"
                 regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
@@ -188,7 +189,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 reload mtskr config
                 reload mtskr data
                 reload mtskr lang
-        else if whether arg-1 matches "edit|siding|platform" and whether player is op are true:
+        else if (whether arg-1 matches "edit|siding|platform") and (whether player is op) are true:
             if:
                 arg-2 matches "-?\d+,-?\d+,-?\d+"
                 arg-3 matches "-?\d+,-?\d+,-?\d+"
@@ -333,7 +334,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                     send error mtskr_message({_lang}, "main.cmd.edit.false", ("loc1", "loc2"), (arg-2, arg-3))
             else:
                 send error mtskr_message({_lang}, "main.cmd.edit.none")
-        else if whether arg-1 is "route" and whether player is op are true:
+        else if (whether arg-1 is "route") and (whether player is op) are true:
             set {_yaml} to "MTskR.data.routes.%world of player%"
             set {_id::*} to (yaml node keys "" of {_yaml})
             if arg-2 is "remove":
@@ -356,7 +357,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                             set {_short} to "%{_short}% %{_c}%"
                     add "&7%loop-value%: <ttp:&f%join {_nodes::*} by " "%><cmd:mtskr route remove %loop-value%>%{_name}%" to {_list::*}
                 send formatted join {_list::*} by "<reset>&7, "
-        else if whether arg-1 is "config" and whether player is op are true:
+        else if (whether arg-1 is "config") and (whether player is op) are true:
             if arg-2 is "set":
                 if arg-3 is set:
                     if arg-4 is set:
@@ -385,5 +386,6 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                     send "&e%loop-value%&7: &6%mtskr config loop-value%"
         else if arg-1 matches "lang(uage)?|locale":
             set {-MTskR::lang::%player%} to best mtskr language for arg-2
+            send mtskr_message({-MTskR::lang::%player%}, "language_changed")
         else:
             showTutorial(player, arg-1, arg-2, arg-3)
