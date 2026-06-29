@@ -9,7 +9,7 @@ on left click:
         set {-MTskR::item::%player%::loc_selector::loc1} to location of event-block
         play sound "entity.experience_orb.pickup"
         send actionbar "&eLoc 1 set to &6%mtskr_nodeString({-MTskR::item::%player%::loc_selector::loc1})%" to player
-on right click: # TODO: re edit arrival signs
+on right click:
     nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
     set {_world} to world of player
     set {_yaml} to "MTskR.data.rails.%{_world}%"

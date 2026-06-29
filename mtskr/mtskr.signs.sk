@@ -125,8 +125,12 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                                                                                 else if {_facing} is "east":
                                                                                     decrease {_x} by 0.5
                                                                                 set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::lines} to 3 # lines
-                                                                                spawn text display at {_spawn}
-                                                                                set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} to last spawned text display
+                                                                                if {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} is not set:
+                                                                                    spawn text display at {_spawn}
+                                                                                    set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} to last spawned text display
+                                                                                    set text alignment of last spawned text display to right aligned
+                                                                                    set line width of last spawned text display to 600
+                                                                                send "&eEdit again by placing an arrival sign at the same location."                                                                               
                                                                 else:
                                                                     add callback action button:
                                                                         label: "&cNo Platforms Found"

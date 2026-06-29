@@ -116,17 +116,20 @@ expression mtskr [rail|track] color of %string%:
             return blue
         else:
             return white
-expression [the] best mtskr language (of|for) %string%:
+expression [the] best mtskr language (of|for) %-object%:
     get:
-        if yaml "MTskR.lang.%expr-1%" is loaded:
-            return expr-1
-        else:
-            loop all loaded yaml where [input starts with "MTskR.lang."]:
-                set {_alternative} to yaml value "other_keys" of loop-value
-                if {_alternative} split at ", " contains expr-1:
-                    set {_lang} to loop-value
-                    replace "MTskR.lang." in {_lang} with ""
-                    return {_lang}
+        if expr-1 is set:
+            if class of expr-1 is "org.bukkit.craftbukkit.entity.CraftPlayer":
+                return best mtskr language for language of expr-1
+            if yaml "MTskR.lang.%expr-1%" is loaded:
+                return expr-1
+            else:
+                loop all loaded yaml where [input starts with "MTskR.lang."]:
+                    set {_alternative} to yaml value "other_keys" of loop-value
+                    if {_alternative} split at ", " contains expr-1:
+                        set {_lang} to loop-value
+                        replace "MTskR.lang." in {_lang} with ""
+                        return {_lang}
         return "en_us"
 effect nothing:
     trigger:
@@ -197,6 +200,8 @@ function mtskr_message(lang: string, key: string, replace: objects = "none", wit
     if yaml "MTskR.lang.%{_lang}%" is not loaded:
         set {_lang} to "en_us"
     set {_string} to yaml value {_key} from "MTskR.lang.%{_lang}%"
+    if {_string} is not set:
+        set {_string} to yaml value {_key} from "MTskR.lang.en_us"
     if {_replace::*} is not "none":
         loop {_replace::*}:
             add 1 to {_i}
