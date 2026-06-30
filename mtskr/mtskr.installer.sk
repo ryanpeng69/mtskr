@@ -29,96 +29,94 @@ on join:
     send "[MTskR Installer] <ttp:&9Click to use><cmd:mtskrinstaller>Type &6/mtskrinstaller &fto install MTskR"
 on tab complete of ("mtskrinstaller" or "mtskr:mtskrinstaller"):
     set tab completions for position 1 to "update"
+function mtskr_installer_request(url: string) :: string:
+    set {_javaURL} to new URL({_url})
+    set {_connection} to {_javaURL}.openConnection()
+    {_connection}.setRequestMethod("GET")
+    {_connection}.setRequestProperty("User-Agent", "MTskR.Installer")
+    {_connection}.setConnectTimeout(5000)
+    {_connection}.setReadTimeout(5000)
+    if {_connection}.getResponseCode() is 200:
+        set {_streamReader} to new InputStreamReader({_connection}.getInputStream())
+        set {_reader} to new BufferedReader({_streamReader})
+        set {_stringBuilder} to new StringBuilder()
+        set {_line} to {_reader}.readLine()
+        while {_line} is set:
+            {_stringBuilder}.append({_line})
+            set {_line} to {_reader}.readLine()
+        {_reader}.close()
+        return {_stringBuilder}.toString()
+    else:
+        if {_connection}.getResponseCode() is set:
+            return "&cError: Response Code: %{_connection}.getResponseCode()%"
+        else:
+            return "&cError: No response code, please check your wifi connection."
+function mtskr_download(url: string, path: string):
+    set {_javaURL} to new URL({_url})
+    set {_file} to new File({_path})
+    {_file}.getParentFile().mkdirs()
+    set {_inputStream} to {_javaURL}.openStream()
+    Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    {_inputStream}.close()
 command /mtskrinstaller [<text>]:
     prefix: mtskr
     permission: op
     trigger:
-        set {_url} to new URL("https://api.github.com/repositories/1254744123/contents/mtskr")
-        set {_connection} to {_url}.openConnection()
-        {_connection}.setRequestMethod("GET")
-        {_connection}.setRequestProperty("User-Agent", "MTskR.Installer")
-        {_connection}.setConnectTimeout(5000)
-        {_connection}.setReadTimeout(5000)
-        if {_connection}.getResponseCode() is 200:
-            set {_streamReader} to new InputStreamReader({_connection}.getInputStream())
-            set {_reader} to new BufferedReader({_streamReader})
-            set {_stringBuilder} to new StringBuilder()
-            set {_line} to {_reader}.readLine()
-            while {_line} is set:
-                {_stringBuilder}.append({_line})
-                set {_line} to {_reader}.readLine()
-            {_reader}.close()
-            set {_jsonString} to {_stringBuilder}.toString()
-        else:
-            if {_connection}.getResponseCode() is set:
-                set {_jsonString} to "&cError: Response Code: %{_connection}.getResponseCode()%"
+        send "[MTskR] &fInstalling MTskR..."
+        set {_jsonString::lang} to mtskr_installer_request("https://api.github.com/repositories/1254744123/contents/mtskr/lang")
+        set {_jsonString::scripts} to mtskr_installer_request("https://api.github.com/repositories/1254744123/contents/mtskr")
+        loop {_jsonString::*}:
+            if loop-value starts with "&cError":
+                send loop-value
+                play sound "entity.villager.no" with seed 0
+                stop trigger
             else:
-                set {_jsonString} to "&cError: No response code, please check your wifi connection."
-        if {_jsonString} starts with "&cError":
-            send {_jsonString}
-            play sound "entity.villager.no" with seed 0
-        else:
-            set {_jsonElement} to JsonParser.parseString({_jsonString})
-            set {_jsonArray} to {_jsonElement}.getAsJsonArray()
-            set {_size} to {_jsonArray}.size()
-            if {_size} is 0:
-                send "&eNo result from url request"
-            else:
-                loop {_size} times:
-                    set {_index} to loop-value - 1
-                    set {_jsonObject} to {_jsonArray}.get({_index})
-                    if {_jsonObject}.get("type").getAsString() is "file":
-                        set {_name::%{_index}%} to {_jsonObject}.get("name").getAsString()
-                        set {_url::%{_index}%} to {_jsonObject}.get("download_url").getAsString()
-                set {_dir} to "%current script%"
-                set {_file_name} to "%current script%"
-                regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
-                if arg-1 is "update":
-                    loop {_name::*}:
-                        set {_needs::%loop-value%} to {_url::%loop-index%}
+                set {_jsonElement} to JsonParser.parseString(loop-value)
+                set {_jsonArray} to {_jsonElement}.getAsJsonArray()
+                set {_size} to {_jsonArray}.size()
+                if {_size} is 0:
+                    send "[MTskR] &cNo result from url request."
                 else:
-                    set {_fileDir} to new File("plugins\Skript\scripts\%{_dir}%")
-                    set {_array} to {_fileDir}.listFiles()
-                    loop ...{_array}:
-                        add loop-value.getName() to {_files::*}
-                    loop {_name::*}:
-                        if loop-value ends with ".sk":
-                            scripts without paths does not contain loop-value
-                            set {_needs::%loop-value%} to {_url::%loop-index%}
+                    loop {_size} times:
+                        set {_jsonObject} to {_jsonArray}.get((loop-value-2) - 1)
+                        {_jsonObject}.get("type").getAsString() is "file"
+                        set {_name} to {_jsonObject}.get("name").getAsString()
+                        set {_url} to {_jsonObject}.get("download_url").getAsString()
+                        if loop-index is "lang":
+                            set {_lang::%{_name}%} to {_url}
                         else:
-                            {_files::*} does not contain loop-value
-                            set {_needs::%loop-value%} to {_url::%loop-index%}
-                if {_needs::*} is set:
-                    loop {_needs::*}:
-                        send actionbar "&eInstalling MTskR &7(&6%loop-counter%&7/&6%size of {_needs::*}%&7)"
-                        set {_url} to new URL(loop-value)
-                        set {_file} to new File("plugins\Skript\scripts\%{_dir}%%loop-index%")
-                        {_file}.getParentFile().mkdirs()
-                        set {_inputStream} to {_url}.openStream()
-                        Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                        {_inputStream}.close()
-                    set {_file_name} to "%current script%"
-                    replace first {_dir} in {_file_name} with ""
-                    send "&aMTskR installed. &7(<reset>Downloaded &6%size of {_needs::*}% <reset>files)"
-                    set {_o_script} to new File("plugins\Skript\scripts\%current script%")
-                    set {_new_script} to new File("plugins\Skript\scripts\%{_dir}%%{_file_name}%")
-                    if {_o_script}.renameTo({_new_script}) is true:
-                        send "&aInstaller moved, reloading MTskR."
-                        set {_new} to "%current script%"
-                        unload the current script
-                        regex replace "(.*\\)([^\\]+)$" in {_new} with "$1-$2"
-                        load script {_new}
-                    else:
-                        send "&cFailed to move installer, continue reloading MTskR."
-                    reload scripts in directory {_dir}
-                    clear {-MTskR::installer::require_install}
-                    if sender is console:
-                        send "&aDone installing, head in game and type &6/mtskr <reset>to get started."
-                    else:
-                        send "<ttp:&9/mtskr><cmd:mtskr>&aDone installing, click to get started."
-                        play sound "entity.experience_orb.pickup"
-                else:
-                    if sender is console:
-                        send "&eMTskR is already installed."
-                    else:
-                        send "<ttp:&9/mtskr><cmd:mtskr>&eMTskR is already installed, click to get started."
+                            set {_script::%{_name}%} to {_url}
+        set {_dir} to "%current script%"
+        regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
+        if {_dir} does not contain "mtskr":
+            set {_dir} to "%{_dir}%mtskr\"
+        loop {_script::*}:
+            if scripts without paths does not contain loop-value:
+                set {_path} to "plugins\Skript\scripts\%{_dir}%%loop-index%"
+                set {_download::%{_path}%} to loop-value
+        loop {_lang::*}:
+            if at least one of:
+                loop-value is "en_us.yml"
+                arg-1 split at "," contains loop-value
+            then:
+                set {_path} to "plugins\Skript\scripts\%{_dir}%lang\%loop-index%"
+                set {_download::%{_path}%} to loop-value
+        set {_files} to size of {_download::*}
+        loop {_download::*}:
+            send actionbar "Downloading &6%loop-counter%&f/&6%% files &7(%loop-counter / {_files} * 100%%%)"
+            mtskr_download(loop-value, loop-index)
+        send actionbar "&aDownloaded &6%{_files}% files"
+        send "[MTskR] &aMTskR downloaded."
+        set {_javaFile} to new File("plugins\Skript\scripts\%current script%")
+        if {_javaFile}.delete() is true:
+            send "[MTskR] &fOld installer deleted."
+        else:
+            send "[MTskR] &cFailed deleting the old installer."
+        send "[MTskR] &fStarting MTskR..."
+        reload scripts in directory {_dir}
+        clear {-MTskR::installer::require_install}
+        if sender is console:
+            send "[MTskR] &aDone installing, head in game and type &6/mtskr &ato get started."
+        else:
+            send "<ttp:&9/mtskr><cmd:mtskr>[MTskR] &aDone installing, click to get started."
+            play sound "entity.experience_orb.pickup"

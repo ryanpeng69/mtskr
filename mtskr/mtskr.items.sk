@@ -66,12 +66,12 @@ expression [a] [mtskr] %integer% by %integer% tunnel (creator|builder)[s] [for [
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-3
-        return stone pickaxe named mtskr_message({_lang}, "items.tunnel_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_creator.lores") at nl with "") with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+        return stone pickaxe named mtskr_message({_lang}, "items.tunnel_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
 expression [a] [mtskr] %integer% by %integer% [tunnel] wall (creator|builder)[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-3
-        return stone axe named mtskr_message({_lang}, "items.tunnel_wall_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_wall_creator.lores") at nl with "") with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+        return stone axe named mtskr_message({_lang}, "items.tunnel_wall_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_wall_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
 expression [a] [mtskr] tutorial[s| book[s]] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
     return type: itemtype
     get:

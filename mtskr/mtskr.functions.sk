@@ -119,7 +119,7 @@ expression mtskr [rail|track] color of %string%:
 expression [the] best mtskr language (of|for) %-object%:
     get:
         if expr-1 is set:
-            if class of expr-1 is "org.bukkit.craftbukkit.entity.CraftPlayer":
+            if "%class of expr-1%" is "org.bukkit.craftbukkit.entity.CraftPlayer":
                 return best mtskr language for language of expr-1
             if yaml "MTskR.lang.%expr-1%" is loaded:
                 return expr-1
