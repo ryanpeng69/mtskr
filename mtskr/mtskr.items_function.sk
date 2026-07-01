@@ -11,6 +11,7 @@ on left click:
         send actionbar "&eLoc 1 set to &6%mtskr_nodeString({-MTskR::item::%player%::loc_selector::loc1})%" to player
 on right click:
     nbt compound of player's tool has tag "minecraft:custom_data;mtskr.item"
+    set {_lang} to {-MTskR::lang::%player%}
     set {_world} to world of player
     set {_yaml} to "MTskR.data.rails.%{_world}%"
     if player's tool is not a block:
@@ -36,23 +37,30 @@ on right click:
                 event-block is a full collision block
                 tag values of minecraft tag "leaves" does not contain event-block
             then:
-                set line 4 of lore of player's tool to "&7Selected block: &f%blockdata of event-block%"
-                send actionbar "&eSelected block: &6%blockdata of event-block%" to player
+                set {_lores::*} to mtskr_message({_lang}, "items.%{_item}%.lores", "block", blockdata of event-block) split at nl
+                set line 4 of lore of player's tool to {_lores::4}
+                send actionbar {_lores::4} to player
             else:
                 send actionbar "&cThis block is not allowed"
         else if event-block is a stone button:
             block data tag "face" of block data of event-block is "floor"
-            if line 5 of lore of player's tool is not set:
-                set line 5 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
-                make player's tool glint
-                send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
+            if {_item} is "tunnel_creator":
+                set {_line} to 3
             else:
-                set {_rawloc} to last element of ((line 5 of lore of player's tool) split at "&f")
+                set {_line} to 5
+            if line {_line} of lore of player's tool is not set:
+                make player's tool glint
+                set {_locstr} to "%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%"
+                set {_lores::*} to mtskr_message({_lang}, "items.%{_item}%.lores", "loc", "%{_locstr}%, %world of event-block%")
+                set line {_line} of lore of player's tool to {_lores::%{_line}%}
+                send actionbar {_lores::%{_line}%} to player
+            else:
+                set {_rawloc} to last element of ((line {_line} of lore of player's tool) split at "&f")
                 set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"
                 set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
                 set {_start_node} to block at {_loc}
                 set {_start_node_button} to blockdata of {_start_node}
-                clear line 5 of lore of player's tool
+                clear line {_line} of lore of player's tool
                 make player's tool stop glint
                 if x and z of {_start_node} and event-block are different:
                     set {_rawblock} to last element of ((line 4 of lore of player's tool) split at "&f")
@@ -161,9 +169,11 @@ on right click:
         event-block is stone button
         block data tag "face" of block data of event-block is "floor"
         if line 3 of lore of player's tool is not set:
-            set line 3 of lore of player's tool to "&7Selected location: &f%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%, %world of event-block%"
-            send actionbar "&eSelected location: &6%floor(x of event-block)% %floor(y of event-block)% %floor(z of event-block)%" to player
             make player's tool glint
+            set {_locstr} to "%floor(x of event-block)%, %floor(y of event-block)%, %floor(z of event-block)%"
+            set {_lores::*} to mtskr_message({_lang}, "items.%{_item}%.lores", "loc", "%{_locstr}%, %world of event-block%")
+            set line 3 of lore of player's tool to {_lores::3}
+            send actionbar {_lores::3} to player
         else:
             set {_rawloc} to last element of ((line 3 of lore of player's tool) split at "&f")
             set {_v::*} to {_rawloc} parsed as "%integer%, %integer%, %integer%, %world%"

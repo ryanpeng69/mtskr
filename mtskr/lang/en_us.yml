@@ -138,7 +138,7 @@ tutorial:
       &aEnjoy your journey! &7- &o<link:https://github.com/ryanpeng69>RyanPeng69 2026/6/28<reset>
 
       &7<link:https://github.com/ryanpeng69/mtskr>Github<reset> &8| &7<link:https://discord.gg/kSSmEyVSRR>Discord<reset> &8| &7<link:https://mtskr.up.railway.app/>Web<reset>      
-items: # It is not a good idea to change the size of lines. # TODO: change selected loc and block's lang
+items: # It is not a good idea to change the size or format of the lines.
   brush:
     name: "&fBrush"
     lores: |-
@@ -209,19 +209,24 @@ items: # It is not a good idea to change the size of lines. # TODO: change selec
       &7Instant build bridges for tracks.
       &7Click on a rail node to place.
       &7Sneak right click to select block.
-      &7Selected block: &fair
+      &7Selected block: &f%block%
+      &7Selected location: &f%loc%
   tunnel_creator:
     name: "&f%width%x%height% Tunnel Creator"
     lores: |-
       &7Instant dig tunnels for tracks.
       &7Click on a rail node to place.
+
+
+      &7Selected location: &f%loc%
   tunnel_wall_creator:
     name: "&f%width%x%height% Tunnel Wall Creator"
     lores: |-
       &7Instant build walls for tunnels.
       &7Click on a rail node to place.
       &7Sneak right click to select block.
-      &7Selected block: &fair
+      &7Selected block: &f%block%
+      &7Selected location: &f%loc%
   tutorial:
     name: "&fMTskR Tutorial"
     lores: |-

@@ -3,6 +3,7 @@
 effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to [loc[ation]] %location% with runnig check %string%:
     trigger: 
         if {-MTskR::%expr-4%} is true:
+            {-MTskR::trains::%expr-1%::base} is alive
             delay effect
             set {_start} to middle of expr-2
             set {_end} to middle of expr-3
@@ -209,6 +210,7 @@ on skript start:
     wait 1 second
     while players is not set:
         wait 1 second
+    wait 1 second
     loop worlds:
         loop yaml node keys "" of "MTskR.data.rails.%loop-value-1%":
             loop yaml node keys loop-value-2 of "MTskR.data.rails.%loop-value-1%":

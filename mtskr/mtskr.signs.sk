@@ -62,7 +62,7 @@ function mtskr_startArrivalSign(world: world, siding: string, platform: string, 
             set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::display} to join {_line::*} by "\n"
 effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
     trigger:
-        set {_facing} to block data tag "facing" of block data of expr-1
+        set {_facing} to facing of expr-1
         set {_loc} to location of expr-1
         set {_str} to mtskr_nodeString({_loc})
         open multi action dialog to expr-2:
@@ -116,18 +116,19 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                                                                                 set {_x} to x coord of {_spawn}
                                                                                 set {_y} to y coord of {_spawn}
                                                                                 set {_z} to z coord of {_spawn}
-                                                                                if {_facing} is "north":
+                                                                                if {_facing} is north:
                                                                                     increase {_z} by 0.5
-                                                                                else if {_facing} is "south":
+                                                                                else if {_facing} is south:
                                                                                     decrease {_z} by 0.5
-                                                                                else if {_facing} is "west":
+                                                                                else if {_facing} is west:
                                                                                     increase {_x} by 0.5
-                                                                                else if {_facing} is "east":
+                                                                                else if {_facing} is east:
                                                                                     decrease {_x} by 0.5
                                                                                 set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::lines} to 3 # lines
-                                                                                if {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} is not set:
-                                                                                    spawn text display at {_spawn}
+                                                                                if {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} is not alive:
+                                                                                    spawn text display at location({_x}, {_y}, {_z}, {_world})
                                                                                     set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} to last spawned text display
+                                                                                    set yaw of last spawned text display to yaw of direction {_facing}
                                                                                     set text alignment of last spawned text display to right aligned
                                                                                     set line width of last spawned text display to 600
                                                                                 send "&eEdit again by placing an arrival sign at the same location."                                                                               
