@@ -42,7 +42,7 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
         set {_expr-3} to expr-3
         set {_yaml} to "MTskR.data.rails.%expr-3%"
         open multi action dialog to {_expr-1}:
-            title: "MTskR Select Siding Train"
+            title: "MTskR - Select Train"
             body:
                 add text body:
                     contents: "Click to select train for this siding"
@@ -79,7 +79,7 @@ effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|la
             if indexes of {-MTskR::trains::%expr-1%::*} is set:
                 set {_indexes::*} to expr-1
             else:
-                send "[MTskR] &cThe train with id %expr-1% does not exist" to console
+                send formatted "[MTskR] &cThe train with id %expr-1% does not exist" to console
         else if parse tags contains "all":
             set {_indexes::*} to indexes of {-MTskR::trains::*}
         else if parse tags contains "last":
@@ -104,11 +104,11 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
                 if {_model_length} is not greater than {_siding_length}:
                     spawnTrain({_train}, (spawnloc of train {_train} in siding expr-1 in world expr-2))
                 else:
-                    send "[MTskR] &cTrain of siding '%expr-1%' in world '%expr-2%' is too long" to console
+                    send formatted "[MTskR] &cTrain of siding '%expr-1%' in world '%expr-2%' is too long" to console
             else:
-                send "[MTskR] &eNo trains found for siding '%expr-1%' in world '%expr-2%'" to console
+                send formatted "[MTskR] &eNo trains found for siding '%expr-1%' in world '%expr-2%'" to console
         else:
-            send "[MTskR] &cData for world %expr-2% is missing" to console
+            send formatted "[MTskR] &cData for world %expr-2% is missing" to console
 function spawnTrain(train: string, loc: location):
     if mtskr model {_train} exists:
         set {_spawn::loc} to middle of {_loc}
@@ -150,8 +150,8 @@ function spawnTrain(train: string, loc: location):
                 set display translation of (last spawned block display) to {_spawn::v}
                 set {_spawn::data} to (yaml value "%loop-value%.block" from "MTskR.model.%{_train}%")
                 loop {_spawn::times} times:
-                    set block data tag "facing" of {_spawn::data} to (quarter clockwise direction of block data tag "facing" of {_spawn::data})
-                set block data of (last spawned block display) to {_spawn::data}
+                    set blockdata tag "facing" of {_spawn::data} to (quarter clockwise direction of blockdata tag "facing" of {_spawn::data})
+                set blockdata of (last spawned block display) to {_spawn::data}
         clear {_spawn::*} and {_loc}
         while {-MTskR::trains::%{_id}%::base} is alive:
             wait 1 tick
@@ -161,7 +161,7 @@ function spawnTrain(train: string, loc: location):
                 teleport loop-value to location 0.8 blocks below mtskr_rotateRelativeCoor({_nowloc}, {_model_yaw}, loop-index)
         kill train {_id}
     else:
-        send "[MTskR] &cThe model named %{_train}% does not exist" to console
+        send formatted "[MTskR] &cThe model named %{_train}% does not exist" to console
 function rideTrain(train: integer, player: player):
     if indexes of {-MTskR::trains::%{_train}%::*} is set:
         if size of {-MTskR::trains::%{_train}%::seats::*} - size of {-MTskR::trains::%{_train}%::passengers::*} is greater than 0:
@@ -172,7 +172,7 @@ function rideTrain(train: integer, player: player):
                     set metadata tag "mtskr.riding" of {_player} to {_train}
                     stop trigger
     else:
-        send "[MTskR] &cThe train does not exist. &7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
+        send formatted "[MTskR] &cThe train does not exist. &7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
 on dismount:
     event-entity is a player
     if metadata tag "mtskr.riding" of player is set:

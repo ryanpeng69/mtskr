@@ -50,7 +50,7 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             set {_jsonArray} to {_jsonElement}.getAsJsonArray()
             set {_size} to {_jsonArray}.size()
             if {_size} is 0:
-                send "&eNo result from url request" to expr-1
+                send formatted "&eNo result from url request" to expr-1
             else:
                 loop {_size} times:
                     set {_index} to loop-value - 1
@@ -142,6 +142,6 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                                         set {_inputStream} to {_url}.openStream()
                                         Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
                                         {_inputStream}.close()
-                                        send "&aDownloaded %{_name}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%"
-                                        send "[MTskR] %player% downloaded model %{_fname}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%" to console
+                                        send formatted "&aDownloaded %{_name}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%"
+                                        send formatted "[MTskR] %player% downloaded model %{_fname}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%" to console
         open last gui to expr-2

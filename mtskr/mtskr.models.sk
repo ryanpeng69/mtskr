@@ -37,7 +37,7 @@ expression: # length of [mtskr] [train] model %string%
             else:
                 return abs({_lv1::1} - {_lv2::1})
         else:
-            send "[MTskR] &cModel does not exist. &7Trigger: length of [mtskr] [train] model %expr-1%" to console
+            send formatted "[MTskR] &cModel does not exist. &7Trigger: length of [mtskr] [train] model %expr-1%" to console
         return
 effect remove entit(y|ies) %entities%:
     trigger:
@@ -70,7 +70,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                                 if facing of loop-value is set:
                                     set {_facing} to facing of loop-value
                                 else:
-                                    set {_rotation} to block data tag "rotation" of loop-value
+                                    set {_rotation} to blockdata tag "rotation" of loop-value
                                     if {_rotation} is 0:
                                         set {_facing} to south
                                     else if {_rotation} is 4:
@@ -114,8 +114,8 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         add 1 to {_i}
                     save yaml "MTskR.model.%{_fname}%"
                     play sound "entity.experience_orb.pickup" to expr-2
-                    send "&eTrain model &6%{_fname}% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2% &eSeats&7: &6%{_seat_count}%&7)" to expr-2
-                    send "[MTskR] %expr-2% created train model %{_fname}% with %{_door_count} / 2% doors and %{_seat_count}% seats among %size of {_blocks::*}% blocks" to console
+                    send formatted "&eTrain model &6%{_fname}% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2% &eSeats&7: &6%{_seat_count}%&7)" to expr-2
+                    send formatted "[MTskR] %expr-2% created train model %{_fname}% with %{_door_count} / 2% doors and %{_seat_count}% seats among %size of {_blocks::*}% blocks" to console
                 else:
                     send error "&cYou must put an oak sign that says '[Model]'" to expr-2
             else:
@@ -130,7 +130,7 @@ condition [mtskr] [train] model [named|with name|with id[entifier]] %string% (is
         else if parse tags contains "not":
             continue
 function mtskr_doorType(facing: direction, b: block) :: text:
-    set {_data} to block data of {_b}
+    set {_data} to blockdata of {_b}
     if {_facing} is north:
         set {_side} to "L" if "%{_data}%" contains "facing=west" else "R"
     else if {_facing} is south:

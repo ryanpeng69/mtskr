@@ -1,11 +1,38 @@
+# Part - Signs
+# https://github.com/ryanpeng69/mtskr/
+function mtskr_fixSign(node: string, loc: location):
+    set {_facing} to facing of block at {_loc}
+    set {_world} to world of {_loc}
+    set {_spawn} to the block left of {_loc}
+    set {_x} to x coord of {_spawn}
+    set {_y} to y coord of {_spawn}
+    set {_z} to z coord of {_spawn}
+    if {_facing} is north:
+        increase {_z} by 0.5
+    else if {_facing} is south:
+        decrease {_z} by 0.5
+    else if {_facing} is west:
+        increase {_x} by 0.5
+    else if {_facing} is east:
+        decrease {_x} by 0.5
+    broadcast "{-MTskR::%{_node}%}"
+    if {-MTskR::%{_node}%} is not alive:
+        spawn text display at location({_x}, {_y}, {_z}, {_world})
+        set {-MTskR::%{_node}%} to last spawned text display
+        set yaw of last spawned text display to yaw of direction {_facing}
+        set text alignment of last spawned text display to right aligned
+        set line width of last spawned text display to 600
 function mtskr_formatArrivalCountdownTimespan(timespan: timespan) :: string:
-    set {_m} to minutes of {_timespan}
-    if {_m} is not greater than 0:
-        return "%seconds of {_timespan}%s"
-    else:
-        return "%{_m}%m"
-function mtskr_arrivalCountdown(world: world, siding: string, platform: string) :: timespan:
-    set {_nodes::*} to {-MTskR::routes::%{_world}%::%{_siding}%::*}
+    if {_timespan} is set:
+        set {_m} to minutes of {_timespan}
+        if {_m} is not greater than 0:
+            return "%seconds of {_timespan}%s"
+        else:
+            return "%{_m}%m"
+    return ""
+function mtskr_arrivalCountdown(world: world, siding: string, platform: string) :: number:
+    add {-MTskR::routes::%{_world}%::%{_siding}%::out::*} to {_nodes::*}
+    add {-MTskR::routes::%{_world}%::%{_siding}%::in::*} to {_nodes::*}
     set {_split_platform::*} to {_platform} split at "."
     set {_split_siding::*} to {_siding} split at "."
     set {_yaml} to "MTskR.data.rails.%{_world}%"
@@ -14,7 +41,7 @@ function mtskr_arrivalCountdown(world: world, siding: string, platform: string) 
         loop {_nodes::*}:
             next loop-value is set
             if loop-value is {_split_platform::2}:
-                return timespan({_time}, ticks)
+                return {_ticks} / 20
             set {_node} to "%loop-value%.%next loop-value%"
             set {_end} to mtskr_nodeLoc(next loop-value, {_world})
             set {_stop_time} to 0
@@ -26,40 +53,44 @@ function mtskr_arrivalCountdown(world: world, siding: string, platform: string) 
                         set {_stop_time} to 5
                     set {_end} to spawnloc of {_model} for platform {_node} in {_world}
             set {_steps} to distance between mtskr_nodeLoc(loop-value, {_world}) and {_end} * 2
-            add {_steps} to {_time}
-            add {_stop_time} to {_time}
-        return timespan({_time}, ticks)
-function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string): # signs allign to left
-    set {_base} to mtskr_arrivalCountdown({_world}, {_siding}, {_platform})
-    set {_first} to {_base}
+            add {_steps} to {_ticks}
+            add {_stop_time} to {_ticks}
+        return {_ticks} / 20
+    return 0
+function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string, bound: string): # signs allign to left
+    set {_first} to mtskr_arrivalCountdown({_world}, {_siding}, {_platform})
     set {_stop_time} to yaml value "%{_platform}%.platform.stop_time" of "MTskR.data.rails.%{_world}%"
     set {_schedule} to yaml value "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%"
-    set {_terminal} to terminal of siding {_siding} in world {_world}
+    set {_terminal} to terminal of {_bound} route for siding {_siding} in world {_world}
     set {_terminal_length} to length of {_terminal}
     while {-MTskR::%{_running}%} is true:
-        decrease {_first} by 1 second
-        if seconds of {_first} + {_stop_time} is 0:
-            increase {_first} by timespan({_schedule}, seconds)
-        loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*}: # signs
-            clear {_line::*}
-            loop {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::lines} times:
-                set {_time} to {_first}
-                add timespan(((loop-value-2) - 1) * {_schedule}, seconds) to {_time}
-                set {_formatted_time} to mtskr_formatArrivalCountdownTimespan({_time})
-                set {_time_length} to length of {_formatted_time}
-                set {_left_length} to 20 - {_time_length}
-                set {_spaces_count} to {_left_length} - {_terminal_length}
-                if {_spaces_count} is greater than 0:
-                    set {_spaces} to ""
-                    loop {_spaces_count} times:
-                        set {_spaces} to "%{_spaces}% "
-                    set {_line::%loop-value-2%} to "%{_terminal}%%{_spaces}%%{_formatted_time}%"
-                else: 
-                    set {_spaces} to "   "
-                    set {_allowed_terminal_l} to 20 - {_time_length} - 3
-                    set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
-                    set {_line::%loop-value-2%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
-            set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%::display} to join {_line::*} by "\n"
+        wait 1 second
+        decrease {_first} by 1
+        if {_first} + {_stop_time} is smaller than 0:
+            increase {_first} by {_schedule}
+        loop 3 times:
+            set {_lv} to loop-value
+            set {_time} to {_first} + ({_lv} - 1) * {_schedule}
+            set {_formatted_time} to mtskr_formatArrivalCountdownTimespan(timespan({_time}, seconds))
+            set {_time_length} to length of {_formatted_time}
+            set {_left_length} to 20 - {_time_length}
+            set {_spaces_count} to {_left_length} - {_terminal_length}
+            if {_spaces_count} is greater than 0:
+                set {_spaces} to ""
+                loop {_spaces_count} times:
+                    set {_spaces} to "%{_spaces}% "
+                set {_line::%loop-value%} to "%{_terminal}%%{_spaces}%%{_formatted_time}%"
+            else: 
+                set {_spaces} to "   "
+                set {_allowed_terminal_l} to 20 - {_time_length} - 3
+                set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
+                set {_line::%loop-value%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
+        set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*} to join {_line::*} by nl
+        # loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*}: # signs
+        #     set {_loc} to mtskr_nodeLoc(loop-value, {_world})
+        #     mtskr_fixSign("siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%", {_loc})
+        #     clear {_line::*}
+    set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*} to ""
 effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
     trigger:
         set {_facing} to facing of expr-1
@@ -99,46 +130,34 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                                             add callback action button:
                                                 label: "(%loop-value%) %{_siding}%"
                                                 trigger:
-                                                    loop {_platform::*}:
-                                                        open multi action dialog to player:
-                                                            title: "MTskR - Edit Arrival Sign"
-                                                            body:
-                                                                add text body:
-                                                                    contents: "Now, select a platform."
-                                                            actions:
-                                                                if {_platform::*} is set:
-                                                                    loop {_platform::*}:
-                                                                        set {_platform} to loop-index
-                                                                        add callback action button:
-                                                                            label: "(%loop-value%) %{_platform}%"
-                                                                            trigger:
-                                                                                set {_spawn} to the block right of {_loc}
-                                                                                set {_x} to x coord of {_spawn}
-                                                                                set {_y} to y coord of {_spawn}
-                                                                                set {_z} to z coord of {_spawn}
-                                                                                if {_facing} is north:
-                                                                                    increase {_z} by 0.5
-                                                                                else if {_facing} is south:
-                                                                                    decrease {_z} by 0.5
-                                                                                else if {_facing} is west:
-                                                                                    increase {_x} by 0.5
-                                                                                else if {_facing} is east:
-                                                                                    decrease {_x} by 0.5
-                                                                                set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::lines} to 3 # lines
-                                                                                if {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} is not alive:
-                                                                                    spawn text display at location({_x}, {_y}, {_z}, {_world})
-                                                                                    set {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%::display} to last spawned text display
-                                                                                    set yaw of last spawned text display to yaw of direction {_facing}
-                                                                                    set text alignment of last spawned text display to right aligned
-                                                                                    set line width of last spawned text display to 600
-                                                                                send "&eEdit again by placing an arrival sign at the same location."                                                                               
-                                                                else:
+                                                    open multi action dialog to player:
+                                                        title: "MTskR - Edit Arrival Sign"
+                                                        body:
+                                                            add text body:
+                                                                contents: "Now, select a platform."
+                                                        actions:
+                                                            if {_platform::*} is set:
+                                                                loop {_platform::*}:
+                                                                    set {_platform} to loop-index
                                                                     add callback action button:
-                                                                        label: "&cNo Platforms Found"
+                                                                        label: "(%loop-value%) %{_platform}%"
                                                                         trigger:
-                                                                            play sound "entity.villager.no" with seed 0
+                                                                            mtskr_fixSign("siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%", {_loc})
+                                                                            send formatted "&eEdit again by placing an arrival sign at the same location."  
+                                                                            set block at {_loc} to air
+                                                            else:
+                                                                add callback action button:
+                                                                    label: "&cNo Platforms Found"
+                                                                    trigger:
+                                                                        play sound "entity.villager.no" with seed 0
                                     else:
                                         add callback action button:
                                             label: "&cNo Sidings Found"
                                             trigger:
                                                 play sound "entity.villager.no" with seed 0
+on skript stop:
+    loop worlds:
+        loop indexes of {-MTskR::siding::%loop-value-1%::*}: # sidings
+            loop indexes of {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::*}: # platform
+                remove entities {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::%loop-value-3%::*}
+                clear {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::%loop-value-3%::*}

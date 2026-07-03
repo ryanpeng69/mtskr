@@ -1,3 +1,5 @@
+# Part - Tutorial
+# https://github.com/ryanpeng69/mtskr/
 effect open [mtskr] tutorial (to|for) %player%:
     trigger:
         set {_lang} to {-MTskR::lang::%expr-1%}

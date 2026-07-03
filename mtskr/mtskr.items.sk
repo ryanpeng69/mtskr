@@ -1,89 +1,92 @@
 # Part - Items
 # You can modify this file to add custom textures, see MTskR Wiki for more information.
 # https://github.com/ryanpeng69/mtskr/
-expression [a] mtskr brush[es] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
+expression [a] mtskr brush[es] [for %-player%]:
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-1
         return brush named mtskr_message({_lang}, "items.brush.name") with lore (split mtskr_message({_lang}, "items.brush.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""brush""}}"
-expression [a] [mtskr] loc[ation] selector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]: 
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return iron axe named mtskr_message({_lang}, "items.loc_selector.name") with lore (split mtskr_message({_lang}, "items.loc_selector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""loc_selector""}}"
-expression [a] [mtskr] [model] seat [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return yellow carpet named mtskr_message({_lang}, "items.model_seat.name") with lore (split mtskr_message({_lang}, "items.model_seat.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""model_seat""}}"
-expression [a] [mtskr] route creator [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return stick named mtskr_message({_lang}, "items.route_creator.name") with lore (split mtskr_message({_lang}, "items.route_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""route_creator""}}"
-expression [a] [mtskr] rail node[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return stone button named mtskr_message({_lang}, "items.rail_node.name") with lore (split mtskr_message({_lang}, "items.rail_node.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""rail_node""}}"
-expression [a] [mtskr] [normal|regular|speed limit|(double|two)[-| ](way|direction)] rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return iron ingot named mtskr_message({_lang}, "items.normal_rail_connector.name") with lore (split mtskr_message({_lang}, "items.normal_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""normal_rail_connector""}}"
-expression: # [a] [mtskr] [normal|regular|speed limit] (single|one|1)[-| ](way|direction) rail connector[s]
-    patterns:
-        [a] [mtskr] [normal|regular|speed limit] (single|one|1)[-| ](way|direction) rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]
-        [a] [mtskr] (single|one|1)[-| ](way|direction) [normal|regular|speed limit] rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return iron nugget named mtskr_message({_lang}, "items.one_way_rail_connector.name") with lore (split mtskr_message({_lang}, "items.one_way_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""one_way_rail_connector""}}"
-expression [a] [mtskr] platform[s] rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return redstone named mtskr_message({_lang}, "items.platform_rail_connector.name") with lore (split mtskr_message({_lang}, "items.platform_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_rail_connector""}}"
-expression [a] [mtskr] siding[s] rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return gold ingot named mtskr_message({_lang}, "items.siding_rail_connector.name") with lore (split mtskr_message({_lang}, "items.siding_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""siding_rail_connector""}}"
-expression [a] [mtskr] turnback rail connector[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return lapis lazuli named mtskr_message({_lang}, "items.turnback_rail_connector.name") with lore (split mtskr_message({_lang}, "items.turnback_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""turnback_rail_connector""}}"
-expression [a] [mtskr] (remove rail connector|rail remover)[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-1
-        return copper ingot named mtskr_message({_lang}, "items.remove_rail_connector.name") with lore (split mtskr_message({_lang}, "items.remove_rail_connector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""remove_rail_connector""}}"
-expression [a] [mtskr] %integer% blocks wide bridge (creator|builder)[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-2
-        return stone shovel named mtskr_message({_lang}, "items.bridge_creator.name", "width", expr-1) with lore (split mtskr_message({_lang}, "items.bridge_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""bridge_creator"",mtskr.width:%expr-1%}}"
-expression [a] [mtskr] %integer% by %integer% tunnel (creator|builder)[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-3
-        return stone pickaxe named mtskr_message({_lang}, "items.tunnel_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
-expression [a] [mtskr] %integer% by %integer% [tunnel] wall (creator|builder)[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
-    return type: itemtype
-    get:
-        set {_lang} to best mtskr language of expr-3
-        return stone axe named mtskr_message({_lang}, "items.tunnel_wall_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_wall_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
-expression [a] [mtskr] tutorial[s| book[s]] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
+expression [a] [mtskr] tutorial[s| book[s]] [for %-player%]:
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-1
         return book named mtskr_message({_lang}, "items.tutorial.name") with lore (split mtskr_message({_lang}, "items.tutorial.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tutorial""}}"
-expression [a] [mtskr] platform block[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
+expression [a] [mtskr] loc[ation] selector[s] [for %-player%]: 
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return iron axe named mtskr_message({_lang}, "items.loc_selector.name") with lore (split mtskr_message({_lang}, "items.loc_selector.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""loc_selector""}}"
+expression [a] [mtskr] route creator [for %-player%]:
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return stick named mtskr_message({_lang}, "items.route_creator.name") with lore (split mtskr_message({_lang}, "items.route_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""route_creator""}}"
+# Blocks
+expression [a] [mtskr] [model] seat [for %-player%]:
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return yellow carpet named mtskr_message({_lang}, "items.model_seat.name") with lore (split mtskr_message({_lang}, "items.model_seat.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""model_seat""}}"
+expression [a] [mtskr] rail node[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return stone button named mtskr_message({_lang}, "items.rail_node.name") with lore (split mtskr_message({_lang}, "items.rail_node.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""rail_node""}}"
+expression [a] [mtskr] platform block[s] [for %-player%]:
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-1
         return barrel named mtskr_message({_lang}, "items.platform_block.name") with lore (split mtskr_message({_lang}, "items.platform_block.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_block""}}"
-expression [a|an] [mtskr] [platform] [train] arrival [countdown] sign[s] [for [lang[uage]] [of] %-object%]['s lang[uage]]:
+expression [a|an] [mtskr] [platform] [train] arrival [countdown] sign[s] [for %-player%]:
     return type: itemtype
     get:
         set {_lang} to best mtskr language of expr-1
         return oak sign named mtskr_message({_lang}, "items.arrival_sign.name") with lore (split mtskr_message({_lang}, "items.arrival_sign.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""arrival_sign""},""minecraft:block_entity_data"":{back_text:{color:""black"",has_glowing_text:0b,messages:["""","""","""",""""]},front_text:{color:""black"",has_glowing_text:0b,messages:[""Right Click with"",""MTskR Brush"",""to Select Siding"",""""]},id:""minecraft:sign"",is_waxed:0b}}"
+# Rail Connectors:
+expression [a] [mtskr] [normal|regular|speed limit|(double|two)[-| ](way|direction)] rail connector[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return iron ingot named mtskr_message({_lang}, "items.normal_rail_connector.name") with lore (split mtskr_message({_lang}, "items.normal_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""normal_rail_connector""}}"
+expression: # [a] [mtskr] [normal|regular|speed limit] (single|one|1)[-| ](way|direction) rail connector[s]
+    patterns:
+        [a] [mtskr] [normal|regular|speed limit] (single|one|1)[-| ](way|direction) rail connector[s] [for %-player%]
+        [a] [mtskr] (single|one|1)[-| ](way|direction) [normal|regular|speed limit] rail connector[s] [for %-player%]
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return iron nugget named mtskr_message({_lang}, "items.one_way_rail_connector.name") with lore (split mtskr_message({_lang}, "items.one_way_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""one_way_rail_connector""}}"
+expression [a] [mtskr] platform[s] rail connector[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return redstone named mtskr_message({_lang}, "items.platform_rail_connector.name") with lore (split mtskr_message({_lang}, "items.platform_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""platform_rail_connector""}}"
+expression [a] [mtskr] siding[s] rail connector[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return gold ingot named mtskr_message({_lang}, "items.siding_rail_connector.name") with lore (split mtskr_message({_lang}, "items.siding_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""siding_rail_connector""}}"
+expression [a] [mtskr] turnback rail connector[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return lapis lazuli named mtskr_message({_lang}, "items.turnback_rail_connector.name") with lore (split mtskr_message({_lang}, "items.turnback_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""turnback_rail_connector""}}"
+expression [a] [mtskr] (remove rail connector|rail remover)[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-1
+        return copper ingot named mtskr_message({_lang}, "items.remove_rail_connector.name") with lore (split mtskr_message({_lang}, "items.remove_rail_connector.lores", "loc", "") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""remove_rail_connector""}}"
+# Building Tools:
+expression [a] [mtskr] %integer% blocks wide bridge (creator|builder)[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-2
+        return stone shovel named mtskr_message({_lang}, "items.bridge_creator.name", "width", expr-1) with lore (split mtskr_message({_lang}, "items.bridge_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""bridge_creator"",mtskr.width:%expr-1%}}"
+expression [a] [mtskr] %integer%[ ](by|x|*)[ ]%integer% tunnel (creator|builder)[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-3
+        return stone pickaxe named mtskr_message({_lang}, "items.tunnel_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"
+expression [a] [mtskr] %integer%[ ](by|x|*)[ ]%integer% [tunnel] wall[s] (creator|builder)[s] [for %-player%]:
+    return type: itemtype
+    get:
+        set {_lang} to best mtskr language of expr-3
+        return stone axe named mtskr_message({_lang}, "items.tunnel_wall_creator.name", ("width", "height"), (expr-1, expr-2)) with lore (split mtskr_message({_lang}, "items.tunnel_wall_creator.lores") at nl) with nbt from "{""minecraft:custom_data"":{mtskr.item:""tunnel_wall_creator"",mtskr.width:%expr-1%,mtskr.height:%expr-2%}}"

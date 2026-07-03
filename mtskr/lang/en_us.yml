@@ -7,8 +7,8 @@ main:
     model:
       does_not_exist: "&cThe model named %model% does not exist."
     click_to_use: "&9Click to use"
-    stop_route_false: "&cSiding %siding% in world %world% is not running."
     edit:
+      stop_route_false: "&cSiding %siding% in world %world% is not running."
       train:
         not_siding: "&cTrain is only available for sidings."
       schedule:
@@ -24,6 +24,19 @@ main:
       incorrect_type: "&cType of rail from %loc1% to %loc2% is not %type%."
       false: "&cRail from %loc1% to %loc2% does not exist or is not editable."
       none: "&cPlease specify rail with 2 locations of rail nodes formatted as x,y,z at arg-2 and 3."
+      dialog:
+        title: "MTskR - Edit %type%"
+        body: "Editing %type% rail from %loc1% to %loc2%"
+        label: # should use the same word as in the tutorial
+          name: "Name"
+          stop_time: "Stop Time"
+          schedule: "Takeoff Interval (0 for never)"
+          goto: "GoTo"
+          update: "Update"
+          select_train: "Select Train"
+          select_route: "Select Route"
+          refresh_route: "Refresh Route"
+          stop: "Stop Running"
     removeroute:
       removed: "&eRoute &6%route% &eremoved."
       list: "&eRoutes in world &6%world%&7: &eClick to remove."
@@ -32,6 +45,12 @@ main:
       key_false: "&cThe config doesn't have %key%."
       value_none: "&cPlease specify a value at arg-4."
       reset: "&eConfig reset."
+    items:
+      click_to_customize_size: "&fClick to customize size"
+      customize_a: "Customize a %item%"
+      width: "Width"
+      height: "Height"
+      get: "Get"
 tutorial:
   home:
     intro: <u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u> is a <u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u> project by <u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u>.%nl%Putting <u><click:open_url:https://modrinth.com/project/XKPAmI6u>Jonathan Ho's Minecraft Transit Railway mod</click></u> into a Paper Server.
@@ -146,16 +165,15 @@ items: # It is not a good idea to change the size or format of the lines.
       &7Click on rail node to view rails connected to it.
       &7Sneak click rail node to modify sidings & platforms.
       &7Click on editable blocks to edit.
+  tutorial:
+    name: "&fMTskR Tutorial"
+    lores: |-
+      &dMinecraft TrainSkript Railway
   loc_selector:
     name: "&fLocation Selector"
     lores: |-
       &7Select 2 locs like worldedit.
       &7Use &f/mtskr model create <name> &7to create model.
-  model_seat:
-    name: "&fModel Seat"
-    lores: |-
-      &7Place in train models to make a seat.
-      &7Players can not stand on trains.
   route_creator:
     name: "&fRoute Creator"
     lores: |-
@@ -164,73 +182,17 @@ items: # It is not a good idea to change the size or format of the lines.
       &7more nodes will be found automatically.
       &7Sneak click to create route.
       &7Selected nodes:
+  # Blocks
+  model_seat:
+    name: "&fModel Seat"
+    lores: |-
+      &7Place in train models to make a seat.
+      &7Players can not stand on trains.
   rail_node:
     name: "&fRail Node"
     lores: |-
       &7Connect rails on this block.
       &7Any stone button will work.
-  normal_rail_connector:
-    name: "&fDouble Way Rail Connector"
-    lores: |-
-      &7The normal rail between siding and platforms.
-      &7Click on 2 rail nodes to connect.
-  one_way_rail_connector:
-    name: "&fOne Way Rail Connector"
-    lores: |-
-      &7The normal rail between siding and platforms.
-      &7Trains can only move in 1 direction.
-      &7Click on 2 rail nodes to connect.
-  platform_rail_connector:
-    name: "&fPlatform Rail Connector"
-    lores: |-
-      &7The rail for trains to stop at platforms.
-      &7Sneak click to edit rail with a brush.
-      &7Click on 2 rail nodes to connect.
-  siding_rail_connector:
-    name: "&fSiding Rail Connector"
-    lores: |-
-      &7The rail for trains to spawn and start.
-      &7Sneak click to edit rail with a brush.
-      &7Click on 2 rail nodes to connect.
-  turnback_rail_connector:
-    name: "&fTurnback Rail Connector"
-    lores: |-
-      &7The rail for trains to reverse direction.
-      &7Trains can reverse or just pass through.
-      &7Click on 2 rail nodes to connect.
-  remove_rail_connector:
-    name: "&fRemove Rail Connector"
-    lores: |-
-      &7Remove the rails between 2 nodes.
-      &7Click on 2 rail nodes to remove.
-  bridge_creator:
-    name: "&f%width% Blocks Wide Bridge Creator"
-    lores: |-
-      &7Instant build bridges for tracks.
-      &7Click on a rail node to place.
-      &7Sneak right click to select block.
-      &7Selected block: &f%block%
-      &7Selected location: &f%loc%
-  tunnel_creator:
-    name: "&f%width%x%height% Tunnel Creator"
-    lores: |-
-      &7Instant dig tunnels for tracks.
-      &7Click on a rail node to place.
-
-
-      &7Selected location: &f%loc%
-  tunnel_wall_creator:
-    name: "&f%width%x%height% Tunnel Wall Creator"
-    lores: |-
-      &7Instant build walls for tunnels.
-      &7Click on a rail node to place.
-      &7Sneak right click to select block.
-      &7Selected block: &f%block%
-      &7Selected location: &f%loc%
-  tutorial:
-    name: "&fMTskR Tutorial"
-    lores: |-
-      &dMinecraft TrainSkript Railway
   platform_block:
     name: "&fPlatform Block"
     lores: |-
@@ -242,3 +204,72 @@ items: # It is not a good idea to change the size or format of the lines.
       &7This will place a temp sign.
       &7Right click with a brush to select siding.
       &7Place again to edit.
+  # Rail Connectors
+  normal_rail_connector:
+    name: "&fDouble Way Rail Connector"
+    lores: |-
+      &7The normal rail between siding and platforms.
+      &7The train will be able to move on both sides.
+      &7Click on 2 rail nodes to connect.
+      &7Selected location: &f%loc%
+  one_way_rail_connector:
+    name: "&fOne Way Rail Connector"
+    lores: |-
+      &7The normal rail between siding and platforms.
+      &7Trains can only move in 1 direction.
+      &7Click on 2 rail nodes to connect.
+      &7Selected location: &f%loc%
+  platform_rail_connector:
+    name: "&fPlatform Rail Connector"
+    lores: |-
+      &7The rail for trains to stop at platforms.
+      &7Sneak click to edit rail with a brush.
+      &7Click on 2 rail nodes to connect.
+      &7Selected location: &f%loc%
+  siding_rail_connector:
+    name: "&fSiding Rail Connector"
+    lores: |-
+      &7The rail for trains to spawn and start.
+      &7Sneak click to edit rail with a brush.
+      &7Click on 2 rail nodes to connect.
+      &7Selected location: &f%loc%
+  turnback_rail_connector:
+    name: "&fTurnback Rail Connector"
+    lores: |-
+      &7The rail for trains to reverse direction.
+      &7Trains can reverse or just pass through.
+      &7Click on 2 rail nodes to connect.
+      &7Selected location: &f%loc%
+  remove_rail_connector:
+    name: "&fRemove Rail Connector"
+    lores: |-
+      &7Remove the rails between 2 nodes.
+      &7Will remove both directions.
+      &7Click on 2 rail nodes to remove.
+      &7Selected location: &f%loc%
+  # Building Tools
+  bridge_creator:
+    name: "&f%width% Blocks Wide Bridge Creator"
+    general_name: "Bridge Creator"
+    lores: |-
+      &7Instant build bridges for tracks.
+      &7Click on a rail node to place.
+      &7Sneak right click to select block.
+      &7Selected block: &f%block%
+      &7Selected location: &f%loc%
+  tunnel_creator:
+    name: "&f%width%x%height% Tunnel Creator"
+    general_name: "Tunnel Creator"
+    lores: |-
+      &7Instant dig tunnels for tracks.
+      &7Click on a rail node to place.
+      &7Selected location: &f%loc%
+  tunnel_wall_creator:
+    name: "&f%width%x%height% Tunnel Wall Creator"
+    general_name: "Tunnel Wall Creator"
+    lores: |-
+      &7Instant build walls for tunnels.
+      &7Click on a rail node to place.
+      &7Sneak right click to select block.
+      &7Selected block: &f%block%
+      &7Selected location: &f%loc%

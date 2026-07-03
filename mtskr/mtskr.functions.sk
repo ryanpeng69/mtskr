@@ -1,4 +1,4 @@
-# Part - General functions
+# Part - General Functions
 # https://github.com/ryanpeng69/mtskr/
 import:
     java.io.File
@@ -31,9 +31,27 @@ effect (reset|fix) mtskr config:
         loop mtskr configs:
             if mtskr config loop-value is not set:
                 set mtskr config loop-value to mtskr config default for loop-value
-effect (re:[re]load|un:unload) mtskr (:config|:data|language:lang[uage])[s] [(by|from) %sender%]:
+effect (re:[re]load|un:unload|wipe:(clear|wipe)) mtskr (:config|:data|language:lang[uage])[s] [(by|from) %sender%]:
     trigger:
-        if parse tags contains "un":
+        if parse tags contains "wipe":
+            if parse tags contains "config":
+                delete yaml "MTskR.config"
+            else if parse tags contains "data":
+                loop all worlds:
+                    delete yaml "MTskR.data.rails.%loop-value%"
+            else if parse tags contains "language":
+                set {_javaDir} to new File("plugins\Skript\scripts\%{_dir}%lang\")
+                set {_array} to {_javaDir}.listFiles()
+                loop ...{_array}:
+                    set {_name} to loop-value.getName()
+                    regex replace "\.yml$" in {_name} with ""
+                    delete yaml "MTskR.lang.%{_name}%"
+            if expr-1 is a player:
+                send formatted "&eWiped &6%2nd element of parse tags%" to expr-1
+            else:
+                send formatted "[MTskR] &aWiped %2nd element of parse tags%" to console
+            stop trigger
+        else if parse tags contains "un":
             if parse tags contains "config":
                 unload yaml "MTskR.config"
             else if parse tags contains "data":
@@ -51,7 +69,7 @@ effect (re:[re]load|un:unload) mtskr (:config|:data|language:lang[uage])[s] [(by
             if parse tags contains "config":
                 set {_config} to new File("plugins\Skript\scripts\%{_dir}%config.yml")
                 if {_config}.exists() is false:
-                    send "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml" to expr-1
+                    send formatted "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml" to expr-1
                 load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
                 fix mtskr config
             else if parse tags contains "data":
@@ -66,9 +84,9 @@ effect (re:[re]load|un:unload) mtskr (:config|:data|language:lang[uage])[s] [(by
                     regex replace "\.yml$" in {_name} with ""
                     load yaml "%loop-value%" as "MTskR.lang.%{_name}%"
         if expr-1 is a player:
-            send "&6%propercase 2nd element of parse tags% &e%first element of parse tags%loaded" to expr-1
+            send formatted "&6%propercase 2nd element of parse tags% &e%first element of parse tags%loaded" to expr-1
         else:
-            send "[MTskR] &a%propercase 2nd element of parse tags% %first element of parse tags%loaded" to console
+            send formatted "[MTskR] &a%propercase 2nd element of parse tags% %first element of parse tags%loaded" to console
 expression: # yaw of direction %direction%
     return type: integer
     patterns:

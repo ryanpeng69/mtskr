@@ -9,7 +9,7 @@ on join:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
 on language change:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
-    send mtskr_message({-MTskR::lang::%player%}, "language_changed")
+    send formatted mtskr_message({-MTskR::lang::%player%}, "language_changed")
 on tab complete of ("mtskr" or "mtskr:mtskr"):
     set tab completions for position 1 to "help, tutorial, lang" split at ", "
     if player is op:
@@ -73,6 +73,10 @@ on tab complete of ("mtskr" or "mtskr:mtskr"):
             set tab completions for position 3 to integers from 1 to 5
         else if tab arg 2 matches "command|cmd":
             set tab completions for position 3 to integers from 1 to 2
+    else if tab arg 1 is "debug":
+        set {_args::*} to tab args
+        clear {_args::1}
+        set tab completions for last position to indexes of {-MTskR::%join {_args::*} by "::"%::*}
 command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     prefix: mtskr
     trigger:
@@ -97,14 +101,14 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                         set {_loc} to mtskr_rotateRelativeCoor({_base}, {_facing_yaw}, yaml value "%loop-value%.loc" from "MTskR.model.%arg-3%")
                         set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%arg-3%")
                         loop {_times} times:
-                            set block data tag "facing" of {_data} to (quarter clockwise direction of block data tag "facing" of {_data})
+                            set blockdata tag "facing" of {_data} to (quarter clockwise direction of blockdata tag "facing" of {_data})
                         update block at {_loc} to be {_data}
                         if (yaml value "%loop-value%.seat" from "MTskR.model.%arg-3%") is true:
                             add block at {_loc} to {MTskR::seats::*}
                 else:
                     send error mtskr_message({_lang}, "model.does_not_exist", "model", arg-3)
             else if arg-2 is "list":
-                send "&e%join train models by "&7, &e"%"
+                send formatted "&e%join train models by "&7, &e"%"
             else if arg-2 is "download":
                 if arg-3 is set:
                     open page (arg-3 parsed as int) of models online to player
@@ -117,7 +121,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
         else if (whether arg-1 matches "gui|items") and (whether player is op) are true:
             create a new gui with virtual chest inventory with 6 rows named "MTskR":
                 set {_index} to 0
-                loop (mtskr tutorial, mtskr brush, mtskr loc selector, mtskr route creator, mtskr model seat, mtskr platform block, and mtskr arrival sign):
+                loop (mtskr tutorial for player, mtskr brush for player, mtskr loc selector for player, mtskr route creator for player, mtskr model seat for player, mtskr platform block for player, and mtskr arrival sign for player):
                     set {_item} to loop-value
                     make gui slot {_index} with {_item}:
                         give player {_item}
@@ -129,46 +133,54 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                         give player {_item}
                     add 1 to {_index}
                 set {_index} to 18
-                loop (rail connector, single way rail connector, platform rail connector, siding rail connector, turnback rail connector, and remove rail connector):
+                loop (rail connector for player, single way rail connector for player, platform rail connector for player, siding rail connector for player, turnback rail connector for player, and remove rail connector for player):
                     set {_item} to loop-value
                     make gui slot {_index} with {_item}:
                         give player {_item}
                     add 1 to {_index}
                 set {_index} to 27
-                loop (stone shovel named "&fBridge Creator" with lore "&7Instant build bridges for tracks.", stone pickaxe named "&fTunnel Creator" with lore "&7Instant dig tunnels for tracks.", and stone axe named "&fTunnel Wall Creator" with lore "&7Instant build walls for tunnels."):
-                    set {_type} to name of loop-value
-                    regex replace "^&f" in {_type} with ""
-                    set {_item} to loop-value
-                    add "&fClick to customize size" to lore of {_item}
-                    make gui slot {_index} with {_item}:
+                loop ("bridge_creator", "tunnel_creator", and "tunnel_wall_creator"):
+                    set {_type} to loop-value
+                    set {_name} to unformatted mtskr_message({_lang}, "items.%loop-value%.general_name")
+                    set {_lores::*} to mtskr_message({_lang}, "items.%{_type}%.lores") split at nl
+                    if {_type} is "bridge_creator":
+                        set {_item} to type of 5 blocks wide bridge creator
+                    else if {_type} is "tunnel_creator":
+                        set {_item} to type of 5 x 7 tunnel creator
+                        clear {_lores::3}
+                    else if {_type} is "tunnel_wall_creator":
+                        set {_item} to type of 5x7 tunnel wall creator
+                    clear {_lores::4} and {_lores::5}
+                    add mtskr_message({_lang}, "main.cmd.items.click_to_customize_size") to {_lores::*}
+                    make gui slot {_index} with ({_item} named "&f%{_name}%" with lore {_lores::*}):
                         open multi action dialog to player:
-                            title: "Customize a %{_type}%"
+                            title: mtskr_message({_lang}, "main.cmd.items.customize_a", "item", {_name})
                             inputs:
                                 add number range input:
                                     key: "width"
-                                    label: "Width"
+                                    label: mtskr_message({_lang}, "main.cmd.items.width")
                                     start: 5
                                     end: 21
                                     step: 2
                                     initial: 5
-                                if {_type} starts with "Tunnel":
+                                if {_type} starts with "tunnel_":
                                     add number range input:
                                         key: "height"
-                                        label: "Height"
+                                        label: mtskr_message({_lang}, "main.cmd.items.height")
                                         start: 7
                                         end: 21
                                         step: 1
                                         initial: 7
                             actions:
                                 add callback action button:
-                                    label: "Get"
+                                    label: mtskr_message({_lang}, "main.cmd.items.get")
                                     trigger:
-                                        if {_type} starts with "Bridge Creator":
-                                            give player (float tag "width" of event-nbt) blocks wide bridge creator
-                                        else if {_type} starts with "Tunnel Creator":
-                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel creator
-                                        else if {_type} starts with "Tunnel Wall Creator":
-                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator
+                                        if {_type} is "bridge_creator":
+                                            give player (float tag "width" of event-nbt) blocks wide bridge creator for player
+                                        else if {_type} is "tunnel_creator":
+                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel creator for player
+                                        else if {_type} is "tunnel_wall_creator":
+                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator for player
                     add 1 to {_index}
             open last gui to player
         else if (whether arg-1 is "reload") and (whether player is op) are true:
@@ -253,22 +265,22 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                         goto arg-2 arg-3
                     else if arg-4 is "stop":
                         if {-MTskR::siding::%{_world}%::%{_node}%::running::*} contains true:
-                            send mtskr_stopRoute({_world}, {_node})
+                            send formatted mtskr_stopRoute({_world}, {_node})
                         else:
-                            send error mtskr_message({_lang}, "main.cmd.stop_route_false", ("siding", "world"), ({_node}, {_world}))
+                            send error mtskr_message({_lang}, "main.cmd.edit.stop_route_false", ("siding", "world"), ({_node}, {_world}))
                     else:
                         if yaml value "%{_node}%.type" from {_yaml} is {_type}:
                             if yaml value "%{_node}%.%{_type}%.name" from {_yaml} is set:
                                 set {_name} to yaml value "%{_node}%.%{_type}%.name" from {_yaml}
                             open multi action dialog to player:
-                                title: "MTskR Edit %{_type}%"
+                                title: mtskr_message({_lang}, "main.cmd.edit.dialog.title", "type", propercase {_type})
                                 body:
                                     add text body:
-                                        contents: "&fEdit %{_type}% rail from %join (split {_node} by ".") with " to "%"
+                                        contents: mtskr_message({_lang}, "main.cmd.edit.dialog.body", ("type", "loc1", "loc2"), ({_type}, {_node} split at "."))
                                 inputs:
                                     add text input:
                                         key: "name"
-                                        label: "Name"
+                                        label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.name")
                                         initial: ("%{_name}%" if {_name} is set, else "1")
                                     if {_type} is "platform":
                                         if yaml value "%{_node}%.platform.stop_time" from {_yaml} is set:
@@ -277,7 +289,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                             set {_stop_time} to 5                                            
                                         add number range input:
                                             key: "stop_time"
-                                            label: "Stop Time"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.stop_time")
                                             start: 5
                                             end: 60
                                             step: 1
@@ -289,19 +301,19 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                             set {_schedule} to 0
                                         add number range input:
                                             key: "schedule"
-                                            label: "Takeoff Interval (0 for never)"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.schedule")
                                             start: 0
                                             end: 300
                                             step: 1
                                             initial: {_schedule}
                                 actions:
                                     add callback action button:
-                                        label: "Goto"
+                                        label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.goto")
                                         trigger:
                                             set {_split::*} to {_node} split at "."
                                             goto {_split::1} {_split::2}
                                     add callback action button:
-                                        label: "Update"
+                                        label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.update")
                                         trigger:
                                             set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to string tag "name" of event-nbt
                                             if {_type} is "platform":
@@ -312,19 +324,19 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                             play sound "entity.experience_orb.pickup"
                                     if {_type} is "siding":
                                         add callback action button:
-                                            label: "Select train"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.select_train")
                                             trigger:
                                                 let player edit train of siding {_node} in world {_world}
                                         add callback action button:
-                                            label: "Select route"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.select_route")
                                             trigger:
                                                 let player edit route of siding {_node} in world {_world}
                                         add callback action button:
-                                            label: "Refresh Route"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.refresh_route")
                                             trigger:
                                                 mtskr_refreshRoute({_node}, {_world})
                                         add callback action button:
-                                            label: "Stop Running"
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.stop_running")
                                             trigger:
                                                 replace "." in {_node} with " "
                                                 make player execute command "mtskr siding %{_node}% stop"
@@ -346,7 +358,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 else:
                     make player execute command "mtskr route list"
             else:
-                send mtskr_message({_lang}, "main.cmd.removeroute.list", "world", world of player)
+                send formatted mtskr_message({_lang}, "main.cmd.removeroute.list", "world", world of player)
                 loop (yaml node keys "" of {_yaml}):
                     set {_name} to yaml value "%loop-value%.name" of {_yaml}
                     set {_nodes::*} to yaml list "%loop-value%.nodes" of {_yaml}
@@ -355,7 +367,8 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                         set {_c} to {_nodes::%loop-value-2%}
                         if {_c} is set:
                             set {_short} to "%{_short}% %{_c}%"
-                    add "&7%loop-value%: <ttp:&f%join {_nodes::*} by " "%><cmd:mtskr route remove %loop-value%>%{_name}%" to {_list::*}
+                    set {_nodes} to join {_nodes::*} by " "
+                    add "&7%loop-value%: <ttp:%{_nodes}%><cmd:mtskr route remove %loop-value%>%{_name}%" to {_list::*}
                 send formatted join {_list::*} by "<reset>&7, "
         else if (whether arg-1 is "config") and (whether player is op) are true:
             if arg-2 is "set":
@@ -373,19 +386,19 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
             else if arg-2 is "get":
                 if arg-3 is set:
                     if arg-3 is any of mtskr configs:
-                        send "&e%arg-3%&7: &6%mtskr config arg-3%"
+                        send formatted "&e%arg-3%&7: &6%mtskr config arg-3%"
                     else:
                         send error mtskr_message({_lang}, "main.cmd.config.key_false", "key", arg-3)
                 else:
                     send error mtskr_message({_lang}, "main.cmd.config.key_none")
             else if arg-2 is "reset":
                 reset mtskr config
-                send mtskr_message({_lang}, "main.cmd.config.reset")
+                send formatted mtskr_message({_lang}, "main.cmd.config.reset")
             else if arg-2 is "list":
                 loop mtskr configs:
-                    send "&e%loop-value%&7: &6%mtskr config loop-value%"
+                    send formatted "&e%loop-value%&7: &6%mtskr config loop-value%"
         else if arg-1 matches "lang(uage)?|locale":
             set {-MTskR::lang::%player%} to best mtskr language for arg-2
-            send mtskr_message({-MTskR::lang::%player%}, "language_changed")
+            send formatted mtskr_message({-MTskR::lang::%player%}, "language_changed")
         else:
             showTutorial(player, arg-1, arg-2, arg-3)
