@@ -31,9 +31,9 @@ function mtskr_urlRequestJson(urlText: string) :: string:
         {_reader}.close()
         return {_stringBuilder}.toString()
     if {_connection}.getResponseCode() is set:
-        return "&cError: Response Code: %{_connection}.getResponseCode()%"
+        return "&cError: %{_connection}.getResponseCode()%"
     else:
-        return "&cError: No response code, please check your wifi connection."
+        return "&cError: %mtskr_message({-MTskR::lang::console}, "models_download.no_resp_code")%"
 effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
     trigger:
         delay effect
@@ -45,12 +45,14 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
         replace "\r" in {_jsonString} with ""
         if {_jsonString} starts with "&cError":
             send {_jsonString} to expr-1
+            if expr-1 is not console:
+                send "[MTskR] %{_jsonString}%" to console
         else:
             set {_jsonElement} to JsonParser.parseString({_jsonString})
             set {_jsonArray} to {_jsonElement}.getAsJsonArray()
             set {_size} to {_jsonArray}.size()
             if {_size} is 0:
-                send formatted "&eNo result from url request" to expr-1
+                send formatted mtskr_message({-MTskR::lang::%expr-1%}, "models_download.no_result") to expr-1
             else:
                 loop {_size} times:
                     set {_index} to loop-value - 1
@@ -75,35 +77,38 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
         else:
             set {_want_page} to 1
         fetch models on web by expr-2
-        create a new gui with virtual chest inventory with 6 rows named "MTskR Online Models":
+        set {_lang} to {-MTskR::lang::%expr-2%}
+        create a new gui with virtual chest inventory with 6 rows named mtskr_message({_lang}, "models_download.title"):
             make gui slots (integers from 45 to 53) with black stained glass pane without entire tooltip
             set {_max_page} to ceil(size of indexes of {-MTskR::temp::fetchmodels::*} / 45)
-            make gui slot 45 with paper named "&eFirst Page":
+            make gui slot 45 with paper named mtskr_message({_lang}, "models_download.1stPg"):
                 play sound "item.book.page_turn" with seed 0
                 open page 1 of models on web to player
+            set {_prvPg} to mtskr_message({_lang}, "models_download.prvPg")
+            set {_nxtPg} to mtskr_message({_lang}, "models_download.nxtPg")
             if {_want_page} is not 1:
-                make gui slot 46 with paper named "&ePrevious Page":
+                make gui slot 46 with paper named "&e%{_prvPg}%":
                     play sound "item.book.page_turn" with seed 2
                     open page {_want_page} - 1 of models on web to player
             else:
-                make gui slot 46 with paper named "&cPrevious Page":
+                make gui slot 46 with paper named "&c%{_prvPg}%":
                     play sound "entity.villager.no" with seed 0
             if {_want_page} is not {_max_page}:
-                make gui slot 52 with paper named "&eNext Page":
+                make gui slot 52 with paper named "&e%{_nxtPg}%":
                     play sound "item.book.page_turn" with seed 2
                     open page {_want_page} + 1 of models on web to player
             else:
-                make gui slot 52 with paper named "&cNext Page":
+                make gui slot 52 with paper named "&c%{_nxtPg}%":
                     play sound "entity.villager.no" with seed 0
-            make gui slot 53 with paper named "&eLast Page":
+            make gui slot 53 with paper named mtskr_message({_lang}, "models_download.lstPg"):
                 play sound "item.book.page_turn" with seed 3
                 open page {_max_page} of models on web to player
-            make gui slot 49 with paper named "&eView On Web":
+            make gui slot 49 with paper named mtskr_message({_lang}, "models_download.web"):
                 open notice dialog to player:
-                    title: "MTskR - View Web"
+                    title: mtskr_message({_lang}, "models_download.web_title")
                     body:
                         add text body:
-                            contents: mini message from "<click:open_url:https://mtskr.up.railway.app/models>Click here to go to web%nl%https://mtskr.up.railway.app/models"
+                            contents: mini message from "<click:open_url:https://mtskr.up.railway.app/models>%mtskr_message({_lang}, "models_download.click2web")%%nl%https://mtskr.up.railway.app/models"
             set {_idx} to -1
             set {_page} to 1
             loop indexes of {-MTskR::temp::fetchmodels::*}:
@@ -116,23 +121,26 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                     set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
                     set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
                     set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
-                    set {_item} to paper named "&e%{_name}%" with lore "&7ID: %{_id}%", "&eAuthor: &6%{_author}%", "&7Time: %{_time}%", and "&eDescription:"
+                    set {_authorLB} to mtskr_message({_lang}, "models_download.author")
+                    set {_timeLB} to mtskr_message({_lang}, "models_download.time")
+                    set {_descLB} to mtskr_message({_lang}, "models_download.desc")
+                    set {_item} to paper named "&e%{_name}%" with lore "&7ID: %{_id}%", "&e%{_authorLB}%&6%{_author}%", "&7%{_timeLB}%%{_time}%", and "&e%{_descLB}%"
                     set {_lines::*} to split {_description} at nl
                     loop {_lines::*}:
                         add "&f%loop-value-2%" to lore of {_item}
                     make gui slot {_idx} with {_item}:
                         open multi action dialog to player:
-                            title: "MTskR - Download Model"
+                            title: mtskr_message({_lang}, "models_download.download_title")
                             body:
                                 add text body:
-                                    contents: "&7ID: %{_id}%%nl%&eAuthor: &6%{_author}%%nl%&7Time: %{_time}%%nl%&eDescription:%nl%&f%{_description}%"
+                                    contents: "&7ID: %{_id}%%nl%&e%{_authorLB}%&6%{_author}%%nl%&7%{_timeLB}%%{_time}%%nl%&e%{_descLB}%%nl%&f%{_description}%"
                             inputs:
                                 add text input:
-                                    label: "Name for download"
+                                    label: mtskr_message({_lang}, "models_download.name")
                                     key: "name"
                             actions:
                                 add callback action button:
-                                    label: "Download"
+                                    label: mtskr_message({_lang}, "models_download.download")
                                     trigger:
                                         set {_fname} to string tag "name" of event-nbt
                                         replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
@@ -142,6 +150,6 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                                         set {_inputStream} to {_url}.openStream()
                                         Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
                                         {_inputStream}.close()
-                                        send formatted "&aDownloaded %{_name}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%"
-                                        send formatted "[MTskR] %player% downloaded model %{_fname}% by %{_author}% &7(ID:%{_id}%)%nl%&7%{_file}%" to console
+                                        send formatted mtskr_message({_lang}, "models_download.downloaded", ("model", "author", "id", "file"), ({_name}, {_author}, {_id}, {_file}))
+                                        send formatted mtskr_message({-MTskR::lang::console}, "models_download.log", ("player", "model", "author", "id", "file"), (player, {_name}, {_author}, {_id}, {_file})) to console
         open last gui to expr-2

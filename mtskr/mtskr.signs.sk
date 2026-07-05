@@ -5,7 +5,7 @@ function mtskr_fixSign(node: string, loc: location):
     set {_world} to world of {_loc}
     set {_spawn} to the block left of {_loc}
     set {_x} to x coord of {_spawn}
-    set {_y} to y coord of {_spawn}
+    set {_y} to y coord of {_spawn} - 0.5
     set {_z} to z coord of {_spawn}
     if {_facing} is north:
         increase {_z} by 0.5
@@ -15,13 +15,19 @@ function mtskr_fixSign(node: string, loc: location):
         increase {_x} by 0.5
     else if {_facing} is east:
         decrease {_x} by 0.5
-    broadcast "{-MTskR::%{_node}%}"
     if {-MTskR::%{_node}%} is not alive:
         spawn text display at location({_x}, {_y}, {_z}, {_world})
         set {-MTskR::%{_node}%} to last spawned text display
         set yaw of last spawned text display to yaw of direction {_facing}
-        set text alignment of last spawned text display to right aligned
+        set text alignment of last spawned text display to left aligned
         set line width of last spawned text display to 600
+        set {_yaml} to "MTskR.data.signs.%{_world}%"
+        set {_keys::*} to {_node} split at "::"
+        set {_key} to "%{_keys::3}%;%{_keys::5}%;%{_keys::6}%"
+        set yaml value "%{_key}%.loc" of {_yaml} to {_loc}
+        set yaml value "%{_key}%.spawn" of {_yaml} to location({_x}, {_y}, {_z}, {_world})
+        set yaml value "%{_key}%.facing" of {_yaml} to {_facing}
+        save yaml {_yaml}
 function mtskr_formatArrivalCountdownTimespan(timespan: timespan) :: string:
     if {_timespan} is set:
         set {_m} to minutes of {_timespan}
@@ -57,7 +63,7 @@ function mtskr_arrivalCountdown(world: world, siding: string, platform: string) 
             add {_stop_time} to {_ticks}
         return {_ticks} / 20
     return 0
-function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string, bound: string): # signs allign to left
+function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string, bound: string):
     set {_first} to mtskr_arrivalCountdown({_world}, {_siding}, {_platform})
     set {_stop_time} to yaml value "%{_platform}%.platform.stop_time" of "MTskR.data.rails.%{_world}%"
     set {_schedule} to yaml value "%{_siding}%.siding.schedule" of "MTskR.data.rails.%{_world}%"
@@ -86,23 +92,22 @@ function mtskr_startArrivalSign(world: world, siding: string, platform: string, 
                 set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
                 set {_line::%loop-value%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
         set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*} to join {_line::*} by nl
-        # loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*}: # signs
-        #     set {_loc} to mtskr_nodeLoc(loop-value, {_world})
-        #     mtskr_fixSign("siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%", {_loc})
-        #     clear {_line::*}
+        # loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*}:
+        #     mtskr_fixSign("siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%loop-value%", )
     set text of {-MTskR::siding::%{_world}%::%{_siding}%::signs::%{_platform}%::*} to ""
 effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
     trigger:
         set {_facing} to facing of expr-1
         set {_loc} to location of expr-1
         set {_str} to mtskr_nodeString({_loc})
+        set {_lang} to {-MTskR::lang::%expr-2%}
         open multi action dialog to expr-2:
-            title: "MTskR - Edit Arrival Sign"
+            title: mtskr_message({_lang}, "signs.title")
             body:
                 add text body:
-                    contents: "By selecting the siding and platform, the sign will become a text display."
+                    contents: mtskr_message({_lang}, "signs.info")
                 add text body:
-                    contents: "Select a world then you can select sidings."
+                    contents: mtskr_message({_lang}, "signs.select_world")
             actions:
                 loop worlds:
                     set {_world} to "%loop-value%"
@@ -111,10 +116,10 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                         trigger:
                             set {_yaml} to "MTskR.data.rails.%{_world}%"
                             open multi action dialog to player:
-                                title: "MTskR - Edit Arrival Sign"
+                                title: mtskr_message({_lang}, "signs.title")
                                 body:
                                     add text body:
-                                        contents: "Now, select a siding."
+                                        contents: mtskr_message({_lang}, "signs.select_siding")
                                 actions:
                                     loop yaml node keys "" of {_yaml}:
                                         loop yaml node keys loop-value of {_yaml}:
@@ -131,10 +136,10 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                                                 label: "(%loop-value%) %{_siding}%"
                                                 trigger:
                                                     open multi action dialog to player:
-                                                        title: "MTskR - Edit Arrival Sign"
+                                                        title: mtskr_message({_lang}, "signs.title")
                                                         body:
                                                             add text body:
-                                                                contents: "Now, select a platform."
+                                                                contents: mtskr_message({_lang}, "signs.select_platform")
                                                         actions:
                                                             if {_platform::*} is set:
                                                                 loop {_platform::*}:
@@ -143,16 +148,16 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                                                                         label: "(%loop-value%) %{_platform}%"
                                                                         trigger:
                                                                             mtskr_fixSign("siding::%{_world}%::%{_siding}%::signs::%{_platform}%::%{_str}%", {_loc})
-                                                                            send formatted "&eEdit again by placing an arrival sign at the same location."  
+                                                                            send mtskr_message({_lang}, "signs.edit_again")  
                                                                             set block at {_loc} to air
                                                             else:
                                                                 add callback action button:
-                                                                    label: "&cNo Platforms Found"
+                                                                    label: mtskr_message({_lang}, "signs.no_platforms")
                                                                     trigger:
                                                                         play sound "entity.villager.no" with seed 0
                                     else:
                                         add callback action button:
-                                            label: "&cNo Sidings Found"
+                                            label: mtskr_message({_lang}, "signs.no_sidings")
                                             trigger:
                                                 play sound "entity.villager.no" with seed 0
 on skript stop:
@@ -161,3 +166,15 @@ on skript stop:
             loop indexes of {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::*}: # platform
                 remove entities {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::%loop-value-3%::*}
                 clear {-MTskR::siding::%loop-value-1%::%loop-value-2%::signs::%loop-value-3%::*}
+on skript start:
+    wait 1 second
+    while players is not set:
+        wait 1 second
+    wait 1 second
+    loop worlds:
+        set {_yaml} to "MTskR.data.signs.%loop-value%"
+        loop yaml node keys "" of {_yaml}:
+            set {_keys::*} to loop-value-2 split at ";"
+            set {_var_node} to "siding::%loop-value-1%::%{_keys::1}%::sugns::%{_keys::2}%::%{_keys::3}%"
+            set {_loc} to yaml value "%loop-value-2%.loc" of {_yaml}
+            mtskr_fixSign({_var_node}, {_loc})

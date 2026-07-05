@@ -1,6 +1,9 @@
 ## MTskR config
 ## https://github.com/ryanpeng69/mtskr/
 
+# This language will be used on the messages in console
+console_lang: en_us
+
 # The block limit of a model, should not be too small.
 model_maxium_blocks: 1000
 

@@ -51,7 +51,7 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                     loop floor({_stop_time} * (20 / {_tick_for_ride_train_detection})) times:
                         if {-MTskR::%expr-4%} is true:
                             loop {_doors::*}:
-                                set {_p::*} to players in radius 0.8 around loop-value-2
+                                set {_p::*} to players in radius 0.9 around loop-value-2
                                 filter {_p::*} to match:
                                     {-MTskR::trains::%expr-1%::passengers::*} does not contain input
                                     string tag "mtskr.block" of custom nbt of block below input is "platform"
@@ -77,7 +77,7 @@ effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
                     clear {_path::*}
                     set {_start} to loop-value
                 else:
-                    send formatted "[MTskR] &eNo path found from '%{_start}%' to '%loop-value%' in world '%expr-3%'" to console
+                    send formatted mtskr_message({-MTskR::lang::console}, "route.no_path", ("start", "end", "world"), ({_start}, loop-value, expr-3)) to console
                     clear {-MTskR::routes::%expr-3%::%expr-2%::out::*}
                     continue
             set {-MTskR::routes::%expr-3%::%expr-2%::in::*} to {_start}
@@ -85,11 +85,11 @@ effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
             if {_path::*} is set:
                 add {_path::*} to {-MTskR::routes::%expr-3%::%expr-2%::in::*}
             else:
-                send formatted "[MTskR] &eNo path found from '%last element of {_nodes::*}%' to '%{_siding_loc::1}%' &ein world '%expr-3%'" to console
+                send formatted mtskr_message({-MTskR::lang::console}, "route.no_path", ("start", "end", "world"), (last element of {_nodes::*}, {_siding_loc::1}, expr-3)) to console
                 clear {-MTskR::routes::%expr-3%::%expr-2%::in::*}
                 continue
         else:
-            send formatted "[MTskR] &eRoute with id %expr-1% in world %expr-3% don't have any nodes." to console
+            send formatted mtskr_message({-MTskR::lang::console}, "route.empty", ("id", "world"), (expr-1, expr-3)) to console
         continue
 effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %world%:
     trigger:
@@ -98,15 +98,16 @@ effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %wo
         set {_expr-3} to expr-3
         set {_yaml} to "MTskR.data.rails.%expr-3%"
         set {_routeyaml} to "MTskR.data.routes.%expr-3%"
+        set {_lang} to {-MTskR::lang::%expr-1%}
         open multi action dialog to {_expr-1}:
-            title: "MTskR - Select Route"
+            title: mtskr_message({_lang}, "route.title")
             body:
                 add text body:
-                    contents: "Click to select route for this siding"
+                    contents: mtskr_message({_lang}, "route.body")
                 set {_routeid} to yaml value "%{_expr-2}%.siding.route" from {_yaml}
                 set {_route} to yaml value "%{_routeid}%.name" from {_routeyaml}
                 add text body:
-                    contents: mini message from "Current route: %{_route}%"
+                    contents: mini message from "%mtskr_message({_lang}, "route.current")%%{_route}%"
             actions:
                 loop yaml node keys "" of {_routeyaml}:
                     set {_name} to yaml value "%loop-value%.name" of {_routeyaml}
@@ -122,18 +123,16 @@ effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %wo
                                 set yaml value "%{_expr-2}%.siding.route" from {_yaml} to {_li}
                                 save yaml {_yaml}
                                 let {_expr-1} edit route of siding {_expr-2} in world {_expr-3}
-
                 else:
                     add callback action button:
-                        label: "&cNo Avaliable Route"
+                        label: mtskr_message({_lang}, "route.none")
                         trigger:
-                            send error "&cNo route was created, you should make one with a route creator in the gui."
-expression terminal (of|for) %string% [route (of|for)] siding %string% (in|of) [world] %world%:
+                            send error mtskr_message({_lang}, "route.none_msg")
+expression terminal (of|for) %string% [bound ][route (of|for)] siding %string% (in|of) [world] %world%:
     return type: string
     get:
         set {_yaml} to "MTskR.data.rails.%expr-3%"
         loop {-MTskR::routes::%expr-3%::%expr-2%::%expr-1%::*}:
-            next loop-value is set
             set {_node} to "%loop-value%.%next loop-value%"
             if yaml value "%{_node}%.type" of {_yaml} is "platform":
                 set {_terminal} to yaml value "%{_node}%.platform.name" of {_yaml}
@@ -169,16 +168,15 @@ function mtskr_refreshRoute(siding: string, world: world):
                         mtskr_startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
                         wait timespan({_schedule}, seconds)
             else:
-                send formatted "[MTskR] &eNo train has been selected for siding '%{_siding}%' in world '%{_world}%'" to console
+                send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_train", ("siding", "world"), ({_siding}, {_world})) to console
         else:
-            send formatted "[MTskR] &eNo schedule found for siding '%{_siding}%' in world '%{_world}%'" to console
+            send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_schedule", ("siding", "world"), ({_siding}, {_world})) to console
     else:
-        send formatted "[MTskR] &eNo route found for siding '%{_siding}%' in world '%{_world}%'" to console
-function mtskr_stopRoute(world: world, siding: string) :: string:
+        send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_route", ("siding", "world"), ({_siding}, {_world})) to console
+function mtskr_stopRoute(world: world, siding: string):
     loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}:
         set {-MTskR::siding::%{_world}%::%{_siding}%::running::%loop-value%} to false
     clear {-MTskR::routes::%{_world}%::%{_siding}%::*}
-    return "&eSiding %{_siding}% in world %{_world}% stopped running."
 function mtskr_getPath(c: string, end: string, world: world, history: strings = "") :: strings:
     set {_yaml} to "MTskR.data.rails.%{_world}%"
     if {_history::1} is "":

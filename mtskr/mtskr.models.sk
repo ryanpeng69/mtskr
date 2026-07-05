@@ -37,7 +37,7 @@ expression: # length of [mtskr] [train] model %string%
             else:
                 return abs({_lv1::1} - {_lv2::1})
         else:
-            send formatted "[MTskR] &cModel does not exist. &7Trigger: length of [mtskr] [train] model %expr-1%" to console
+            send formatted "[MTskR] %mtskr_message({-MTskR::lang::console}, "models.dne")%&7Trigger: length of [mtskr] [train] model %expr-1%" to console
         return
 effect remove entit(y|ies) %entities%:
     trigger:
@@ -54,10 +54,10 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                 {_file}.delete()
         else:
             if yaml "MTskR.model.%{_fname}%" is loaded:
-                send error "&c%{_fname}% exists in memory, put -f at arg-4 to overwrite" to expr-2
+                send error mtskr_message({_lang}, "models.exist_memory", "name", {_fname}) to expr-2
                 stop trigger
             else if {_file}.exists() is true:
-                send error "&c%{_fname}% exists on disk, put -f at arg-4 to overwrite" to expr-2
+                send error mtskr_message({_lang}, "models.exist_disk", "name", {_fname}) to expr-2
                 stop trigger
         if {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2} are set:
             set {_blocks::*} to (all blocks within {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2}) where [input is not air]
@@ -80,14 +80,13 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                                     else if {_rotation} is 12:
                                         set {_facing} to east
                                     else:
-                                        send error "&cThe rotation of [Model] sign should be 0, 4, 8, or 12" to expr-2
+                                        send error mtskr_message({_lang}, "models.model_sign.rotation") to expr-2
                                         stop trigger
                                 remove loop-value from {_blocks::*}
                         else:
-                            send error "&cA [Model] sign already exists" to expr-2
+                            send error mtskr_message({_lang}, "models.model_sign.exist") to expr-2
                             stop trigger
                 if {_facing} is set:
-                    send actionbar "&aCheck done, creating..." to expr-2
                     load yaml {_path} as "MTskR.model.%{_fname}%"
                     set yaml value "info.facing" from "MTskR.model.%{_fname}%" to yaw of direction {_facing}
                     loop 2 times:
@@ -114,14 +113,14 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         add 1 to {_i}
                     save yaml "MTskR.model.%{_fname}%"
                     play sound "entity.experience_orb.pickup" to expr-2
-                    send formatted "&eTrain model &6%{_fname}% saved &7(&eBlocks&7: &6%size of {_blocks::*}% &eDoors&7: &6%{_door_count} / 2% &eSeats&7: &6%{_seat_count}%&7)" to expr-2
-                    send formatted "[MTskR] %expr-2% created train model %{_fname}% with %{_door_count} / 2% doors and %{_seat_count}% seats among %size of {_blocks::*}% blocks" to console
+                    send formatted mtskr_message({_lang}, "models.saved", ("name", "blocks", "doors", "seats"), ({_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to expr-2
+                    send formatted mtskr_message({-MTskR::lang::console}, "models.log", ("player", "name", "blocks", "doors", "seats"), (expr-2, {_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to console
                 else:
-                    send error "&cYou must put an oak sign that says '[Model]'" to expr-2
+                    send error mtskr_message({_lang}, "models.model_sign.none") to expr-2
             else:
-                send error "&cYour model is bigger than the limit (%size of {_blocks::*}%/%mtskr config "model_maxium_blocks"%)" to expr-2
+                send error mtskr_message({_lang}, "models.oversize", ("blocks", "limit"), (size of {_blocks::*}, mtskr config "model_maxium_blocks")) to expr-2
         else:
-            send error "&cYou must set two locations using a loc selector" to expr-2
+            send error mtskr_message({_lang}, "models.none") to expr-2
 condition [mtskr] [train] model [named|with name|with id[entifier]] %string% (is:(exists|is not missing)|not:(does( not|n't) exist|is missing)):
     check:
         if (new File("plugins\Skript\scripts\%mtskr dir%models\%expr-1%.yml")).exists() is true:
@@ -132,14 +131,14 @@ condition [mtskr] [train] model [named|with name|with id[entifier]] %string% (is
 function mtskr_doorType(facing: direction, b: block) :: text:
     set {_data} to blockdata of {_b}
     if {_facing} is north:
-        set {_side} to "L" if "%{_data}%" contains "facing=west" else "R"
+        set {_side} to "L" if blockdata tag "facing" of {_data} is "east", else "R"
     else if {_facing} is south:
-        set {_side} to "L" if "%{_data}%" contains "facing=east" else "R"
+        set {_side} to "L" if blockdata tag "facing" of {_data} is "west", else "R"
     else if {_facing} is east:
-        set {_side} to "L" if "%{_data}%" contains "facing=north" else "R"
+        set {_side} to "L" if blockdata tag "facing" of {_data} is "south", else "R"
     else if {_facing} is west:
-        set {_side} to "L" if "%{_data}%" contains "facing=south" else "R"
-    set {_move} to "R" if "%{_data}%" contains "hinge=left" else "L"
+        set {_side} to "L" if blockdata tag "facing" of {_data} is "north", else "R"
+    set {_move} to "L" if blockdata tag "hinge" of {_data} is "left", else "R"
     return "%{_side}%%{_move}%"
 function mtskr_rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: string) :: location:
     set {_rls::*} to {_rloc_str} split at ","

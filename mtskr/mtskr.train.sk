@@ -41,14 +41,15 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
         set {_expr-2} to expr-2
         set {_expr-3} to expr-3
         set {_yaml} to "MTskR.data.rails.%expr-3%"
+        set {_lang} to {-MTskR::lang::%expr-1%}
         open multi action dialog to {_expr-1}:
-            title: "MTskR - Select Train"
+            title: mtskr_message({_lang}, "trains.title")
             body:
                 add text body:
-                    contents: "Click to select train for this siding"
+                    contents: mtskr_message({_lang}, "trains.body")
                 set {_train} to yaml value "%{_expr-2}%.siding.train" from {_yaml}
                 add text body:
-                    contents: mini message from "Current train: %{_train}%"
+                    contents: mini message from "%mtskr_message({_lang}, "trains.current")%%{_train}%"
             actions:
                 set {_models::*} to mtskr train models
                 if {_models::*} is set:
@@ -70,16 +71,16 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
                                 let {_expr-1} edit train of siding {_expr-2} in world {_expr-3}
                 else:
                     add callback action button:
-                        label: "<red>No Avaliable Model"
+                        label: mtskr_message({_lang}, "trains.none")
                         trigger:
-                            send error "&cNo model was created, you should make one with a model creator in the gui."
+                            send mtskr_message({_lang}, "trains.none_msg")
 effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|last:last [spawned] train):
     trigger:
         if parse tags contains "id":
             if indexes of {-MTskR::trains::%expr-1%::*} is set:
                 set {_indexes::*} to expr-1
             else:
-                send formatted "[MTskR] &cThe train with id %expr-1% does not exist" to console
+                send formatted mtskr_message({-MTskR::lang::console}, "trains.dne", "id", expr-1) to console
         else if parse tags contains "all":
             set {_indexes::*} to indexes of {-MTskR::trains::*}
         else if parse tags contains "last":
@@ -93,6 +94,7 @@ effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|la
 effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %world%:
     trigger:
         set {_yaml} to "MTskR.data.rails.%expr-2%"
+        set {_lang} to {-MTskR::lang::console}
         if yaml {_yaml} is loaded:
             if yaml path "%expr-1%.siding.train" of {_yaml} has value:
                 set {_train} to yaml value "%expr-1%.siding.train" from {_yaml}
@@ -104,11 +106,11 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
                 if {_model_length} is not greater than {_siding_length}:
                     spawnTrain({_train}, (spawnloc of train {_train} in siding expr-1 in world expr-2))
                 else:
-                    send formatted "[MTskR] &cTrain of siding '%expr-1%' in world '%expr-2%' is too long" to console
+                    send formatted mtskr_message({_lang}, "trains.too_long", ("siding", "world"), (expr-1, expr-2)) to console
             else:
-                send formatted "[MTskR] &eNo trains found for siding '%expr-1%' in world '%expr-2%'" to console
+                send formatted mtskr_message({_lang}, "trains.none", ("siding", "world"), (expr-1, expr-2)) to console
         else:
-            send formatted "[MTskR] &cData for world %expr-2% is missing" to console
+            send formatted mtskr_message({_lang}, "trains.data_none", "world", expr-2) to console
 function spawnTrain(train: string, loc: location):
     if mtskr model {_train} exists:
         set {_spawn::loc} to middle of {_loc}
@@ -161,7 +163,7 @@ function spawnTrain(train: string, loc: location):
                 teleport loop-value to location 0.8 blocks below mtskr_rotateRelativeCoor({_nowloc}, {_model_yaw}, loop-index)
         kill train {_id}
     else:
-        send formatted "[MTskR] &cThe model named %{_train}% does not exist" to console
+        send formatted mtskr_message({-MTskR::lang::console}, "trains.model_dne", "name", {_train}) to console
 function rideTrain(train: integer, player: player):
     if indexes of {-MTskR::trains::%{_train}%::*} is set:
         if size of {-MTskR::trains::%{_train}%::seats::*} - size of {-MTskR::trains::%{_train}%::passengers::*} is greater than 0:
@@ -172,7 +174,7 @@ function rideTrain(train: integer, player: player):
                     set metadata tag "mtskr.riding" of {_player} to {_train}
                     stop trigger
     else:
-        send formatted "[MTskR] &cThe train does not exist. &7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
+        send formatted "%mtskr_message({-MTskR::lang::console}, "trains.dne")%&7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
 on dismount:
     event-entity is a player
     if metadata tag "mtskr.riding" of player is set:
@@ -189,15 +191,16 @@ on dismount:
                     set {_door} to mtskr_rotateRelativeCoor(location of {-MTskR::trains::%{_train}%::base}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
                     set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
                     if {_train_yaw} is 0:
-                        add the location below ((the location 1.4 east of {_door} if {_type} starts with "L", else the location 1.4 west of {_door})) to {_platforms::*}
+                        add the location below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door})) to {_platforms::*}
                     else if {_train_yaw} is 180:
-                        add the location below ((the location 1.4 east of {_door} if {_type} starts with "R", else the location 1.4 west of {_door})) to {_platforms::*}
+                        add the location below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door})) to {_platforms::*}
                     else if {_train_yaw} is 90:
-                        add the location below ((the location 1.4 south of {_door} if {_type} starts with "L", else the location 1.4 north of {_door})) to {_platforms::*}
+                        add the location below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door})) to {_platforms::*}
                     else if {_train_yaw} is 270:
-                        add the location below ((the location 1.4 south of {_door} if {_type} starts with "R", else the location 1.4 north of {_door})) to {_platforms::*}
+                        add the location below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door})) to {_platforms::*}
         if {_platforms::*} is set:
             loop {_platforms::*}:
+                string tag "mtskr.block" of custom nbt of block at loop-value is "platform"
                 set {_dist} to distance between player and loop-value
                 if {_nearestdist} is not set:
                     set {_nearestdist} to {_dist}
@@ -205,7 +208,7 @@ on dismount:
                 else if {_dist} is smaller than {_nearestdist}:
                     set {_nearestdist} to {_dist}
                     set {_nearest} to loop-value
-            set {_nearest} to middle of the block above {_nearest}
+            set {_nearest} to middle of block above {_nearest}
             set yaw of {_nearest} to yaw of vector from player to {_nearest}
             wait 1 tick
             teleport player to {_nearest}

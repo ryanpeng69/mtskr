@@ -2,9 +2,9 @@
 # Minecraft Transit Railway mod in Paper without resource packs
 # https://github.com/ryanpeng69/mtskr/
 on load:
+    reload mtskr lang from console
     reload mtskr config from console
     reload mtskr data from console
-    reload mtskr lang from console
 on join:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
 on language change:
@@ -265,7 +265,8 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                         goto arg-2 arg-3
                     else if arg-4 is "stop":
                         if {-MTskR::siding::%{_world}%::%{_node}%::running::*} contains true:
-                            send formatted mtskr_stopRoute({_world}, {_node})
+                            mtskr_stopRoute({_world}, {_node})
+                            send mtskr_message({_lang}, "main.cmd.edit.stopRoute", ("siding", "world"), ({_node}, {_world}))
                         else:
                             send error mtskr_message({_lang}, "main.cmd.edit.stop_route_false", ("siding", "world"), ({_node}, {_world}))
                     else:
@@ -336,7 +337,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                                             trigger:
                                                 mtskr_refreshRoute({_node}, {_world})
                                         add callback action button:
-                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.stop_running")
+                                            label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.stop")
                                             trigger:
                                                 replace "." in {_node} with " "
                                                 make player execute command "mtskr siding %{_node}% stop"
