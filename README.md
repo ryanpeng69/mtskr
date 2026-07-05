@@ -1,4 +1,4 @@
-<img width="2109" height="745" alt="MTskR_banner" src="https://github.com/user-attachments/assets/26cfca62-b0df-495b-8bc5-b45b2363196e" />
+<img width="1700" height="600" alt="MTskR Banner" src="https://github.com/user-attachments/assets/d159ed40-3479-4abb-baa7-333b8706d91e" />
 
 # MTskR: Minecraft TrainSkript Railway
 
@@ -25,13 +25,13 @@
 
 ### Requirements
 
-  Required plugins: [skript](https://github.com/SkriptLang/Skript) [skbee](https://github.com/ShaneBeee/SkBee), [skript-gui](https://github.com/APickledWalrus/skript-gui), [skript-reflect](https://github.com/SkriptLang/skript-reflect), [skript-yml](https://github.com/Sashie/skript-yaml)
+  Required plugins: [skript](https://github.com/SkriptLang/Skript) [skbee](https://github.com/ShaneBeee/SkBee), [skript-reflect](https://github.com/SkriptLang/skript-reflect), [skript-yml](https://github.com/Sashie/skript-yaml)
 
   Least requirement: `Paper 1.20.5 (custom_data)`
 
   Tested versions:
 
-* `Paper 1.21.11-130`, `Skript 2.14.2`, `Skbee 3.20.0`, `skript-gui 1.3.1`, `skript-reflect 2.6.3`, `skript-yml 1.7.2`
+* `Paper 1.21.11-130`, `Skript 2.14.2`, `Skbee 3.20.0`, `skript-reflect 2.6.3`, `skript-yml 1.7.2`
 
 ## Data:
 

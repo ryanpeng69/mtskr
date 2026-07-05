@@ -1,0 +1,128 @@
+effect (open|show) mtskr items gui (for|to) [player] %player%:
+    trigger:
+        set {_inv} to chest inventory with 6 rows named "MTskR"
+        set slot 0 of {_inv} to (mtskr tutorial for expr-1) with custom nbt from "{gui:item.tutorial}"
+        set slot 1 of {_inv} to (mtskr brush for expr-1) with custom nbt from "{gui:item.brush}"
+        set slot 2 of {_inv} to (mtskr loc selector for expr-1) with custom nbt from "{gui:item.loc_selector}"
+        set slot 3 of {_inv} to (mtskr route creator for expr-1) with custom nbt from "{gui:item.route_creator}"
+        set slot 4 of {_inv} to (mtskr model seat for expr-1) with custom nbt from "{gui:item.model_seat}"
+        set slot 5 of {_inv} to (mtskr platform block for expr-1) with custom nbt from "{gui:item.platform_block}"
+        set slot 6 of {_inv} to (mtskr arrival sign for expr-1) with custom nbt from "{gui:item.arrival_sign}"
+        set slot 9 of {_inv} to (mtskr rail node for expr-1) with custom nbt from "{gui:item.rail_node}"
+        set slot 10 of {_inv} to (normal rail connector for expr-1) with custom nbt from "{gui:item.normal_rail_connector}"
+        set slot 18 of {_inv} to (one way rail connector for expr-1) with custom nbt from "{gui:item.one_way_rail_connector}"
+        set slot 19 of {_inv} to (platform rail connector for expr-1) with custom nbt from "{gui:item.platform_rail_connector}"
+        set slot 20 of {_inv} to (siding rail connector for expr-1) with custom nbt from "{gui:item.siding_rail_connector}"
+        set slot 21 of {_inv} to (turnback rail connector for expr-1) with custom nbt from "{gui:item.turnback_rail_connector}"
+        set slot 22 of {_inv} to (remove rail connector for expr-1) with custom nbt from "{gui:item.remove_rail_connector}"
+        set {_index} to 27
+        loop ("bridge_creator", "tunnel_creator", and "tunnel_wall_creator"):
+            set {_type} to loop-value
+            set {_name} to unformatted mtskr_message({_lang}, "items.%loop-value%.general_name")
+            set {_lores::*} to mtskr_message({_lang}, "items.%{_type}%.lores") split at nl
+            if {_type} is "bridge_creator":
+                set {_item} to 5 blocks wide bridge creator for expr-1
+            else if {_type} is "tunnel_creator":
+                set {_item} to 5 x 7 tunnel creator for expr-1
+                clear {_lores::3}
+            else if {_type} is "tunnel_wall_creator":
+                set {_item} to 5x7 tunnel wall creator for expr-1
+            clear {_lores::4} and {_lores::5}
+            add mtskr_message({_lang}, "main.cmd.items.click_to_customize_size") to {_lores::*}
+            set slot {_index} of {_inv} to ({_item} named "&f%{_name}%" with lore {_lores::*}) with custom nbt from "{gui:item.%loop-value%}"
+            add 1 to {_index}
+        open {_inv} to expr-1
+on inventory click:
+    custom nbt of event-itemstack has tag "gui"
+    string tag "gui" of custom nbt of event-itemstack is not "false"
+    string tag "gui" of custom nbt of event-itemstack is not "blank"
+    cancel event
+    set {_lang} to {-MTskR::lang::%player%}
+    set {_type} to string tag "gui" of custom nbt of event-itemstack
+    if {_type} is "no":
+        play sound "entity.villager.no" with seed 0
+    else if {_type} starts with "item.":
+        if {_type} matches "bridge_creator|tunnel_creator|tunnel_wall_creator":
+            open multi action dialog to player:
+                title: mtskr_message({_lang}, "main.cmd.items.customize_a", "item", {_name})
+                inputs:
+                    add number range input:
+                        key: "width"
+                        label: mtskr_message({_lang}, "main.cmd.items.width")
+                        start: 5
+                        end: 21
+                        step: 2
+                        initial: 5
+                    if {_type} starts with "tunnel_":
+                        add number range input:
+                            key: "height"
+                            label: mtskr_message({_lang}, "main.cmd.items.height")
+                            start: 7
+                            end: 21
+                            step: 1
+                            initial: 7
+                actions:
+                    add callback action button:
+                        label: mtskr_message({_lang}, "main.cmd.items.get")
+                        trigger:
+                            if {_type} is "bridge_creator":
+                                give player (float tag "width" of event-nbt) blocks wide bridge creator for player
+                            else if {_type} is "tunnel_creator":
+                                give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel creator for player
+                            else if {_type} is "tunnel_wall_creator":
+                                give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator for player
+        else:
+            set {_item} to event-itemstack
+            set string tag "gui" of custom nbt of {_item} to "false"
+            give player {_item}
+    else if {_type} starts with "models_download":
+        if {_type} is "models_download.1stPg":
+            play sound "item.book.page_turn" with seed 0
+            open page 1 of models on web to player
+        else if {_type} starts with "models_download.Pg.":
+            replace "models_download.Pg." in {_type} with ""
+            play sound "item.book.page_turn" with seed 2
+            open page ({_type} parsed as int) of models on web to player 
+        else if {_type} starts with "models_download.lstPg.":
+            play sound "item.book.page_turn" with seed 3
+            replace "models_download.lstPg." in {_type} with ""
+            open page ({_type} parsed as int) of models on web to player 
+        else if {_type} is "models_download.link":
+            open notice dialog to player:
+                title: mtskr_message({_lang}, "models_download.web_title")
+                body:
+                    add text body:
+                        contents: mini message from "<click:open_url:https://mtskr.up.railway.app/models>%mtskr_message({_lang}, "models_download.click2web")%%nl%https://mtskr.up.railway.app/models"
+        else if {_type} starts with "models_download.download.":
+            replace "models_download.download." in {_type} with ""
+            set {_id} to {_type}
+            set {_authorLB} to mtskr_message({_lang}, "models_download.author")
+            set {_timeLB} to mtskr_message({_lang}, "models_download.time")
+            set {_descLB} to mtskr_message({_lang}, "models_download.desc")
+            set {_name} to {-MTskR::temp::fetchmodels::%loop-value%::name}
+            set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
+            set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
+            set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
+            open multi action dialog to player:
+                title: mtskr_message({_lang}, "models_download.download_title")
+                body:
+                    add text body:
+                        contents: "&7ID: %{_id}%%nl%&e%{_authorLB}%&6%{_author}%%nl%&7%{_timeLB}%%{_time}%%nl%&e%{_descLB}%%nl%&f%{_description}%"
+                inputs:
+                    add text input:
+                        label: mtskr_message({_lang}, "models_download.name")
+                        key: "name"
+                actions:
+                    add callback action button:
+                        label: mtskr_message({_lang}, "models_download.download")
+                        trigger:
+                            set {_fname} to string tag "name" of event-nbt
+                            replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
+                            set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%")
+                            set {_file} to new File("plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml")
+                            {_file}.getParentFile().mkdirs()
+                            set {_inputStream} to {_url}.openStream()
+                            Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                            {_inputStream}.close()
+                            send formatted mtskr_message({_lang}, "models_download.downloaded", ("model", "author", "id", "file"), ({_name}, {_author}, {_id}, {_file}))
+                            send formatted mtskr_message({-MTskR::lang::console}, "models_download.log", ("player", "model", "author", "id", "file"), (player, {_name}, {_author}, {_id}, {_file})) to console

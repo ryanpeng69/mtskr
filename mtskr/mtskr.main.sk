@@ -119,70 +119,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 loop "create, rebuild, list" split at ", ":
                     send formatted "<ttp:%{_click_to_use}%><sgt:/mtskr model %loop-value% >&6/mtskr model %loop-value% ..."
         else if (whether arg-1 matches "gui|items") and (whether player is op) are true:
-            create a new gui with virtual chest inventory with 6 rows named "MTskR":
-                set {_index} to 0
-                loop (mtskr tutorial for player, mtskr brush for player, mtskr loc selector for player, mtskr route creator for player, mtskr model seat for player, mtskr platform block for player, and mtskr arrival sign for player):
-                    set {_item} to loop-value
-                    make gui slot {_index} with {_item}:
-                        give player {_item}
-                    add 1 to {_index}
-                set {_index} to 9
-                loop (mtskr rail node):
-                    set {_item} to loop-value
-                    make gui slot {_index} with {_item}:
-                        give player {_item}
-                    add 1 to {_index}
-                set {_index} to 18
-                loop (rail connector for player, single way rail connector for player, platform rail connector for player, siding rail connector for player, turnback rail connector for player, and remove rail connector for player):
-                    set {_item} to loop-value
-                    make gui slot {_index} with {_item}:
-                        give player {_item}
-                    add 1 to {_index}
-                set {_index} to 27
-                loop ("bridge_creator", "tunnel_creator", and "tunnel_wall_creator"):
-                    set {_type} to loop-value
-                    set {_name} to unformatted mtskr_message({_lang}, "items.%loop-value%.general_name")
-                    set {_lores::*} to mtskr_message({_lang}, "items.%{_type}%.lores") split at nl
-                    if {_type} is "bridge_creator":
-                        set {_item} to type of 5 blocks wide bridge creator
-                    else if {_type} is "tunnel_creator":
-                        set {_item} to type of 5 x 7 tunnel creator
-                        clear {_lores::3}
-                    else if {_type} is "tunnel_wall_creator":
-                        set {_item} to type of 5x7 tunnel wall creator
-                    clear {_lores::4} and {_lores::5}
-                    add mtskr_message({_lang}, "main.cmd.items.click_to_customize_size") to {_lores::*}
-                    make gui slot {_index} with ({_item} named "&f%{_name}%" with lore {_lores::*}):
-                        open multi action dialog to player:
-                            title: mtskr_message({_lang}, "main.cmd.items.customize_a", "item", {_name})
-                            inputs:
-                                add number range input:
-                                    key: "width"
-                                    label: mtskr_message({_lang}, "main.cmd.items.width")
-                                    start: 5
-                                    end: 21
-                                    step: 2
-                                    initial: 5
-                                if {_type} starts with "tunnel_":
-                                    add number range input:
-                                        key: "height"
-                                        label: mtskr_message({_lang}, "main.cmd.items.height")
-                                        start: 7
-                                        end: 21
-                                        step: 1
-                                        initial: 7
-                            actions:
-                                add callback action button:
-                                    label: mtskr_message({_lang}, "main.cmd.items.get")
-                                    trigger:
-                                        if {_type} is "bridge_creator":
-                                            give player (float tag "width" of event-nbt) blocks wide bridge creator for player
-                                        else if {_type} is "tunnel_creator":
-                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel creator for player
-                                        else if {_type} is "tunnel_wall_creator":
-                                            give player (float tag "width" of event-nbt) by (float tag "height" of event-nbt) tunnel wall creator for player
-                    add 1 to {_index}
-            open last gui to player
+            open mtskr items gui for player
         else if (whether arg-1 is "reload") and (whether player is op) are true:
             if arg-2 matches "scripts|all":
                 set {_dir} to "%current script%"

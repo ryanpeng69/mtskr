@@ -42,7 +42,7 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             continue
         set {-MTskR::temp::last::fetchmodels} to now
         set {_jsonString} to mtskr_urlRequestJson("https://mtskr.up.railway.app/get/models" )
-        replace "\r" in {_jsonString} with ""
+        replace "\r" in {_jsonString} with 
         if {_jsonString} starts with "&cError":
             send {_jsonString} to expr-1
             if expr-1 is not console:
@@ -78,78 +78,37 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
             set {_want_page} to 1
         fetch models on web by expr-2
         set {_lang} to {-MTskR::lang::%expr-2%}
-        create a new gui with virtual chest inventory with 6 rows named mtskr_message({_lang}, "models_download.title"):
-            make gui slots (integers from 45 to 53) with black stained glass pane without entire tooltip
-            set {_max_page} to ceil(size of indexes of {-MTskR::temp::fetchmodels::*} / 45)
-            make gui slot 45 with paper named mtskr_message({_lang}, "models_download.1stPg"):
-                play sound "item.book.page_turn" with seed 0
-                open page 1 of models on web to player
-            set {_prvPg} to mtskr_message({_lang}, "models_download.prvPg")
-            set {_nxtPg} to mtskr_message({_lang}, "models_download.nxtPg")
-            if {_want_page} is not 1:
-                make gui slot 46 with paper named "&e%{_prvPg}%":
-                    play sound "item.book.page_turn" with seed 2
-                    open page {_want_page} - 1 of models on web to player
-            else:
-                make gui slot 46 with paper named "&c%{_prvPg}%":
-                    play sound "entity.villager.no" with seed 0
-            if {_want_page} is not {_max_page}:
-                make gui slot 52 with paper named "&e%{_nxtPg}%":
-                    play sound "item.book.page_turn" with seed 2
-                    open page {_want_page} + 1 of models on web to player
-            else:
-                make gui slot 52 with paper named "&c%{_nxtPg}%":
-                    play sound "entity.villager.no" with seed 0
-            make gui slot 53 with paper named mtskr_message({_lang}, "models_download.lstPg"):
-                play sound "item.book.page_turn" with seed 3
-                open page {_max_page} of models on web to player
-            make gui slot 49 with paper named mtskr_message({_lang}, "models_download.web"):
-                open notice dialog to player:
-                    title: mtskr_message({_lang}, "models_download.web_title")
-                    body:
-                        add text body:
-                            contents: mini message from "<click:open_url:https://mtskr.up.railway.app/models>%mtskr_message({_lang}, "models_download.click2web")%%nl%https://mtskr.up.railway.app/models"
-            set {_idx} to -1
-            set {_page} to 1
-            loop indexes of {-MTskR::temp::fetchmodels::*}:
-                add 1 to {_idx}
-                if {_idx} is "45":
-                    add 1 to {_page}
-                if {_page} is {_want_page}:
-                    set {_id} to loop-value
-                    set {_name} to {-MTskR::temp::fetchmodels::%loop-value%::name}
-                    set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
-                    set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
-                    set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
-                    set {_authorLB} to mtskr_message({_lang}, "models_download.author")
-                    set {_timeLB} to mtskr_message({_lang}, "models_download.time")
-                    set {_descLB} to mtskr_message({_lang}, "models_download.desc")
-                    set {_item} to paper named "&e%{_name}%" with lore "&7ID: %{_id}%", "&e%{_authorLB}%&6%{_author}%", "&7%{_timeLB}%%{_time}%", and "&e%{_descLB}%"
-                    set {_lines::*} to split {_description} at nl
-                    loop {_lines::*}:
-                        add "&f%loop-value-2%" to lore of {_item}
-                    make gui slot {_idx} with {_item}:
-                        open multi action dialog to player:
-                            title: mtskr_message({_lang}, "models_download.download_title")
-                            body:
-                                add text body:
-                                    contents: "&7ID: %{_id}%%nl%&e%{_authorLB}%&6%{_author}%%nl%&7%{_timeLB}%%{_time}%%nl%&e%{_descLB}%%nl%&f%{_description}%"
-                            inputs:
-                                add text input:
-                                    label: mtskr_message({_lang}, "models_download.name")
-                                    key: "name"
-                            actions:
-                                add callback action button:
-                                    label: mtskr_message({_lang}, "models_download.download")
-                                    trigger:
-                                        set {_fname} to string tag "name" of event-nbt
-                                        replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
-                                        set {_url} to new URL("https://mtskr.up.railway.app/get/models/%{_id}%")
-                                        set {_file} to new File("plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml")
-                                        {_file}.getParentFile().mkdirs()
-                                        set {_inputStream} to {_url}.openStream()
-                                        Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
-                                        {_inputStream}.close()
-                                        send formatted mtskr_message({_lang}, "models_download.downloaded", ("model", "author", "id", "file"), ({_name}, {_author}, {_id}, {_file}))
-                                        send formatted mtskr_message({-MTskR::lang::console}, "models_download.log", ("player", "model", "author", "id", "file"), (player, {_name}, {_author}, {_id}, {_file})) to console
-        open last gui to expr-2
+        set {_inv} to chest inventory with 6 rows named mtskr_message({_lang}, "models_download.title")
+        set slots (integers from 45 to 53) of {_inv} to black stained glass pane without entire tooltip with custom nbt from "{gui:blank}"
+        set {_max_page} to ceil(size of indexes of {-MTskR::temp::fetchmodels::*} / 45)
+        set slot 45 of {_inv} to paper named mtskr_message({_lang}, "models_download.1stPg") with custom nbt from "{gui:models_download.1stPg}"
+        set {_prvPg} to mtskr_message({_lang}, "models_download.prvPg")
+        set {_nxtPg} to mtskr_message({_lang}, "models_download.nxtPg")
+        if {_want_page} is not 1:
+            set slot 46 of {_inv} to paper named "&e%{_prvPg}%" with custom nbt from "{gui:models_download.Pg.%{_want_page} - 1%}"
+        else:
+            set slot 46 of {_inv} to paper named "&c%{_prvPg}%" with custom nbt from "{gui:no}"
+        if {_want_page} is not {_max_page}:
+            set slot 52 of {_inv} to paper named "&e%{_nxtPg}%" with custom nbt from "{gui:models_download.Pg.%{_want_page} + 1%}"
+        else:
+            set slot 52 of {_inv} to paper named "&c%{_nxtPg}%" with custom nbt from "{gui:no}"
+        set slot 53 of {_inv} to paper named mtskr_message({_lang}, "models_download.lstPg") with custom nbt from "{gui:models_download.lstPg.%{_max_page}%}"
+        set slot 49 of {_inv} to paper named mtskr_message({_lang}, "models_download.web") with custom nbt from "{gui:models_download.link}"
+        set {_idx} to -1
+        set {_page} to 1
+        loop indexes of {-MTskR::temp::fetchmodels::*}:
+            add 1 to {_idx}
+            if {_idx} is "45":
+                add 1 to {_page}
+            if {_page} is {_want_page}:
+                set {_id} to loop-value
+                set {_name} to {-MTskR::temp::fetchmodels::%loop-value%::name}
+                set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
+                set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
+                set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
+                set {_item} to paper named "&e%{_name}%" with lore "&7ID: %{_id}%", "&e%{_authorLB}%&6%{_author}%", "&7%{_timeLB}%%{_time}%", and "&e%{_descLB}%"
+                set {_lines::*} to split {_description} at nl
+                loop {_lines::*}:
+                    add "&f%loop-value-2%" to lore of {_item}
+                set slot {_idx} of {_inv} to {_item} with custom nbt from "{gui:models_download.download.%loop-value%}"
+        open {_inv} to player

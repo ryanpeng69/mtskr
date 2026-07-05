@@ -24,6 +24,7 @@ function mtskr_fixSign(node: string, loc: location):
         set {_yaml} to "MTskR.data.signs.%{_world}%"
         set {_keys::*} to {_node} split at "::"
         set {_key} to "%{_keys::3}%;%{_keys::5}%;%{_keys::6}%"
+        set yaml value "%{_key}%.world" of {_yaml} to {_loc}
         set yaml value "%{_key}%.loc" of {_yaml} to {_loc}
         set yaml value "%{_key}%.spawn" of {_yaml} to location({_x}, {_y}, {_z}, {_world})
         set yaml value "%{_key}%.facing" of {_yaml} to {_facing}
@@ -49,7 +50,7 @@ function mtskr_arrivalCountdown(world: world, siding: string, platform: string) 
             if loop-value is {_split_platform::2}:
                 return {_ticks} / 20
             set {_node} to "%loop-value%.%next loop-value%"
-            set {_end} to mtskr_nodeLoc(next loop-value, {_world})
+            set {_end} to middle of mtskr_nodeLoc(next loop-value, {_world})
             set {_stop_time} to 0
             if yaml path "%{_node}%.type" of {_yaml} has value:
                 if yaml value "%{_node}%.type" of {_yaml} is "platform":
@@ -57,10 +58,10 @@ function mtskr_arrivalCountdown(world: world, siding: string, platform: string) 
                         set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of {_yaml}
                     else:
                         set {_stop_time} to 5
-                    set {_end} to spawnloc of {_model} for platform {_node} in {_world}
-            set {_steps} to distance between mtskr_nodeLoc(loop-value, {_world}) and {_end} * 2
+                    # set {_end} to spawnloc of {_model} for platform {_node} in {_world}
+            set {_steps} to distance between middle of mtskr_nodeLoc(loop-value, {_world}) and {_end} * 2
             add {_steps} to {_ticks}
-            add {_stop_time} to {_ticks}
+            add {_stop_time} * 20 to {_ticks}
         return {_ticks} / 20
     return 0
 function mtskr_startArrivalSign(world: world, siding: string, platform: string, running: string, bound: string):
