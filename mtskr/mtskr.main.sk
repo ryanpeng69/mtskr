@@ -24,11 +24,12 @@ on tab complete of ("mtskr" or "mtskr:mtskr"):
                 add "%loop-value% -f" to tab completions for position 3
     else if tab arg 1 is "edit":
         player is op
-        set tab completions for position 2 to "x,y,z"
-        set tab completions for position 3 to "x,y,z"
+        set {_yaml} to "MTskR.data.rails.%world of player%"
+        set tab completions for position 2 to yaml node keys "" of {_yaml}
         tab arg 2 matches "-?\d+,-?\d+,-?\d+"
-        tab arg 3 matches "-?\d+,-?\d+,-?\d+"
-        set {_type} to yaml value "%tab arg 2%.%tab arg 3%.type" from "MTskR.data.rails.%world of player%"
+        set tab completions for position 3 to yaml node keys tab arg 2 of {_yaml}
+        yaml node keys tab arg 2 of {_yaml} contains tab arg 3
+        set {_type} to yaml value "%tab arg 2%.%tab arg 3%.type" from {_yaml}
         {_type} is set
         set tab completions for position 4 to split "name, goto" at ", "
         if tab arg 4 is "name":
@@ -81,7 +82,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     prefix: mtskr
     trigger:
         set {_lang} to {-MTskR::lang::%player%}
-        if (whether arg-1 is "model") and (whether player is op) are true:
+        if (whether arg-1 is "model") and whether ((whether player is op) or (whether sender is console) is true) are true:
             if arg-2 is "create":
                 if arg-4 is "-f":
                     force create train model arg-3
@@ -118,9 +119,9 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 set {_click_to_use} to mtskr_message({_lang}, "main.cmd.click_to_use")
                 loop "create, rebuild, list" split at ", ":
                     send formatted "<ttp:%{_click_to_use}%><sgt:/mtskr model %loop-value% >&6/mtskr model %loop-value% ..."
-        else if (whether arg-1 matches "gui|items") and (whether player is op) are true:
+        else if (whether arg-1 matches "gui|items") and whether ((whether player is op) or (whether sender is console) is true) are true:
             open mtskr items gui for player
-        else if (whether arg-1 is "reload") and (whether player is op) are true:
+        else if (whether arg-1 is "reload") and whether ((whether player is op) or (whether sender is console) is true) are true:
             if arg-2 matches "scripts|all":
                 set {_dir} to "%current script%"
                 regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
@@ -138,7 +139,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                 reload mtskr config
                 reload mtskr data
                 reload mtskr lang
-        else if (whether arg-1 matches "edit|siding|platform") and (whether player is op) are true:
+        else if (whether arg-1 matches "edit|siding|platform") and whether ((whether player is op) or (whether sender is console) is true) are true:
             if:
                 arg-2 matches "-?\d+,-?\d+,-?\d+"
                 arg-3 matches "-?\d+,-?\d+,-?\d+"
@@ -284,7 +285,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                     send error mtskr_message({_lang}, "main.cmd.edit.false", ("loc1", "loc2"), (arg-2, arg-3))
             else:
                 send error mtskr_message({_lang}, "main.cmd.edit.none")
-        else if (whether arg-1 is "route") and (whether player is op) are true:
+        else if (whether arg-1 is "route") and whether ((whether player is op) or (whether sender is console) is true) are true:
             set {_yaml} to "MTskR.data.routes.%world of player%"
             set {_id::*} to (yaml node keys "" of {_yaml})
             if arg-2 is "remove":
@@ -308,7 +309,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
                     set {_nodes} to join {_nodes::*} by " "
                     add "&7%loop-value%: <ttp:%{_nodes}%><cmd:mtskr route remove %loop-value%>%{_name}%" to {_list::*}
                 send formatted join {_list::*} by "<reset>&7, "
-        else if (whether arg-1 is "config") and (whether player is op) are true:
+        else if (whether arg-1 is "config") and whether ((whether player is op) or (whether sender is console) is true) are true:
             if arg-2 is "set":
                 if arg-3 is set:
                     if arg-4 is set:

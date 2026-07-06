@@ -42,7 +42,7 @@ effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
             continue
         set {-MTskR::temp::last::fetchmodels} to now
         set {_jsonString} to mtskr_urlRequestJson("https://mtskr.up.railway.app/get/models" )
-        replace "\r" in {_jsonString} with 
+        replace "\r" in {_jsonString} with ""
         if {_jsonString} starts with "&cError":
             send {_jsonString} to expr-1
             if expr-1 is not console:
@@ -111,4 +111,4 @@ effect: # open [page %integer% of] [list of] [all] [online] models [list] [onlin
                 loop {_lines::*}:
                     add "&f%loop-value-2%" to lore of {_item}
                 set slot {_idx} of {_inv} to {_item} with custom nbt from "{gui:models_download.download.%loop-value%}"
-        open {_inv} to player
+        open {_inv} to expr-1

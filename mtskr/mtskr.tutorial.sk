@@ -10,6 +10,8 @@ effect open [mtskr] tutorial (to|for) %player%:
                 add text body:
                     contents: mini message from mtskr_message({_lang}, "tutorial.home.intro")
                     width: 400
+                add text body:
+                    contents: mini message from "<click:open_url:https://github.com/ryanpeng69/mtskr>Github</click> | <click:open_url:https://mtskr.up.railway.app>Web</click> | <click:open_url:http://discord.gg/kSSmEyVSRR>Discord"
             actions:
                 add callback action button:
                     label: mtskr_message({_lang}, "tutorial.home.btn.cmd")

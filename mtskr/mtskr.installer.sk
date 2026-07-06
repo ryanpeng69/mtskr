@@ -14,19 +14,6 @@ import:
     com.google.gson.JsonParser
     com.google.gson.JsonArray
     com.google.gson.JsonObject
-on load:
-    {-MTskR::installer::require_install} is not set
-    set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
-    loop "mtskr.main.sk, mtskr.functions.sk, mtskr.items.sk" split at ", ":
-        if {_scripts::*} does not contain loop-value:
-            add loop-value to {_needs::*}
-    if {_needs::*} is set:
-        set {-MTskR::installer::require_install} to true
-        send formatted "[MTskR Installer] Type &6mtskrinstaller <reset>to install MTskR" to console
-on join:
-    player is op
-    {-MTskR::installer::require_install} is set
-    send formatted "[MTskR Installer] <ttp:&9Click to use><cmd:mtskrinstaller>Type &6/mtskrinstaller &fto install MTskR"
 function mtskr_installer_request(url: string) :: string:
     set {_javaURL} to new URL({_url})
     set {_connection} to {_javaURL}.openConnection()
@@ -56,6 +43,37 @@ function mtskr_download(url: string, path: string):
     set {_inputStream} to {_javaURL}.openStream()
     Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
     {_inputStream}.close()
+on load:
+    {-MTskR::installer::require_install} is not set
+    set {_scripts::*} to scripts without paths where ["%input%" starts with "mtskr."]
+    set {_jsonString} to mtskr_installer_request("https://api.github.com/repositories/1254744123/contents/mtskr")
+    if {_jsonString} starts with "&cError":
+        send {_jsonString}
+        play sound "entity.villager.no" with seed 0
+        stop trigger
+    else:
+        set {_jsonElement} to JsonParser.parseString({_jsonString})
+        set {_jsonArray} to {_jsonElement}.getAsJsonArray()
+        set {_size} to {_jsonArray}.size()
+        if {_size} is 0:
+            send formatted "[MTskR] &cNo result from url request."
+        else:
+            loop {_size} times:
+                set {_jsonObject} to {_jsonArray}.get((loop-value) - 1)
+                {_jsonObject}.get("type").getAsString() is "file"
+                set {_name} to {_jsonObject}.get("name").getAsString()
+                set {_url} to {_jsonObject}.get("download_url").getAsString()
+                set {_script::%{_name}%} to {_url}
+    loop {_script::*}:
+        if {_scripts::*} does not contain loop-index:
+            set {-MTskR::installer::require_install} to true
+            send formatted "[MTskR Installer] Type &6mtskrinstaller <reset>to install MTskR" to console
+            stop trigger
+    set {-MTskR::installer::require_install} to false
+on join:
+    player is op
+    {-MTskR::installer::require_install} is true
+    send formatted "[MTskR Installer] <ttp:Click to use><cmd:mtskrinstaller>Type &6/mtskrinstaller &fto install MTskR"
 on tab complete of ("mtskrinstaller" or "mtskr:mtskrinstaller"):
     set tab completions for position 1 to "download|update|<locale_codes>" split at "|"
 command /mtskrinstaller [<text>]:
@@ -68,8 +86,8 @@ command /mtskrinstaller [<text>]:
                 send formatted "&e/mtskrinstaller <locale codes> &6Download languages and install MTskR."
                 send formatted "&e/mtskrinstaller update &6Download every script again."
             else:
-                send formatted "<cmd:mtskrinstaller download>&e/mtskrinstaller download &6Install MTskR.<ttp:&2It will not continue if you already installed MTskR.>&2*<reset>"
-                send formatted "<sgt:mtskrinstaller >&e/mtskrinstaller <locale codes> &6Download languages and install MTskR."
+                send formatted "<cmd:mtskrinstaller download>&e/mtskrinstaller download &6Install MTskR.<ttp:It will not continue if you already installed MTskR.>&2*<reset>"
+                send formatted "<sgt:/mtskrinstaller >&e/mtskrinstaller <locale codes> &6Download languages and install MTskR."
                 send formatted "<cmd:mtskrinstaller update>&e/mtskrinstaller update &6Download every script again."
             stop
         send formatted "[MTskR] Installing MTskR..."
@@ -138,8 +156,8 @@ command /mtskrinstaller [<text>]:
         send formatted "[MTskR] &aMTskR downloaded." to console
         send formatted "[MTskR] Loading MTskR..."
         reload scripts in directory {_dir}
-        clear {-MTskR::installer::require_install}
+        set {-MTskR::installer::require_install} to false
         send formatted "[MTskR] &aDone installing, head in game and type &6/mtskr &ato get started." to console
         if sender is not console:
-            send formatted "<ttp:&9/mtskr><cmd:mtskr>[MTskR] &aDone installing, click to get started."
+            send formatted "<ttp:/mtskr><cmd:mtskr>[MTskR] &aDone installing, click to get started."
             play sound "entity.experience_orb.pickup"

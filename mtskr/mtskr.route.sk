@@ -157,13 +157,16 @@ function mtskr_refreshRoute(siding: string, world: world):
                         if next loop-value is not set:
                             set {_thread} to loop-value parsed as int + 1
                     set {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} to true
+                    set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} to now
                     loop {_nodes::*}:
                         previous loop-value is set
-                        yaml value "%previous loop-value%.%loop-value%.type" of "MTskR.data.rails.%{_world}%" is "platform"
+                        set {_platform} to "%previous loop-value%.%loop-value%"
+                        yaml value "%{_platform}%.type" of "MTskR.data.rails.%{_world}%" is "platform"
+                        set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::time} to mtskr_arrivalCountdown({_world}, {_platform}, {_siding})
                         if loop-counter is greater than {_size}:
-                            mtskr_startArrivalSign({_world}, {_siding}, "%previous loop-value%.%loop-value%", "siding::%{_world}%::%{_siding}%::running::%{_thread}%", "in")
+                            set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal} to terminal of "in" bound route for siding {_siding} in world {_world}
                         else:
-                            mtskr_startArrivalSign({_world}, {_siding}, "%previous loop-value%.%loop-value%", "siding::%{_world}%::%{_siding}%::running::%{_thread}%", "out")  
+                            set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal} to terminal of "out" bound route for siding {_siding} in world {_world}
                     while {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
                         mtskr_startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
                         wait timespan({_schedule}, seconds)

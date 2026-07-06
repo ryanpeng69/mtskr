@@ -214,8 +214,10 @@ on right click:
                         set yaml value "%{_node}%.type" from {_yaml} to {_type}
                         if {_type} is "siding":
                             set yaml value "%{_node}%.siding.name" from {_yaml} to "1"
+                            set yaml value "%{_nodeBack}%.type" from {_yaml} to "normal"
                         else if {_type} is "platform":
                             set yaml value "%{_node}%.platform.name" from {_yaml} to "1"
+                            mtskr_startArrivalSign({_world}, {_node})
                     send actionbar mtskr_message({_lang}, "items_function.rail_connector.connected") to player
                 save yaml {_yaml}
             else:

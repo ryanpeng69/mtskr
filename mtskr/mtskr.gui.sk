@@ -1,3 +1,9 @@
+import:
+    java.io.File
+    java.nio.file.Files
+    java.nio.file.StandardCopyOption
+    java.net.URL
+    java.net.HttpURLConnection
 effect (open|show) mtskr items gui (for|to) [player] %player%:
     trigger:
         set {_inv} to chest inventory with 6 rows named "MTskR"
@@ -99,10 +105,10 @@ on inventory click:
             set {_authorLB} to mtskr_message({_lang}, "models_download.author")
             set {_timeLB} to mtskr_message({_lang}, "models_download.time")
             set {_descLB} to mtskr_message({_lang}, "models_download.desc")
-            set {_name} to {-MTskR::temp::fetchmodels::%loop-value%::name}
-            set {_author} to {-MTskR::temp::fetchmodels::%loop-value%::author}
-            set {_time} to {-MTskR::temp::fetchmodels::%loop-value%::time}
-            set {_description} to {-MTskR::temp::fetchmodels::%loop-value%::description}
+            set {_name} to {-MTskR::temp::fetchmodels::%{_id}%::name}
+            set {_author} to {-MTskR::temp::fetchmodels::%{_id}%::author}
+            set {_time} to {-MTskR::temp::fetchmodels::%{_id}%::time}
+            set {_description} to {-MTskR::temp::fetchmodels::%{_id}%::description}
             open multi action dialog to player:
                 title: mtskr_message({_lang}, "models_download.download_title")
                 body:

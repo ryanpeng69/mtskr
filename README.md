@@ -12,11 +12,33 @@
 
 ## Installation:
 
+### 1. Jar installer (<a href="https://github.com/ryanpeng69/mtskrinstaller">mtskrInstaller.jar</a>)
+<ol>
+  <li>Download <a href="https://github.com/ryanpeng69/mtskrinstaller">mtskrInstaller</a> plugin to <code>plugins\</code>.</li>
+  <li>Restart server.</li>
+  <li>Run <code>/mtskrinstallerjar requirements</code> to download required plugins.</li>
+  <li>Restart server.</li>
+  <li>Run <code>/mtskrinstallerjar download</code> to download scripts.</li>
+  <li>Use <code>/mtskr config</code> to edit config if you want.</li>
+  <li>Run <code>/mtskr</code> to get started.</li>
+</ol>
+
+### 2. Script Installer (<a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk">mtskr.installer.sk</a>)
 <ol>
   <li>Get the required plugins into <code>plugins\</code> folder.</li>
-  <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk" target="_blank">mtskr.installer.sk</a> into <code>plugins\Skript\scripts</code>.</li>
+  <li>Grab <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk">mtskr.installer.sk</a> into <code>plugins\Skript\scripts</code>.</li>
   <li>Run <code>/sk reload scripts</code> to reload the script.</li>
   <li>Run <code>/mtskrinstaller</code>, it will download more files and automatically reload.</li>
+  <li>Use <code>/mtskr config</code> to edit config if you want.</li>
+  <li>Run <code>/mtskr</code> to get started.</li>
+</ol>
+
+### 3. Manual Install (<a href="https://github.com/ryanpeng69/mtskr">MTskR GitHub</a>)
+<ol>
+  <li>Get the required plugins into <code>plugins\</code> folder.</li>
+  <li>Download everything on <a href="https://github.com/ryanpeng69/mtskr">github</a>.</li>
+  <li>Place them in <code>plugins\Skript\scripts\.\mtskr\</code>.</li>
+  <li>Run <code>/sk reload scripts</code>.</li>
   <li>Use <code>/mtskr config</code> to edit config if you want.</li>
   <li>Run <code>/mtskr</code> to get started.</li>
 </ol>
@@ -32,6 +54,7 @@
   Tested versions:
 
 * `Paper 1.21.11-130`, `Skript 2.14.2`, `Skbee 3.20.0`, `skript-reflect 2.6.3`, `skript-yml 1.7.2`
+* `Paper 1.21.11-130`, `Skript 2.15.4`, `Skbee 3.25.1`, `skript-reflect 2.6.3`, `skript-yml 1.7.2`
 
 ## Data:
 
