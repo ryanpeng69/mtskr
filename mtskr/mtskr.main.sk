@@ -75,9 +75,12 @@ on tab complete of ("mtskr" or "mtskr:mtskr"):
         else if tab arg 2 matches "command|cmd":
             set tab completions for position 3 to integers from 1 to 2
     else if tab arg 1 is "debug":
-        set {_args::*} to tab args
-        clear {_args::1}
-        set tab completions for last position to indexes of {-MTskR::%join {_args::*} by "::"%::*}
+        if tab arg 2 is set:
+            set {_args::*} to tab args
+            clear {_args::1}
+            set tab completions for last position to indexes of {-MTskR::%join {_args::*} by "::"%::*}
+        else:
+            set tab completions for position 2 to indexes of {-MTskR::*}
 command mtskr [<text>] [<text>] [<text>] [<text>] [<text>]:
     prefix: mtskr
     trigger:

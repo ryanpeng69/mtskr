@@ -157,9 +157,7 @@ function mtskr_refreshRoute(siding: string, world: world):
                         if next loop-value is not set:
                             set {_thread} to loop-value parsed as int + 1
                     set {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} to true
-                    set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} to now
                     loop {_nodes::*}:
-                        previous loop-value is set
                         set {_platform} to "%previous loop-value%.%loop-value%"
                         yaml value "%{_platform}%.type" of "MTskR.data.rails.%{_world}%" is "platform"
                         set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::time} to mtskr_arrivalCountdown({_world}, {_platform}, {_siding})
@@ -167,6 +165,7 @@ function mtskr_refreshRoute(siding: string, world: world):
                             set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal} to terminal of "in" bound route for siding {_siding} in world {_world}
                         else:
                             set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal} to terminal of "out" bound route for siding {_siding} in world {_world}
+                        set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} to now
                     while {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
                         mtskr_startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
                         wait timespan({_schedule}, seconds)
@@ -179,6 +178,8 @@ function mtskr_refreshRoute(siding: string, world: world):
 function mtskr_stopRoute(world: world, siding: string):
     loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}:
         set {-MTskR::siding::%{_world}%::%{_siding}%::running::%loop-value%} to false
+    loop indexes of {-MTskR::signs::%{_world}%::*}:
+        clear {-MTskR::signs::%{_world}%::%loop-value%::arrival::%{_siding}%::*}
     clear {-MTskR::routes::%{_world}%::%{_siding}%::*}
 function mtskr_getPath(c: string, end: string, world: world, history: strings = "") :: strings:
     set {_yaml} to "MTskR.data.rails.%{_world}%"

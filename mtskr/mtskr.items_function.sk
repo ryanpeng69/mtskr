@@ -219,7 +219,6 @@ on right click:
                             set yaml value "%{_node}%.platform.name" from {_yaml} to "1"
                             mtskr_startArrivalSign({_world}, {_node})
                     send actionbar mtskr_message({_lang}, "items_function.rail_connector.connected") to player
-                save yaml {_yaml}
             else:
                 send actionbar mtskr_message({_lang}, "items_function.rail_connector.diff") to player
     else if {_item} is "route_creator":
@@ -257,7 +256,6 @@ on right click:
                                 set yaml value "%{_id}%.name" of {_yaml} to {_name}
                                 set yaml value "%{_id}%.color" of {_yaml} to {_color}
                                 set yaml list "%{_id}%.nodes" of {_yaml} to {_nodes::*}
-                                save yaml {_yaml}
                                 send formatted mtskr_message({_lang}, "items_function.route_creator.created", ("color", "name"), ({_color}, {_name})) to player
                                 send formatted mtskr_message({-MTskR::lang::console}, "items_function.route_creator.log", ("color", "name", "id"), ({_color}, {_name}, {_id})) to console
             else:
@@ -333,6 +331,7 @@ on right click:
             modify arrival sign event-block
     else if {_item} is "tutorial":
         open mtskr tutorial to player
+    save yaml {_yaml}
 on break:
     set {_lang} to {-MTskR::lang::%player%}
     set {_ls} to mtskr_nodeString(event-location)
@@ -368,19 +367,19 @@ on break:
                         stop trigger
 on place:
     set {_lang} to {-MTskR::lang::%player%}
-    if player's tool is mtskr seat:
+    if string tag "mtskr.item" of custom nbt of player's tool is "model_seat":
         add event-block to {MTskR::seats::*}
         send actionbar mtskr_message({_lang}, "items_function.place.seat", "loc", mtskr_nodeString(event-location)) to player
-    else if player's tool is platform block:
+    else if string tag "mtskr.item" of custom nbt of player's tool is "platform_block":
         set string tag "mtskr.block" of custom nbt of event-block to "platform"
         if facing of event-block is up or down:
             set facing of event-block to facing of player
         send actionbar mtskr_message({_lang}, "items_function.place.platform", "loc", mtskr_nodeString(event-location)) to player
-    else if player's tool is arrival sign:
+    else if string tag "mtskr.item" of custom nbt of player's tool is "arrival_sign":
         if blockdata tag "facing" of blockdata of event-block is set:
             set string tag "mtskr.block" of custom nbt of event-block to "arrival_sign"
             send actionbar mtskr_message({_lang}, "items_function.place.arrsign", "loc", mtskr_nodeString(event-location)) to player
         else:
             cancel event
             send actionbar mtskr_message({_lang}, "items_function.place.arrsign_false")
-            play sound "entity.experience_orb.pickup"
+            play sound "entity.villager.no" with seed 0

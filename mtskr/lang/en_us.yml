@@ -366,10 +366,10 @@ route:
     no_route: "[MTskR] &eNo route found for siding '%siding%' in world '%world%'"
 signs:
   title: "MTskR - Edit Arrival Sign"
-  info: "By selecting the siding and platform, the sign will become a text display."
-  select_world: "Select a world, then you can select sidings."
-  select_platform: "Now, select a platform."
-  no_platforms: "&cNo Platforms Found"
+  info: "Select a platform for the arrival sign to show arriving trains."
+  delete: "&cDelete"
+  deleted: "&eSign removed."
+  delete_false: "&cArrival sign not found."
   edit_again: "&eEdit again by placing an arrival sign at the same location."
 trains:
   title: "MTskR - Select Train"

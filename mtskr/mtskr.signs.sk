@@ -3,6 +3,10 @@
 function mtskr_fixSign(loc: location, facing: direction, platform: string):
     set {_spawn} to middle of {_loc}
     set {_world} to world of {_loc}
+    set {_signYaml} to "MTskR.data.signs.%{_world}%"
+    set {_key} to mtskr_nodeString({_spawn})
+    if {_facing} is not set:
+        set {_facing} to yaml value "%{_key}%.facing" of {_signYaml}
     if {_facing} is north:
         increase z coord of {_spawn} by 0.5
     else if {_facing} is south:
@@ -11,16 +15,14 @@ function mtskr_fixSign(loc: location, facing: direction, platform: string):
         increase x coord of {_spawn} by 0.5
     else if {_facing} is east:
         decrease x coord of {_spawn} by 0.5
-    set {_key} to "%x coord of {_spawn}%,%y coord of {_spawn}%,%z coord of {_spawn}%"
     if {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} is not alive:
         spawn text display at {_spawn}
         set {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to last spawned text display
     set yaw of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to yaw of direction {_facing}
     set text alignment of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to left aligned
     set line width of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to 600
-    set {_signYaml} to "MTskR.data.signs.%{_world}%"
     set yaml value "%{_key}%.platform" of {_signYaml} to {_platform}
-    set yaml value "%{_key}%.facing" of {_signYaml} to {_facing}
+    set yaml value "%{_key}%.facing" of {_signYaml} to {_facing} if {_facing} is set
     save yaml {_signYaml}
 function mtskr_formatArrivalCountdownTimespan(timespan: timespan) :: string:
     if {_timespan} is set:
@@ -35,95 +37,87 @@ function mtskr_arrivalCountdown(world: world, platform: string, siding: string) 
     add {-MTskR::routes::%{_world}%::%{_siding}%::in::*} to {_nodes::*}
     set {_splitPlatform::*} to {_platform} split at "."
     set {_splitSiding::*} to {_siding} split at "."
-    {_nodes::*} contains {_split_platform::1}
-    {_nodes::*} contains {_split_platform::2}
-    set {_yaml} to "MTskR.data.rails.%{_world}%"
-    set {_model} to yaml value "%{_siding}%.siding.train" of {_yaml}
-    set {_c} to {_splitSiding::2}
-    loop {_nodes::*}:
-        set {_start} to mtskr_nodeLoc({_c}, {_world})
-        set {_end} to mtskr_nodeLoc(loop-value, {_world})
-        set {_c} to loop-value
-        set {_node} to "%{_c}%.%loop-value%"
-        if yaml path "%{_node}%.type" of {_yaml} has value:
+    set {_ticks} to 0
+    if {_nodes::*} contains {_splitPlatform::1} and {_splitPlatform::2}:
+        set {_yaml} to "MTskR.data.rails.%{_world}%"
+        set {_model} to yaml value "%{_siding}%.siding.train" of {_yaml}
+        set {_c} to {_splitSiding::2}
+        loop {_nodes::*}:
+            set {_start} to mtskr_nodeLoc({_c}, {_world})
+            set {_end} to mtskr_nodeLoc(loop-value, {_world})
+            set {_node} to "%{_c}%.%loop-value%"
+            set {_c} to loop-value
             if yaml value "%{_node}%.type" of {_yaml} is "platform":
                 if yaml value "%{_node}%.platform.stop_time" of {_yaml} is greater than 0:
                     set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of {_yaml}
                 else:
                     set {_stop_time} to 5
                 set {_end} to spawnloc of {_model} for platform {_platform} in world {_world}
-        set {_ticks} to distance between {_start} and {_end} * 2
-        if {_stop_time} is set:
-            add {_stop_time} * 5 to {_ticks}
-            add distance between {_end} and mtskr_nodeLoc(loop-value, {_world}) * 2 to {_ticks}
-        clear {_stop_time}
+            add distance between {_start} and {_end} * 2 to {_ticks}
+            if {_stop_time} is set:
+                if {_node} is {_platform}:
+                    return {_ticks}
+                else:
+                    add distance between {_end} and mtskr_nodeLoc(loop-value, {_world}) * 2 to {_ticks}
+                    add {_stop_time} * 20 to {_ticks}
+            clear {_stop_time}
     return {_ticks}
 function mtskr_startArrivalSign(world: world, platform: string):
     set {_signYaml} to "MTskR.data.signs.%{_world}%"
     set {_railYaml} to "MTskR.data.rails.%{_world}%"
+    set {_thread} to (last element of indexes of {-MTskR::signs::%{_world}%::%{_platform}%::running::*}) parsed as int + 1
+    loop indexes of {-MTskR::signs::%{_world}%::%{_platform}%::runnig::*}:
+        set {-MTskR::signs::%{_world}%::%{_platform}%::running::%loop-value%} to false
+    set {-MTskR::signs::%{_world}%::%{_platform}%::running::%{_thread}%} to true
     while yaml value "%{_platform}%.type" of {_railYaml} is "platform":
         wait 1 second
+        if {-MTskR::signs::%{_world}%::%{_platform}%::running::%{_thread}%} is not true:
+            stop loop
         set {_stop_time} to timespan(yaml value "%{_platform}%.platform.stop_time" of {_railYaml}, seconds)
-        {-MTskR::signs::%{_world}%::%{_platform}%::arrival::*} is set
-        loop {-MTskR::signs::%{_world}%::%{_platform}%::displays::*}:
-            set {_keys::*} to loop-index split at ","
-            set {_facing} to yaml value "%loop-index%.facing" of {_signYaml}
-            mtskr_fixSign(location({_keys::1}, {_keys::2}, {_keys::3}, {_world}), {_facing}, {_platform})
-        loop {-MTskR::signs::%{_world}%::%{_platform}%::arrival::*}:
-            if {_arrive::%loop-index%} is set:
-                {_check::%loop-index%::start} is {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::start}
-                {_check::%loop-index%::time} is {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::time}
-                {_schedule::%loop-index%} is yaml value "%loop-index%.siding.schedule" of {_railYaml}
-                continue loop
-            set {_schedule::%loop-index%} to yaml value "%loop-index%.siding.schedule" of {_railYaml}
-            set {_arrive} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::start} + timespan({-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::time}, ticks)
-            while {_arrive} has passed:
-                add timespan({_schedule::%loop-index%}, seconds) to {_arrive} # type: time
-            set {_arrive::%loop-index%} to {_arrive}
-            set {_check::%loop-index%::start} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::start}
-            set {_check::%loop-index%::time} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::time}
-            set {_check::%loop-index%::schedule} to yaml value "%loop-index%.siding.schedule" of {_railYaml}
-            set {_terminal::%loop-index%} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%loop-index%::terminal}
-        loop {_arrive::*}:
-            set {_current::%loop-index%} to loop-value
-            if {_arrive::%loop-index%} has passed:
-                if time since {_arrive::%loop-index%} is smaller than {_stop_time}: # now
-                    set {_board::%loop-counter-2%::siding} to loop-index
-                    set {_board::%loop-counter-2%::time} to time since {_arrive::%loop-index%}
-                else: # for next
-                    increase {_arrive::%loop-index%} by timespan({_schedule::%loop-index%}, seconds)
-                    decrease {_arrive::%loop-index%} by {_stop_time}
-            else: # comming
-                set {_board::%loop-counter-2%::siding} to loop-index
-                set {_board::%loop-counter-2%::time} to time until {_arrive::%loop-index%}
-        {_board::*} is set
-        sort {_board::*} based on {_board::%input%::time}
-        while size of {_board::*} < 3:
-            if {_board::%loop-counter-2%::*} is set:
-                set {_temp} to {_board::%loop-counter-2%::time}
-                increase {_temp} by timespan({_schedule::%{_board::%loop-counter-2%::siding}%}, seconds)
-                set {_board::%(loop-counter-2) + 1%::time} to {_temp}
-                set {_board::%(loop-counter-2) + 1%::siding} to {_board::%loop-counter-2%::siding}
-            else:
-                set {_temp} to {_board::1}
-                set {_board::%loop-counter-2%::time} to {_temp}
-                set {_board::%loop-counter-2%::siding} to {_board::1::siding}
-        loop indexes of {_board::*}:    
-            set {_formatted_time} to mtskr_formatArrivalCountdownTimespan({_board::%loop-value%::time})
-            set {_time_length} to length of {_formatted_time}
-            set {_left_length} to 20 - {_time_length}
-            set {_spaces_count} to {_left_length} - {_terminal_length}
-            if {_spaces_count} is greater than 0:
-                set {_spaces} to ""
-                loop {_spaces_count} times:
-                    set {_spaces} to "%{_spaces}% "
-                set {_line::%loop-counter-2%} to "%{_terminal::%{_board::%loop-value%::siding}%}%%{_spaces}%%{_formatted_time}%"
-            else: 
-                set {_spaces} to "   "
-                set {_allowed_terminal_l} to 20 - {_time_length} - 3
-                set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
-                set {_line::%loop-counter-2%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
-        set text of {-MTskR::signs::%{_world}%::%{_platform}%::displays::*} to join {_line::*} by nl
+        if indexes of {-MTskR::signs::%{_world}%::%{_platform}%::arrival::*} is set: # sidings
+            loop indexes of {-MTskR::signs::%{_world}%::%{_platform}%::arrival::*}:
+                set {_siding} to loop-value
+                if {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} is not {_check::%{_siding}%::start}:
+                    set {_first::%{_siding}%} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} + timespan({-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::time}, ticks)
+                    set {_check::%{_siding}%::start} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start}
+                    while {_first::%{_siding}%} is in the past:
+                        add timespan(yaml value "%{_siding}%.siding.schedule" of {_railYaml}, seconds) to {_first::%{_siding}%} # next train come at
+            {_first::*} is set
+            set {_indexes::*} to sorted indexes of {_first::*} in ascending order
+            clear {_show::*}
+            loop {_indexes::*}:
+                set {_show::%loop-counter-2%::time} to {_first::%loop-value%}
+                set {_show::%loop-counter-2%::siding} to loop-value
+            loop 3 - size of indexes of {_show::*} times:
+                set {_idx} to (size of indexes of {_show::*}) + 1
+                set {_show::%{_idx}%::time} to {_show::1::time} + timespan(yaml value "%{_show::1::siding}%.siding.schedule" of {_railYaml} * ({_idx} - 1), seconds)
+                set {_show::%{_idx}%::siding} to {_show::1::siding}
+            loop indexes of {_show::*}:
+                set {_siding} to {_show::%loop-value%::siding}
+                if {_show::%loop-value%::time} has passed:
+                    set {_formatted_time} to ""
+                    if time since {_show::%loop-value%::time} is more than {_stop_time}:
+                        increase {_first::%{_siding}%} by timespan(yaml value "%{_siding}%.siding.schedule" of {_railYaml}, seconds)
+                else:
+                    set {_formatted_time} to mtskr_formatArrivalCountdownTimespan(time until {_show::%loop-value%::time})
+                set {_time_length} to length of {_formatted_time}
+                set {_left_length} to 20 - {_time_length}
+                set {_spaces_count} to {_left_length} - {_terminal_length}
+                set {_terminal} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal}
+                if {_spaces_count} is greater than 0:
+                    set {_spaces} to ""
+                    loop {_spaces_count} times:
+                        set {_spaces} to "%{_spaces}% "
+                    set {_line::%loop-counter-2%} to "%{_terminal}%%{_spaces}%%{_formatted_time}%"
+                else: 
+                    set {_spaces} to "   "
+                    set {_allowed_terminal_l} to 20 - {_time_length} - 3
+                    set {_cut_terminal} to first {_allowed_terminal_l} characters of {_terminal}
+                    set {_line::%loop-counter-2%} to "%{_cut_terminal}%%{_spaces}%%{_formatted_time}%"
+            set text of {-MTskR::signs::%{_world}%::%{_platform}%::displays::*} to join {_line::*} by nl
+        else:
+            clear {_first::*} and {_check::*}
+            set text of {-MTskR::signs::%{_world}%::%{_platform}%::displays::*} to ""
     set text of {-MTskR::signs::%{_world}%::%{_platform}%::displays::*} to ""
 effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
     trigger:
@@ -131,42 +125,65 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
         set {_loc} to location of expr-1
         set {_str} to mtskr_nodeString({_loc})
         set {_lang} to {-MTskR::lang::%expr-2%}
+        set {_world} to world of expr-2
         open multi action dialog to expr-2:
             title: mtskr_message({_lang}, "signs.title")
             body:
                 add text body:
                     contents: mtskr_message({_lang}, "signs.info")
-                add text body:
-                    contents: mtskr_message({_lang}, "signs.select_world")
             actions:
-                loop worlds:
-                    set {_world} to "%loop-value%"
+                set {_yaml} to "MTskR.data.rails.%{_world}%"
+                loop yaml node keys "" of {_yaml}:
+                    loop yaml node keys loop-value of {_yaml}:
+                        set {_node} to "%loop-value-1%.%loop-value-2%"
+                        if yaml value "%{_node}%.type" of {_yaml} is "platform":
+                            set {_platform::%{_node}%} to yaml value "%{_node}%.platform.name" of {_yaml}
+                loop {_platform::*}:
+                    set {_platform} to loop-index
                     add callback action button:
-                        label: {_world}
+                        width: 220
+                        label: "(%loop-value%) %{_platform}%"
                         trigger:
-                            set {_yaml} to "MTskR.data.rails.%{_world}%"
-                            loop yaml node keys "" of {_yaml}:
-                                loop yaml node keys loop-value of {_yaml}:
-                                    set {_node} to "%loop-value-1%.%loop-value-2%"
-                                    if yaml value "%{_node}%.type" of {_yaml} is "platform":
-                                        set {_platform::%{_node}%} to yaml value "%{_node}%.platform.name" of {_yaml}
-                            open multi action dialog to player:
-                                title: mtskr_message({_lang}, "signs.title")
-                                body:
-                                    add text body:
-                                        contents: mtskr_message({_lang}, "signs.select_platform")
-                                actions:
-                                    if {_platform::*} is set:
-                                        loop {_platform::*}:
-                                            set {_platform} to loop-index
-                                            add callback action button:
-                                                label: "(%loop-value%) %{_platform}%"
-                                                trigger:
-                                                    mtskr_fixSign({_loc}, {_facing}, {_platform})
-                                                    send mtskr_message({_lang}, "signs.edit_again")  
-                                                    set block at {_loc} to air
-                                    else:
-                                        add callback action button:
-                                            label: mtskr_message({_lang}, "signs.no_platforms")
-                                            trigger:
-                                                play sound "entity.villager.no" with seed 0
+                            mtskr_fixSign({_loc}, {_facing}, {_platform})
+                            send mtskr_message({_lang}, "signs.edit_again")  
+                            set block at {_loc} to air
+                            mtskr_startArrivalSign({_world}, {_platform})
+                add callback action button:
+                    label: mtskr_message({_lang}, "signs.delete")
+                    width: 220
+                    trigger:
+                        loop indexes of {-MTskR::signs::%{_world}%::*}:
+                            if indexes of {-MTskR::signs::%{_world}%::%loop-value%::displays::*} contains {_str}:
+                                remove entity {-MTskR::signs::%{_world}%::%loop-value%::displays::%{_str}%}
+                                clear {-MTskR::signs::%{_world}%::%loop-value%::displays::%{_str}%}
+                                delete yaml value {_str} of "MTskR.data.signs.%{_world}%"
+                                save yaml "MTskR.data.signs.%{_world}%"
+                                play sound "entity.experience_orb.pickup"
+                                send mtskr_message({_lang}, "signs.deleted")
+                                stop trigger
+                        send error mtskr_message({_lang}, "signs.delete_false")
+on skript stop:
+    loop indexes of {-MTskR::signs::*}:
+        loop indexes of {-MTskR::signs::%loop-value-1%::*}:
+            clear {-MTskR::signs::%loop-value-1%::%loop-value-2%::running::*}
+            remove entities {-MTskR::signs::%loop-value-1%::%loop-value-2%::displays::*}
+on load:
+    wait 1 second
+    while players is not set:
+        wait 1 second
+    loop worlds:
+        set {_yaml} to "MTskR.data.signs.%loop-value%"
+        loop yaml node keys "" of {_yaml}:
+            set {_platform} to yaml value "%loop-value-2%.platform" of {_yaml}
+            if {_platform::*} does not contain {_platform}:
+                mtskr_startArrivalSign(loop-value-1, {_platform})
+            set {_platform::%loop-counter-2%} to {_platform}
+            set {_keys::*} to loop-value-2 parsed as "%int%,%int%,%int%"
+            set {_facing} to yaml value "%loop-value-2%.facing" of {_yaml}
+            mtskr_fixSign(location({_keys::1}, {_keys::2}, {_keys::3}, loop-value-1), {_facing}, {_platform::%loop-counter-2%})
+            clear {_platform} and {_keys::*} and {_facing}
+on unload:
+    loop worlds:
+        loop indexes of {-MTskR::signs::%loop-value%::*}:
+            loop indexes of {-MTskR::signs::%loop-value-1%::%loop-value-2%::running::*}:
+                set {-MTskR::signs::%loop-value-1%::%loop-value-2%::running::%loop-value-3%} to false
