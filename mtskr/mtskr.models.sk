@@ -33,11 +33,11 @@ expression: # length of [mtskr] [train] model %string%
             loop 2 times:
                 set {_lv%loop-value%::*} to {_raw_rl%loop-value%} parsed as "%integer%,%integer%,%integer%"
             if yaml value "info.facing" from {_yaml} is evenly divisible by 180:
-                return abs({_lv1::3} - {_lv2::3})
+                return abs({_lv1::3} - {_lv2::3}) + 1
             else:
-                return abs({_lv1::1} - {_lv2::1})
+                return abs({_lv1::1} - {_lv2::1}) + 1
         else:
-            send formatted "[MTskR] %mtskr_message({-MTskR::lang::console}, "models.dne")%&7Trigger: length of [mtskr] [train] model %expr-1%" to console
+            send formatted "[MTskR] %mtskr_message({-MTskR::lang::CONSOLE}, "models.dne")%&7Trigger: length of [mtskr] [train] model %expr-1%" to console
         return
 effect remove entit(y|ies) %entities%:
     trigger:
@@ -114,7 +114,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                     save yaml "MTskR.model.%{_fname}%"
                     play sound "entity.experience_orb.pickup" to expr-2
                     send formatted mtskr_message({_lang}, "models.saved", ("name", "blocks", "doors", "seats"), ({_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to expr-2
-                    send formatted mtskr_message({-MTskR::lang::console}, "models.log", ("player", "name", "blocks", "doors", "seats"), (expr-2, {_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to console
+                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "models.log", ("player", "name", "blocks", "doors", "seats"), (expr-2, {_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to console
                 else:
                     send error mtskr_message({_lang}, "models.model_sign.none") to expr-2
             else:

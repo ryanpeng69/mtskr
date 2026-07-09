@@ -1,6 +1,6 @@
 # Part - Routes
 # https://github.com/ryanpeng69/mtskr/
-effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to [loc[ation]] %location% with runnig check %string%:
+effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to [loc[ation]] %location% with running check %string%:
     trigger: 
         if {-MTskR::%expr-4%} is true:
             {-MTskR::trains::%expr-1%::base} is alive
@@ -60,14 +60,14 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                             wait timespan({_tick_for_ride_train_detection}, ticks)
                         else:
                             continue
-                    move train expr-1 from {_end} to expr-3 with runnig check expr-4
+                    move train expr-1 from {_end} to expr-3 with running check expr-4
             continue
 effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
     trigger:
         delay effect
         set {_siding_loc::*} to expr-2 split at "."
-        if yaml path "%expr-1%.nodes" of "MTskR.data.routes.%expr-3%" has value:
-            set {_nodes::*} to yaml list "%expr-1%.nodes" from "MTskR.data.routes.%expr-3%"
+        if yaml path "%expr-1%.out.nodes" of "MTskR.data.routes.%expr-3%" has value:
+            set {_nodes::*} to yaml list "%expr-1%.out.nodes" from "MTskR.data.routes.%expr-3%"
             set {-MTskR::routes::%expr-3%::%expr-2%::out::*} to {_siding_loc::2}
             set {_start} to {_siding_loc::2}
             loop {_nodes::*}:
@@ -77,19 +77,30 @@ effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
                     clear {_path::*}
                     set {_start} to loop-value
                 else:
-                    send formatted mtskr_message({-MTskR::lang::console}, "route.no_path", ("start", "end", "world"), ({_start}, loop-value, expr-3)) to console
+                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.no_path", ("start", "end", "world"), ({_start}, loop-value, expr-3)) to console
                     clear {-MTskR::routes::%expr-3%::%expr-2%::out::*}
                     continue
-            set {-MTskR::routes::%expr-3%::%expr-2%::in::*} to {_start}
+            set {_nodes::*} to yaml list "%expr-1%.in.nodes" from "MTskR.data.routes.%expr-3%"
+            clear {-MTskR::routes::%expr-3%::%expr-2%::in::*}
+            loop {_nodes::*}:
+                set {_path::*} to mtskr_getPath({_start}, loop-value, expr-3)
+                if {_path::*} is set:
+                    add {_path::*} to {-MTskR::routes::%expr-3%::%expr-2%::in::*}
+                    clear {_path::*}
+                    set {_start} to loop-value
+                else:
+                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.no_path", ("start", "end", "world"), ({_start}, loop-value, expr-3)) to console
+                    clear {-MTskR::routes::%expr-3%::%expr-2%::in::*}
+                    continue
             set {_path::*} to mtskr_getPath({_start}, {_siding_loc::1}, expr-3)
             if {_path::*} is set:
                 add {_path::*} to {-MTskR::routes::%expr-3%::%expr-2%::in::*}
             else:
-                send formatted mtskr_message({-MTskR::lang::console}, "route.no_path", ("start", "end", "world"), (last element of {_nodes::*}, {_siding_loc::1}, expr-3)) to console
+                send formatted mtskr_message({-MTskR::lang::console}, "route.no_path", ("start", "end", "world"), ({_start}, {_siding_loc::1}, expr-3)) to console
                 clear {-MTskR::routes::%expr-3%::%expr-2%::in::*}
-                continue
+                continue            
         else:
-            send formatted mtskr_message({-MTskR::lang::console}, "route.empty", ("id", "world"), (expr-1, expr-3)) to console
+            send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.empty", ("id", "world"), (expr-1, expr-3)) to console
         continue
 effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %world%:
     trigger:
@@ -170,11 +181,11 @@ function mtskr_refreshRoute(siding: string, world: world):
                         mtskr_startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
                         wait timespan({_schedule}, seconds)
             else:
-                send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_train", ("siding", "world"), ({_siding}, {_world})) to console
+                send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.refresh.no_train", ("siding", "world"), ({_siding}, {_world})) to console
         else:
-            send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_schedule", ("siding", "world"), ({_siding}, {_world})) to console
+            send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.refresh.no_schedule", ("siding", "world"), ({_siding}, {_world})) to console
     else:
-        send formatted mtskr_message({-MTskR::lang::console}, "route.refresh.no_route", ("siding", "world"), ({_siding}, {_world})) to console
+        send formatted mtskr_message({-MTskR::lang::CONSOLE}, "route.refresh.no_route", ("siding", "world"), ({_siding}, {_world})) to console
 function mtskr_stopRoute(world: world, siding: string):
     loop indexes of {-MTskR::siding::%{_world}%::%{_siding}%::running::*}:
         set {-MTskR::siding::%{_world}%::%{_siding}%::running::%loop-value%} to false
@@ -209,12 +220,12 @@ function mtskr_startTrain(siding: string, world: world, nodes: strings, thread: 
     loop {_nodes::*}:
         set {_lvl} to mtskr_nodeLoc(loop-value, {_world})
         if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
-            move train {_id} from {_c} to {_lvl} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+            move train {_id} from {_c} to {_lvl} with running check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
             set {_c} to {_lvl}
         else:
             stop loop
     if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
-        move train {_id} from {_c} to {-MTskR::trains::%{_id}%::spawnloc} with runnig check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
+        move train {_id} from {_c} to {-MTskR::trains::%{_id}%::spawnloc} with running check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
     remove entity {-MTskR::trains::%{_id}%::base}
 on skript start:
     wait 1 second

@@ -65,9 +65,10 @@ on load:
                 set {_url} to {_jsonObject}.get("download_url").getAsString()
                 set {_script::%{_name}%} to {_url}
     loop {_script::*}:
+        loop-index ends with ".sk"
         if {_scripts::*} does not contain loop-index:
             set {-MTskR::installer::require_install} to true
-            send formatted "[MTskR Installer] Type &6mtskrinstaller <reset>to install MTskR" to console
+            send formatted "[MTskR Installer.sk] Type &6mtskrinstaller <reset>to install MTskR" to console
             stop trigger
     set {-MTskR::installer::require_install} to false
 on join:
@@ -119,8 +120,9 @@ command /mtskrinstaller [<text>]:
         if {_dir} does not contain "mtskr":
             set {_dir} to "%{_dir}%mtskr\"
         loop {_script::*}:
+            loop-index ends with ".sk"
             if at least one of:
-                scripts without paths does not contain loop-value
+                scripts without paths does not contain loop-index
                 arg-1 is "update"
             then:
                 set {_path} to "plugins\Skript\scripts\%{_dir}%%loop-index%"

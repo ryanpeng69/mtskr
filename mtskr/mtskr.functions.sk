@@ -58,7 +58,7 @@ effect (reload:[re]load|unload:unload) mtskr (:config|:data|language:lang[uage])
                     send formatted "[MTskR] &eConfig not found, created at plugins\Skript\scripts\%{_dir}%config.yml" to expr-1
                 load yaml "plugins\Skript\scripts\%{_dir}%config.yml" as "MTskR.config"
                 fix mtskr config
-                set {-MTskR::lang::console} to best mtskr language for mtskr config "console_lang"
+                set {-MTskR::lang::CONSOLE} to best mtskr language for mtskr config "console_lang"
             else if parse tags contains "data":
                 loop all worlds:
                     load yaml "plugins\Skript\scripts\%{_dir}%data\rails\%loop-value%.yml" as "MTskR.data.rails.%loop-value%"

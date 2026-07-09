@@ -39,7 +39,7 @@ main:
           refresh_route: "Refresh Route"
           stop: "Stop Running"
     removeroute:
-      removed: "&eRoute &6%route% &eremoved."
+      removed: "&e%bound% bound of route <#%color%>%name% &eremoved."
       list: "&eRoutes in world &6%world%&7: &eClick to remove."
     config:
       key_none: "&cPlease specify a key at arg-3."
@@ -300,14 +300,16 @@ items_function:
   route_creator:
     title: "MTskR - Create Route"
     body: "The train must go through the following nodes.\nMore nodes will be loaded as the route is selected for a siding."
-    name: "Name"
+    name_instruction: "Name must end with &e||out&f or &e||in&f at the end to specify bound.\nIf you already create another bound for the route,\ndo &e/mtskr route&f to get the id then type &e#&7<&6id&7>&e||&7<&6out&7|&6in&7>&f\nType &e\\&f while holding shift to type &e|&f or just use a &e.&f instead."
+    name: "Name &cPlease read above instructions"
     color: "Color (hex)"
     create: "Create"
-    created: "&eRoute <#%color%>%name% &ecreated."
-    log: "[MTskR] %player% created route '<#%color%>%name%<reset>', id: %id%."
+    created: "&e%bound% bound of route <#%color%>%name% &ecreated."
+    log: "[MTskR] %player% created %bound% bound route '<#%color%>%name%<reset>', id: %id%."
     select: "&cYou must select a node to create route."
     remove: "&eRemoved %node%."
     add: "&eAdded %node%."
+    false: "&cPlease type a valid name that matches &e%regex%\n&7%examples%"
   brush:
     edit: "&9Click to edit"
     false: "&cNo editable rails."

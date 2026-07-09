@@ -33,7 +33,7 @@ function mtskr_urlRequestJson(urlText: string) :: string:
     if {_connection}.getResponseCode() is set:
         return "&cError: %{_connection}.getResponseCode()%"
     else:
-        return "&cError: %mtskr_message({-MTskR::lang::console}, "models_download.no_resp_code")%"
+        return "&cError: %mtskr_message({-MTskR::lang::CONSOLE}, "models_download.no_resp_code")%"
 effect (get|fetch) [all|every] models [(on|from) web] [by %sender%]:
     trigger:
         delay effect

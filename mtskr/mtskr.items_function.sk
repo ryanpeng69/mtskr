@@ -234,8 +234,12 @@ on right click:
                     body:
                         add text body:
                             contents: mtskr_message({_lang}, "items_function.route_creator.body")
+                            width: 380
                         add text body:
                             contents: join {_nodes::*} by nl
+                        add text body:
+                            contents: mtskr_message({_lang}, "items_function.route_creator.name_instruction")
+                            width: 380
                     inputs:
                         add text input:
                             label: mtskr_message({_lang}, "items_function.route_creator.name")
@@ -247,17 +251,29 @@ on right click:
                         add callback action button:
                             label: mtskr_message({_lang}, "items_function.route_creator.create")
                             trigger:
-                                set player's tool to route creator
-                                set {_name} to string tag "name" of event-nbt
-                                set {_color} to string tag "color" of event-nbt
-                                if {_color} does not match "[0-9a-fA-F]{6}":
-                                    set {_color} to "000000"
-                                set {_id} to last element of (yaml node keys "" of {_yaml}) parsed as int + 1
-                                set yaml value "%{_id}%.name" of {_yaml} to {_name}
-                                set yaml value "%{_id}%.color" of {_yaml} to {_color}
-                                set yaml list "%{_id}%.nodes" of {_yaml} to {_nodes::*}
-                                send formatted mtskr_message({_lang}, "items_function.route_creator.created", ("color", "name"), ({_color}, {_name})) to player
-                                send formatted mtskr_message({-MTskR::lang::console}, "items_function.route_creator.log", ("color", "name", "id"), ({_color}, {_name}, {_id})) to console
+                                set {_input} to string tag "name" of event-nbt
+                                if {_input} matches "([^\.|\|\|]+|#\d+)(\.|\|\|)(in|out)":
+                                    set {_name::*} to regex split {_input} at "(?<=^[^\.|\|\|]+)(\.|\|\|)(?=in$|out$)"
+                                    if {_name::1} matches "#\d+":
+                                        set {_id} to last element of split {_name::1} at "#"
+                                        set {_color} to yaml value "%{_id}%.color" of {_yaml}
+                                        set {_name} to yaml value "%{_id}%.name" of {_yaml}
+                                    else:
+                                        set {_id} to last element of (yaml node keys "" of {_yaml}) parsed as int + 1
+                                        set {_color} to string tag "color" of event-nbt
+                                        set {_name} to {_name::1}
+                                    set player's tool to route creator
+                                    if yaml path {_id} of {_yaml} does not exist:
+                                        if {_color} does not match "[0-9a-fA-F]{6}":
+                                            set {_color} to "ffffff"
+                                        set yaml value "%{_id}%.name" of {_yaml} to {_name}
+                                        set yaml value "%{_id}%.color" of {_yaml} to {_color}
+                                    set yaml list "%{_id}%.%{_name::2}%.nodes" of {_yaml} to {_nodes::*}
+                                    send formatted mtskr_message({_lang}, "items_function.route_creator.created", ("bound", "color", "name"), ({_name::2}, {_color}, {_name})) to player
+                                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "items_function.route_creator.log", ("bound", "color", "name", "id"), ({_name::2}, {_color}, {_name}, {_id})) to console
+                                    save yaml {_yaml}
+                                else:
+                                    send error mtskr_message({_lang}, "items_function.route_creator.false", ("regex", "examples"), ("([^\.|\|\|]+|#\d+)(\.|\|\|)(in|out)", "e.g. &fexample1||out&7, &fexample2.in&7, &f#1.in")) to player
             else:
                 send actionbar mtskr_message({_lang}, "items_function.route_creator.select") to player
                 play sound "entity.villager.no" with seed 0 to player

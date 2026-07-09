@@ -1,14 +1,14 @@
 # Part - Trains
 # https://github.com/ryanpeng69/mtskr/
-expression [mtskr] [train] (base|spawn)[[ |-]point|loc[ation]] (of|for) [train|model] %string% (in|for|at|of) [siding|platform] %string% (in|of) [world] %world%:
+expression [mtskr] [train] (base|spawn|stop)[ |-][point|loc[ation]] (of|for) [train] [model] %string% (in|for|at|of) [siding|platform] %string% [(in|of) [world] %world%]:
     return type: location
     get:
         set {_split::*} to expr-2 split at "."
         set {_l1} to mtskr_nodeLoc({_split::1}, expr-3)
         set {_l2} to mtskr_nodeLoc({_split::2}, expr-3)
-        set {_siding_yaw} to closest quarter of yaw of (vector from {_l1} to {_l2})
-        set {_blocks} to 1
-        add floor(model length of expr-1 /2) to {_blocks}
+        set {_rail_length} to distance between {_l1} and {_l2}
+        set {_rail_yaw} to closest quarter of yaw of (vector from {_l1} to {_l2})
+        set {_blocks} to floor(({_rail_length} - model length of expr-1) /2) + 1
         set {_raw_rl1} to yaml value "info.loc1" from "MTskR.model.%expr-1%"
         set {_raw_rl2} to yaml value "info.loc2" from "MTskR.model.%expr-1%"
         set {_lv1::*} to {_raw_rl1} parsed as "%integer%,%integer%,%integer%"
@@ -23,18 +23,20 @@ expression [mtskr] [train] (base|spawn)[[ |-]point|loc[ation]] (of|for) [train|m
         else if {_yaw} is 90:
             set {_head} to abs(min({_lv1::1}, {_lv2::1}))
         add {_head} to {_blocks}
-        set {_x} to x coord of {_l1}
-        set {_y} to floor(y coord of {_l1})
-        set {_z} to z coord of {_l1}
-        if {_siding_yaw} is 0:
-            increase {_z} by {_blocks}
-        else if {_siding_yaw} is 180:
+        set {_x} to x coord of {_l2}
+        set {_y} to floor(y coord of {_l2})
+        set {_z} to z coord of {_l2}
+        if {_rail_yaw} is 0:
             decrease {_z} by {_blocks}
-        else if {_siding_yaw} is 270:
-            increase {_x} by {_blocks}
-        else if {_siding_yaw} is 90:
+        else if {_rail_yaw} is 180:
+            increase {_z} by {_blocks}
+        else if {_rail_yaw} is 270:
             decrease {_x} by {_blocks}
-        return location({_x}, {_y}, {_z}, expr-3, {_siding_yaw}, 0)
+        else if {_rail_yaw} is 90:
+            increase {_x} by {_blocks}
+        set {_l} to middle of location({_x}, {_y}, {_z}, expr-3)
+        set yaw of {_l} to {_rail_yaw}
+        return {_l}
 effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %world%:
     trigger:
         set {_expr-1} to expr-1
@@ -80,7 +82,7 @@ effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|la
             if indexes of {-MTskR::trains::%expr-1%::*} is set:
                 set {_indexes::*} to expr-1
             else:
-                send formatted mtskr_message({-MTskR::lang::console}, "trains.dne", "id", expr-1) to console
+                send formatted mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne", "id", expr-1) to console
         else if parse tags contains "all":
             set {_indexes::*} to indexes of {-MTskR::trains::*}
         else if parse tags contains "last":
@@ -94,7 +96,7 @@ effect (kill|remove) (id:train [with id[entifier]] %integer%|all:[all] trains|la
 effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %world%:
     trigger:
         set {_yaml} to "MTskR.data.rails.%expr-2%"
-        set {_lang} to {-MTskR::lang::console}
+        set {_lang} to {-MTskR::lang::CONSOLE}
         if yaml {_yaml} is loaded:
             if yaml path "%expr-1%.siding.train" of {_yaml} has value:
                 set {_train} to yaml value "%expr-1%.siding.train" from {_yaml}
@@ -163,7 +165,7 @@ function spawnTrain(train: string, loc: location):
                 teleport loop-value to location 0.8 blocks below mtskr_rotateRelativeCoor({_nowloc}, {_model_yaw}, loop-index)
         kill train {_id}
     else:
-        send formatted mtskr_message({-MTskR::lang::console}, "trains.model_dne", "name", {_train}) to console
+        send formatted mtskr_message({-MTskR::lang::CONSOLE}, "trains.model_dne", "name", {_train}) to console
 function rideTrain(train: integer, player: player):
     if indexes of {-MTskR::trains::%{_train}%::*} is set:
         if size of {-MTskR::trains::%{_train}%::seats::*} - size of {-MTskR::trains::%{_train}%::passengers::*} is greater than 0:
@@ -174,7 +176,7 @@ function rideTrain(train: integer, player: player):
                     set metadata tag "mtskr.riding" of {_player} to {_train}
                     stop trigger
     else:
-        send formatted "%mtskr_message({-MTskR::lang::console}, "trains.dne")%&7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
+        send formatted "%mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne")%&7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
 on dismount:
     event-entity is a player
     if metadata tag "mtskr.riding" of player is set:

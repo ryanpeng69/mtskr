@@ -7,18 +7,20 @@ function mtskr_fixSign(loc: location, facing: direction, platform: string):
     set {_key} to mtskr_nodeString({_spawn})
     if {_facing} is not set:
         set {_facing} to yaml value "%{_key}%.facing" of {_signYaml}
-    if {_facing} is north:
+    else:
+        set {_facing} to yaw of direction {_facing}
+    if {_facing} is 180:
         increase z coord of {_spawn} by 0.5
-    else if {_facing} is south:
+    else if {_facing} is 0:
         decrease z coord of {_spawn} by 0.5
-    else if {_facing} is west:
+    else if {_facing} is 90:
         increase x coord of {_spawn} by 0.5
-    else if {_facing} is east:
+    else if {_facing} is 270:
         decrease x coord of {_spawn} by 0.5
     if {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} is not alive:
         spawn text display at {_spawn}
         set {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to last spawned text display
-    set yaw of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to yaw of direction {_facing}
+    set yaw of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to {_facing}
     set text alignment of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to left aligned
     set line width of {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to 600
     set yaml value "%{_key}%.platform" of {_signYaml} to {_platform}
@@ -43,8 +45,8 @@ function mtskr_arrivalCountdown(world: world, platform: string, siding: string) 
         set {_model} to yaml value "%{_siding}%.siding.train" of {_yaml}
         set {_c} to {_splitSiding::2}
         loop {_nodes::*}:
-            set {_start} to mtskr_nodeLoc({_c}, {_world})
-            set {_end} to mtskr_nodeLoc(loop-value, {_world})
+            set {_start} to middle of mtskr_nodeLoc({_c}, {_world})
+            set {_end} to middle of mtskr_nodeLoc(loop-value, {_world})
             set {_node} to "%{_c}%.%loop-value%"
             set {_c} to loop-value
             if yaml value "%{_node}%.type" of {_yaml} is "platform":
@@ -52,21 +54,21 @@ function mtskr_arrivalCountdown(world: world, platform: string, siding: string) 
                     set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of {_yaml}
                 else:
                     set {_stop_time} to 5
-                set {_end} to spawnloc of {_model} for platform {_platform} in world {_world}
-            add distance between {_start} and {_end} * 2 to {_ticks}
-            if {_stop_time} is set:
-                if {_node} is {_platform}:
+                set {_mid} to spawnloc of {_model} for platform {_node} in world {_world}
+                add (distance between {_start} and {_mid}) * 2 to {_ticks}
+                if loop-value is {_splitPlatform::2}:
                     return {_ticks}
                 else:
-                    add distance between {_end} and mtskr_nodeLoc(loop-value, {_world}) * 2 to {_ticks}
                     add {_stop_time} * 20 to {_ticks}
-            clear {_stop_time}
+                    add (distance between {_mid} and {_end}) * 2 to {_ticks}
+            else:
+                add (distance between {_start} and {_end}) * 2 to {_ticks}
     return {_ticks}
 function mtskr_startArrivalSign(world: world, platform: string):
     set {_signYaml} to "MTskR.data.signs.%{_world}%"
     set {_railYaml} to "MTskR.data.rails.%{_world}%"
     set {_thread} to (last element of indexes of {-MTskR::signs::%{_world}%::%{_platform}%::running::*}) parsed as int + 1
-    loop indexes of {-MTskR::signs::%{_world}%::%{_platform}%::runnig::*}:
+    loop indexes of {-MTskR::signs::%{_world}%::%{_platform}%::running::*}:
         set {-MTskR::signs::%{_world}%::%{_platform}%::running::%loop-value%} to false
     set {-MTskR::signs::%{_world}%::%{_platform}%::running::%{_thread}%} to true
     while yaml value "%{_platform}%.type" of {_railYaml} is "platform":
@@ -102,8 +104,9 @@ function mtskr_startArrivalSign(world: world, platform: string):
                     set {_formatted_time} to mtskr_formatArrivalCountdownTimespan(time until {_show::%loop-value%::time})
                 set {_time_length} to length of {_formatted_time}
                 set {_left_length} to 20 - {_time_length}
-                set {_spaces_count} to {_left_length} - {_terminal_length}
                 set {_terminal} to {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal}
+                set {_terminal_length} to length of {_terminal}
+                set {_spaces_count} to {_left_length} - {_terminal_length}
                 if {_spaces_count} is greater than 0:
                     set {_spaces} to ""
                     loop {_spaces_count} times:
@@ -144,6 +147,8 @@ effect modify [mtskr] [platform] [train] arrival sign %block% [by %player%]:
                         width: 220
                         label: "(%loop-value%) %{_platform}%"
                         trigger:
+                            set {_key} to mtskr_nodeString({_loc})
+                            remove entity {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%}
                             mtskr_fixSign({_loc}, {_facing}, {_platform})
                             send mtskr_message({_lang}, "signs.edit_again")  
                             set block at {_loc} to air

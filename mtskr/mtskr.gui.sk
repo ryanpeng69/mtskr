@@ -131,4 +131,4 @@ on inventory click:
                             Files.copy({_inputStream}, {_file}.toPath(), StandardCopyOption.REPLACE_EXISTING)
                             {_inputStream}.close()
                             send formatted mtskr_message({_lang}, "models_download.downloaded", ("model", "author", "id", "file"), ({_name}, {_author}, {_id}, {_file}))
-                            send formatted mtskr_message({-MTskR::lang::console}, "models_download.log", ("player", "model", "author", "id", "file"), (player, {_name}, {_author}, {_id}, {_file})) to console
+                            send formatted mtskr_message({-MTskR::lang::CONSOLE}, "models_download.log", ("player", "model", "author", "id", "file"), (player, {_name}, {_author}, {_id}, {_file})) to console
