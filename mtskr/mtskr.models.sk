@@ -148,3 +148,35 @@ function mtskr_rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: 
     set {_v} to vector({_x}, {_y}, {_z})
     rotate {_v} around y-axis by ({_model_yaw} - yaw of {_base})
     return {_base} offset by vector(x of {_v}, y of {_v}, z of {_v})
+function mtskr_moveDoor(trainid: object, doorid: object, action: string):
+    set {_base_yaw} to yaw of {-MTskR::trains::%{_trainid}%::base}
+    set {_model} to {-MTskR::trains::%{_trainid}%::model}
+    set {_model_yaml} to "MTskR.model.%{_model}%"
+    set {_type} to yaml value "%{_doorid}%.door" of {_model_yaml}
+    set {_type::*} to {_type} split at ""
+    if {_base_yaw} is 0:
+        set {_v} to vector from (south if {_type::2} is {_type::1}, else north)
+    else if {_base_yaw} is 90:
+        set {_v} to vector from (west if {_type::2} is {_type::1}, else east)
+    else if {_base_yaw} is 180:
+        set {_v} to vector from (north if {_type::2} is {_type::1}, else south)
+    else if {_base_yaw} is 270:
+        set {_v} to vector from (east if {_type::2} is {_type::1}, else west)
+    set vector length of {_v} to 0.2
+    if {_action} is "close":
+        set {_v} to {_v} * -1
+    set {_cv} to display translation of {-MTskR::trains::%{_trainid}%::doors::%{_doorid}%}
+    set {_offset::*} to yaml value "%{_doorid}%.loc" of {_model_yaml} parsed as "%int%,%int%,%int%"
+    loop yaml node keys "" of {_model_yaml}:
+        set {_cofst::*} to yaml value "%loop-value%.loc" parsed as "%int%,%int%,%int%"
+        {_offset::1} is {_cofst::1}
+        {_offset::2} + 1 is {_cofst::2}
+        {_offset::3} is {_cofst::3}
+        set {_upperid} to loop-value
+        stop loop
+    loop 5 times:
+        wait 1 tick
+        set {_cv} to {_cv} + {_v}
+        set display translation of {-MTskR::trains::%{_trainid}%::doors::%{_doorid}%} to {_cv}
+        set display translation of {-MTskR::trains::%{_trainid}%::doors::%{_upperid}%} to {_cv} + vector(0, 1, 0)
+        

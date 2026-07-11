@@ -172,10 +172,11 @@ on skript stop:
         loop indexes of {-MTskR::signs::%loop-value-1%::*}:
             clear {-MTskR::signs::%loop-value-1%::%loop-value-2%::running::*}
             remove entities {-MTskR::signs::%loop-value-1%::%loop-value-2%::displays::*}
-on load:
+on skript start:
     wait 1 second
     while players is not set:
         wait 1 second
+    wait 1 second
     loop worlds:
         set {_yaml} to "MTskR.data.signs.%loop-value%"
         loop yaml node keys "" of {_yaml}:

@@ -187,19 +187,18 @@ on dismount:
         set {_modelyaml} to "MTskR.model.%{_model}%"
         set {_model_yaw} to yaml value "info.facing" of {_modelyaml}
         set {_train_yaw} to closest quarter of yaw of {-MTskR::trains::%{_train}%::base}
-        loop yaml node keys "" of {_modelyaml}:
-            if yaml path "%loop-value%.door" of {_modelyaml} has value:
-                if blockdata tag "half" of (yaml value "%loop-value%.block" of {_modelyaml}) is "lower":
-                    set {_door} to mtskr_rotateRelativeCoor(location of {-MTskR::trains::%{_train}%::base}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
-                    set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
-                    if {_train_yaw} is 0:
-                        add the location below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door})) to {_platforms::*}
-                    else if {_train_yaw} is 180:
-                        add the location below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door})) to {_platforms::*}
-                    else if {_train_yaw} is 90:
-                        add the location below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door})) to {_platforms::*}
-                    else if {_train_yaw} is 270:
-                        add the location below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door})) to {_platforms::*}
+        loop indexes of {-MTskR::trains::%{_train}%::doors::*}:
+            if blockdata tag "half" of (yaml value "%loop-value%.block" of {_modelyaml}) is "lower":
+                set {_door} to location of {-MTskR::trains::%{_train}%::doors::%loop-value%}
+                set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
+                if {_train_yaw} is 0:
+                    add the location below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door})) to {_platforms::*}
+                else if {_train_yaw} is 180:
+                    add the location below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door})) to {_platforms::*}
+                else if {_train_yaw} is 90:
+                    add the location below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door})) to {_platforms::*}
+                else if {_train_yaw} is 270:
+                    add the location below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door})) to {_platforms::*}
         if {_platforms::*} is set:
             loop {_platforms::*}:
                 string tag "mtskr.block" of custom nbt of block at loop-value is "platform"
