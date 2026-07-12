@@ -43,23 +43,24 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                 if {_stop_time} is set:
                     set {_modelyaml} to "MTskR.model.%{_model}%"
                     set {_model_yaw} to yaml value "info.facing" of {_modelyaml}
+                    set {_train_yaw} to yaw of {-MTskR::trains::%expr-1%::base}
                     set {_tick_for_ride_train_detection} to mtskr config "tick_for_ride_train_detection"
                     loop indexes of {-MTskR::trains::%expr-1%::doors::*}:
                         if blockdata tag "half" of (yaml value "%loop-value%.block" of {_modelyaml}) is "lower":
-                            set {_door} to location of {-MTskR::trains::%expr-1%::doors::%loop-value%}
+                            set {_door} to mtskr_rotateRelativeCoor({_end}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
                             set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
                             if {_train_yaw} is 0:
-                                add the location below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door})) to {_platforms::*}
+                                set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door}))
                             else if {_train_yaw} is 180:
-                                add the location below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door})) to {_platforms::*}
+                                set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door}))
                             else if {_train_yaw} is 90:
-                                add the location below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door})) to {_platforms::*}
+                                set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door}))
                             else if {_train_yaw} is 270:
-                                add the location below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door})) to {_platforms::*}
-                            string tag "mtskr.block" of custom nbt of block at last element of {_platforms::*} is "platform"
+                                set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door}))
+                            string tag "mtskr.block" of custom nbt of block at {_platform} is "platform"
                             set {_doors::%loop-value%} to {_door}
                             mtskr_moveDoor(expr-1, loop-value, "open")
-                    loop floor({_stop_time} * (20 / {_tick_for_ride_train_detection})) times:
+                    loop floor({_stop_time} * 20 / {_tick_for_ride_train_detection}) times:
                         if {-MTskR::%expr-4%} is true:
                             loop {_doors::*}:
                                 set {_p::*} to players in radius 0.9 around loop-value-2
@@ -67,14 +68,13 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                                     {-MTskR::trains::%expr-1%::passengers::*} does not contain input
                                     string tag "mtskr.block" of custom nbt of block below input is "platform"
                                 loop {_p::*}:
-                                    rideTrain(expr-1, loop-value-3)
-                            wait timespan({_tick_for_ride_train_detection}, ticks)
-                            if at least one of:
-                                {_stop_time} - loop-counter * {_tick_for_ride_train_detection} <= 1
-                                loop-counter is floor({_stop_time} * (20 / {_tick_for_ride_train_detection}))
-                            then:
+                                    mtskr_rideTrain(expr-1, loop-value-3)
+                            if {_stop_time} * 20 - {_tick_for_ride_train_detection} * loop-counter <= 5:
+                                {_closed} is not set
+                                set {_closed} to true
                                 loop indexes of {_doors::*}:
                                     mtskr_moveDoor(expr-1, loop-value-2, "close")
+                            wait timespan({_tick_for_ride_train_detection}, ticks)
                         else:
                             continue
                     move train expr-1 from {_end} to expr-3 with running check expr-4

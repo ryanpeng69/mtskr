@@ -360,4 +360,4 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
             replace " " in {_key} with "::"
             send {-MTskR::%{_key}%}
         else:
-            showTutorial(player, arg-1, arg-2, arg-3)
+            mtskr_showTutorial(player, arg-1, arg-2, arg-3)

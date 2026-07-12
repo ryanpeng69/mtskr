@@ -106,14 +106,14 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
                 set {_siding_length} to distance between {_l1} and {_l2}
                 set {_model_length} to model length of {_train}
                 if {_model_length} is not greater than {_siding_length}:
-                    spawnTrain({_train}, (spawnloc of train {_train} in siding expr-1 in world expr-2))
+                    mtskr_spawnTrain({_train}, (spawnloc of train {_train} in siding expr-1 in world expr-2))
                 else:
                     send formatted mtskr_message({_lang}, "trains.too_long", ("siding", "world"), (expr-1, expr-2)) to console
             else:
                 send formatted mtskr_message({_lang}, "trains.none", ("siding", "world"), (expr-1, expr-2)) to console
         else:
             send formatted mtskr_message({_lang}, "trains.data_none", "world", expr-2) to console
-function spawnTrain(train: string, loc: location):
+function mtskr_spawnTrain(train: string, loc: location):
     if mtskr model {_train} exists:
         set {_spawn::loc} to middle of {_loc}
         set yaw of {_spawn::loc} to yaw of {_loc}
@@ -166,7 +166,7 @@ function spawnTrain(train: string, loc: location):
         kill train {_id}
     else:
         send formatted mtskr_message({-MTskR::lang::CONSOLE}, "trains.model_dne", "name", {_train}) to console
-function rideTrain(train: integer, player: player):
+function mtskr_rideTrain(train: integer, player: player):
     if indexes of {-MTskR::trains::%{_train}%::*} is set:
         if size of {-MTskR::trains::%{_train}%::seats::*} - size of {-MTskR::trains::%{_train}%::passengers::*} is greater than 0:
             loop {-MTskR::trains::%{_train}%::seats::*}:
@@ -176,7 +176,7 @@ function rideTrain(train: integer, player: player):
                     set metadata tag "mtskr.riding" of {_player} to {_train}
                     stop trigger
     else:
-        send formatted "%mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne")%&7Trigger: rideTrain(%{_train}%, %{_player}%)" to console
+        send formatted "%mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne")%&7Trigger: mtskr_rideTrain(%{_train}%, %{_player}%)" to console
 on dismount:
     event-entity is a player
     if metadata tag "mtskr.riding" of player is set:
@@ -189,19 +189,20 @@ on dismount:
         set {_train_yaw} to closest quarter of yaw of {-MTskR::trains::%{_train}%::base}
         loop indexes of {-MTskR::trains::%{_train}%::doors::*}:
             if blockdata tag "half" of (yaml value "%loop-value%.block" of {_modelyaml}) is "lower":
-                set {_door} to location of {-MTskR::trains::%{_train}%::doors::%loop-value%}
+                set {_door} to mtskr_rotateRelativeCoor({-MTskR::trains::%{_train}%::base}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
                 set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
                 if {_train_yaw} is 0:
-                    add the location below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door})) to {_platforms::*}
+                    set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door}))
                 else if {_train_yaw} is 180:
-                    add the location below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door})) to {_platforms::*}
+                    set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door}))
                 else if {_train_yaw} is 90:
-                    add the location below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door})) to {_platforms::*}
+                    set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door}))
                 else if {_train_yaw} is 270:
-                    add the location below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door})) to {_platforms::*}
-        if {_platforms::*} is set:
-            loop {_platforms::*}:
-                string tag "mtskr.block" of custom nbt of block at loop-value is "platform"
+                    set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door}))
+                string tag "mtskr.block" of custom nbt of block at {_platform} is "platform"
+                add middle of the block above {_platform} to {_dest::*}
+        if {_dest::*} is set:
+            loop {_dest::*}:
                 set {_dist} to distance between player and loop-value
                 if {_nearestdist} is not set:
                     set {_nearestdist} to {_dist}
@@ -209,7 +210,6 @@ on dismount:
                 else if {_dist} is smaller than {_nearestdist}:
                     set {_nearestdist} to {_dist}
                     set {_nearest} to loop-value
-            set {_nearest} to middle of block above {_nearest}
             set yaw of {_nearest} to yaw of vector from player to {_nearest}
             wait 1 tick
             teleport player to {_nearest}

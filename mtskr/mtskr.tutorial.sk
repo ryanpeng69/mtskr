@@ -26,7 +26,7 @@ effect open [mtskr] tutorial (to|for) %player%:
                     label: mtskr_message({_lang}, "tutorial.home.btn.items_gui")
                     trigger:
                         make player execute command "mtskr gui"
-function showTutorial(player: player, arg-1: text, arg-2: text, arg-3: text):
+function mtskr_showTutorial(player: player, arg-1: text, arg-2: text, arg-3: text):
     if {_arg-1} matches "help|tutorial":
         if {_arg-2} is "create_railway":
             {_player} is op
