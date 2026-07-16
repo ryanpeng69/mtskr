@@ -1,7 +1,7 @@
 # MTskR language file: en_us
 # You should follow this guide: https://github.com/ryanpeng69/mtskr/wiki/Translating
-other_keys: "en_au, en_ca, en_gb, en_nz, en_pt, en_ud, enp, enws, lol_us" # Alternative keys that will use this lang when there isn't a file for it.
-language_changed: "&eYour language has been changed to the &6official &elanguage &6en_us &eby &6RyanPeng69" # Please change this line. Don't state "official" without permission.
+other_keys: "en_au, en_ca, en_gb, en_nz, en_pt, en_ud, enp, enws, lol_us" # Please change this one.
+language_changed: "&eYour language has been changed to &6en_us &eby &6RyanPeng69&e." # Please change this line and state if you use AI to translate.
 main:
   cmd:
     model:
@@ -20,7 +20,7 @@ main:
         does_not_exist: "&cRoute with id %id% does not exist."
         not_siding: "&cRoute is only available for sidings."
       stop_time:
-        out: "&cStop time must be between 0 and 60."
+        out: "&cStop time must be between 5 and 60."
         not_platform: "&cStop time is only available for platforms."
       incorrect_type: "&cType of rail from %loc1% to %loc2% is not %type%."
       false: "&cRail from %loc1% to %loc2% does not exist or is not editable."
@@ -63,7 +63,7 @@ tutorial:
     non_op: |
       &bMTskR Command
       &7 - &e/mtskr
-      &7  - &ehelp&7|&etutorial &6Show tutorial of MTskR.
+      &7  - &ehelp&7|&etutorial &6Show the MTskR tutorial.
       &7  - &elang <key> &6Change your language.
     1: |
       &bMTskR Command
@@ -77,16 +77,16 @@ tutorial:
       &7    - &egoto &6Teleport to the middle of the rail.
       &7    - &ename <name> &6Set the name of the rail.
       &7    - &eroute &7(siding) &6Select the route for the rail by ID. Use /mtskr route to view routes with IDs.
-      &7    - &eschedule &7(siding) &6Change the interval <ttp:seconds>&2*<reset> &6before the train will start.
+      &7    - &eschedule &7(siding) &6Change the interval <ttp:seconds>&2*<reset> &6before the train departs.
       &7    - &estop &7(siding) &6Stop all trains of the siding.
       &7    - &estop_time &7(platform) &6How long the trains will stop.<ttp:seconds>&2*<reset>
       &7    - &etrain &7(siding) &6Select the train model for the siding.
-      &7<cmd:mtskr help cmd 1>←<reset> &fPage 1&7/&f2 <cmd:mtskr help cmd 2>&f→<reset>
+      &7<cmd:mtskr help cmd 1>←<reset> &fPage 1&7/&f3 <cmd:mtskr help cmd 2>&f→<reset>
     2: |
       &bMTskR Command
       &7 - &e/mtskr
       &7  - &egui &6Opens the GUI to get items.
-      &7  - &ehelp&7|&etutorial &6Show tutorial of MTskR.
+      &7  - &ehelp&7|&etutorial &6Show the MTskR tutorial.
       &7  - &elang <key> &6Change your language.
       &7  - &emodel
       &7    - &ecreate <name> [-f] &6Create a new model with the selected area.<ttp:Use -f to overwrite.>&2*<reset>
@@ -99,15 +99,15 @@ tutorial:
       &7    - &edata &6Reloads data.
       &7    - &elang &6Reloads language files.
       &7    - &escript <script> &6Reloads one script.
-      &7    - &escripts &6Reloads all scripts
-      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 2&7/&f2 <cmd:mtskr help cmd 2>&f→<reset>
+      &7    - &escripts &6Reloads all scripts.
+      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 2&7/&f3 <cmd:mtskr help cmd 2>&f→<reset>
     3: |
       &bMTskR Command
       &7 - &e/mtskr
       &7  - &eroute
       &7    - &elist &6List all routes with IDs to remove.
       &7    - &eremove <id> &6Delete the route.
-      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 3&7/&f2 <cmd:mtskr help cmd 2>&7→<reset>
+      &7<cmd:mtskr help cmd 1>&f←<reset> &fPage 3&7/&f3 <cmd:mtskr help cmd 2>&7→<reset>
   create_railway:
     1: |
       &3Step 1 &7- &6Learning about Items
@@ -138,15 +138,15 @@ tutorial:
       <ttp:Click to continue><cmd:mtskr help create_railway 4>&eClick to use &6/mtskr help create_railway 4 &eto continue.
     4: |
       &3Step 4 &7- &6Connecting Rails
-      &b1. &eUse the normal rail connectors<ttp:The one way rail connector and the double way rail connector.>&2*<reset> &eto connect your sidings to the platforms. Make sure the rail can lead the train back to the siding.
+      &b1. &eUse the normal rail connectors<ttp:The one way rail connector and the two-way rail connector.>&2*<reset> &eto connect your sidings to the platforms. Make sure the rail can lead the train back to the siding.
       &b2. &eTake out a &6Route Creator.
-      &b3. &eClick on the required nodes for the &6out bound &eof your route; the trains for this route will pass through these nodes. More nodes will be calculated when the route is loaded by a siding.<ttp:You don't have to select every node, but it will improve the calculation when you have a complex system.>&2*<reset>
+      &b3. &eClick on the required nodes for the &6outbound &eof your route; the trains for this route will pass through these nodes. More nodes will be calculated when the route is loaded by a siding.<ttp:You don't have to select every node, but it will improve the calculation when you have a complex system.>&2*<reset>
       &b4. &eSneak right-click with the same route creator. It will open a dialog to create a route.
-      &b5. &eWrite a name that ends with &6.in &eor &6||in &eand choose a color below.
-      &b6. &eClick 'Create'.
+      &b5. &eWrite a name that ends with &6.out &eor &6||out &eand choose a color below.
+      &b6. &eClick &6Create&e.
       &b7. &eType <cmd:mtskr route>&6/mtskr route<reset> &eto view the route you just created and memorize the id.
-      &b8. &eSelect the nodes for the &6in bound&e.
-      &b9. &eCreate a route named &6#&7<&6id&7>&6.in &eor &6#&7<&6id&7>&6||in &e, replace &6<id> &ewith the one you just got at step 7.
+      &b8. &eSelect the nodes for the &6inbound&e.
+      &b9. &eCreate a route named &6#&7<&6id&7>&6.in &eor &6#&7<&6id&7>&6||in&e, replace &6<id> &ewith the one you just got at step 7.
 
       <ttp:Click to continue><cmd:mtskr help create_railway 5>&eClick to use &6/mtskr help create_railway 5 &eto continue.
     5: |
@@ -159,7 +159,7 @@ tutorial:
       &b6. &eClick on 'Refresh Route'. It will calculate the path passing through all mentioned nodes and back to the siding. Trains will start moving.
       &eYou can modify a platform in the same way as modifying a siding.
 
-      &aEnjoy your journey! &7- &o<link:https://github.com/ryanpeng69>RyanPeng69 2026/7/10<reset>
+      &aEnjoy your journey! &7- &o<link:https://github.com/ryanpeng69>RyanPeng69 2026/7/16<reset>
 
       &7<link:https://github.com/ryanpeng69/mtskr>GitHub<reset> &8| &7<link:https://discord.gg/kSSmEyVSRR>Discord<reset> &8| &7<link:https://mtskr.up.railway.app/>Web<reset>      
 items: # It is not a good idea to change the size or format of the lines.
@@ -211,7 +211,7 @@ items: # It is not a good idea to change the size or format of the lines.
       &7Place again to edit.
   # Rail Connectors
   normal_rail_connector:
-    name: "&fDouble Way Rail Connector"
+    name: "&fTwo-Way Rail Connector"
     lores: |-
       &7The normal rail between sidings and platforms.
       &7The train will be able to move in both directions.
@@ -246,7 +246,7 @@ items: # It is not a good idea to change the size or format of the lines.
       &7Click on 2 rail nodes to connect.
       &7Selected location: &f%loc%
   remove_rail_connector:
-    name: "&fRemove Rail Connector"
+    name: "&fRail Remover"
     lores: |-
       &7Remove the rails between 2 nodes.
       &7Will remove both directions.
@@ -304,7 +304,7 @@ items_function:
   route_creator:
     title: "MTskR - Create Route"
     body: "The train must go through the following nodes.\nMore nodes will be loaded as the route is selected for a siding."
-    name_instruction: "Name must end with &e||out&f or &e||in&f at the end to specify bound.\nIf you already create another bound for the route,\ndo &e/mtskr route&f to get the id then type &e#&7<&6id&7>&e||&7<&6out&7|&6in&7>&f\nType &e\\&f while holding shift to type &e|&f or just use a &e.&f instead."
+    name_instruction: "Name must end with &e||out&f or &e||in&f at the end to specify bound.\nIf you already created another bound for the route,\ndo &e/mtskr route&f to get the id then type &e#&7<&6id&7>&e||&7<&6out&7|&6in&7>&f\nType &e\\&f while holding shift to type &e|&f or just use a &e.&f instead."
     name: "Name &cPlease read above instructions"
     color: "Color (hex)"
     create: "Create"
@@ -365,7 +365,7 @@ route:
   body: "Click to select the route for the siding."
   current: "Current route: "
   none: "&cNo Available Route"
-  none_msg: "&cNo route were created, you should create one using a route creator from the gui."
+  none_msg: "&cNo route was created, you should create one using a route creator from the gui."
   refresh:
     no_train: "[MTskR] &eNo train has been selected for siding '%siding%' in world '%world%'"
     no_schedule: "[MTskR] &eNo schedule found for siding '%siding%' in world '%world%'"
@@ -382,9 +382,8 @@ trains:
   body: "Click to select a train for the siding."
   current: "Current train: "
   none: "&cNo Available Trains"
-  none_msg: "&cNo model were created, you should create one using a loc selector from the gui."
+  none_msg: "&cNo model was created, you should create one using a loc selector from the gui."
   dne: "[MTskR] &cTrain with id %id% does not exist."
   too_long: "[MTskR] &cTrain for siding '%siding%' in world '%world%' is too long."
-  none: "[MTskR] &eNo train was found for siding '%siding%' in world '%world%'."
+  none_log: "[MTskR] &eNo train was found for siding '%siding%' in world '%world%'."
   model_dne: "[MTskR] &cThe model named '%name%' does not exist."
-  dne: "[MTskR] &cThe train does not exist. "

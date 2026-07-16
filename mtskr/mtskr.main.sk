@@ -190,7 +190,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                     else if arg-4 is "stop_time":
                         if {_type} is "platform":
                             set {_stop_time} to arg-5 parsed as int
-                            if {_stop_time} is not between 0 and 60:
+                            if {_stop_time} is not between 5 and 60:
                                 send error mtskr_message({_lang}, "main.cmd.edit.stop_time.out")
                             else:
                                 set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_time}

@@ -110,9 +110,7 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
                 else:
                     send formatted mtskr_message({_lang}, "trains.too_long", ("siding", "world"), (expr-1, expr-2)) to console
             else:
-                send formatted mtskr_message({_lang}, "trains.none", ("siding", "world"), (expr-1, expr-2)) to console
-        else:
-            send formatted mtskr_message({_lang}, "trains.data_none", "world", expr-2) to console
+                send formatted mtskr_message({_lang}, "trains.none_log", ("siding", "world"), (expr-1, expr-2)) to console
 function mtskr_spawnTrain(train: string, loc: location):
     if mtskr model {_train} exists:
         set {_spawn::loc} to middle of {_loc}
@@ -176,7 +174,7 @@ function mtskr_rideTrain(train: integer, player: player):
                     set metadata tag "mtskr.riding" of {_player} to {_train}
                     stop trigger
     else:
-        send formatted "%mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne")%&7Trigger: mtskr_rideTrain(%{_train}%, %{_player}%)" to console
+        send formatted mtskr_message({-MTskR::lang::CONSOLE}, "trains.dne", "id", {_train}) to console
 on dismount:
     event-entity is a player
     if metadata tag "mtskr.riding" of player is set:
