@@ -54,7 +54,7 @@ main:
       get: "獲取"
 tutorial:
   home:
-    intro: <u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u> 是 <u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u> 用 <u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u> 的作品。\n把 <u><click:open_url:https://modrinth.com/project/XKPAmI6u>Jonathan Ho 的 Minecraft Transit Railway 模組</click></u> 帶到Paper伺服器
+    intro: <u><click:open_url:https://github.com/ryanpeng69/mtskr>MTskR</click></u>是由<u><click:open_url:https://github.com/ryanpeng69>RyanPeng69</click></u>透過<u><click:open_url:https://github.com/SkriptLang/Skript>Skript</click></u>製作的專案，\n將<u><click:open_url:https://modrinth.com/project/XKPAmI6u>Minecraft Transit Railway模組</click></u>帶進Paper伺服器。
     btn:
       items_gui: "物品GUI"
       cmd: "查看指令"
@@ -76,12 +76,12 @@ tutorial:
       &7  - &eedit <x>,<y>,<z> <x>,<y>,<z> &6開啟一個對話框來編輯鐵軌。<ttp:你也可以用MTskR刷子直接點擊鐵軌的第一個節點。>&2*<reset>
       &7    - &egoto &6傳送到鐵軌的中央。
       &7    - &ename <name> &6修改鐵軌的名稱。
-      &7    - &eroute &7(側線) &6為鐵軌用ID選擇路線。 使用 /mtskr route 即可查看所有路線。
+      &7    - &eroute &7(側線) &6為鐵軌用ID選擇路線。使用 /mtskr route 即可查看所有路線。
       &7    - &eschedule &7(側線) &6修改發車間隔。<ttp:秒>&2*<reset>
       &7    - &estop &7(側線) &6停止側線發出的所有車輛。
       &7    - &estop_time &7(月台) &6列車停留時間。<ttp:秒>&2*<reset>
       &7    - &etrain &7(側線) &6為側線選擇模型。
-      &7<cmd:mtskr help cmd 1>←<reset> &f第 1&7/&f3 頁 <cmd:mtskr help cmd 2>→<reset>
+      &7←<reset> &f第 1&7/&f3 頁 <cmd:mtskr help cmd 2>→<reset>
     2: |
       &bMTskR 指令
       &7 - &e/mtskr
@@ -100,21 +100,21 @@ tutorial:
       &7    - &elang &6重新載入語言。
       &7    - &escript <script> &6重新載入一個程式。
       &7    - &escripts &6重新載入所有程式。
-      &7<cmd:mtskr help cmd 1>&f←<reset> &f第 2&7/&f3 頁 <cmd:mtskr help cmd 2>&f→<reset>
+      &7<cmd:mtskr help cmd 1>&f←<reset> &f第 2&7/&f3 頁 <cmd:mtskr help cmd 3>&f→<reset>
     3: |
       &bMTskR 指令
       &7 - &e/mtskr
       &7  - &eroute
       &7    - &elist &6顯示所有路線。
       &7    - &eremove <id> &6移除一個路線。
-      &7<cmd:mtskr help cmd 1>&f←<reset> &f第 3&7/&f3 頁 <cmd:mtskr help cmd 2>&7→<reset>
+      &7<cmd:mtskr help cmd 2>&f←<reset> &f第 3&7/&f3 頁 &7→<reset>
   create_railway:
     1: |
-      &3Step 1 &7- &6認識將使用到的物品
+      &bStep 1 &7- &6認識將使用到的物品
       &e你已獲得<ttp:你可以使用 /mtskr gui 再次獲得。>&2*<reset>&e一些物品，我們開始吧。
       &7 - &e刷子&7: &6這個物品可以讓你查看和編輯鐵軌。<ttp:對鐵軌節點點擊會顯示鐵軌；蹲下點擊即可編輯。>&2*<reset>
       &7 - &e鐵軌節點&7: &6所有鐵軌都要放在這上面。
-      &7 - &e側線鐵軌連接器&7: &6這可以建立側線。列車會在側線生成。 
+      &7 - &e側線鐵軌連接器&7: &6這可以建立側線。列車會在側線生成。
       &7 - &e單向鐵軌連接器&7: &6這會建立一個只能單向通行的鐵軌。用它來連接側線和月台。
       &7 - &e雙向鐵軌連接器&7: &6這可以讓列車雙向通行。
       &7 - &e月台鐵軌連接器&7: &6這可以建立月台讓列車停下來等候乘客。
@@ -123,21 +123,21 @@ tutorial:
 
       <ttp:點擊繼續><cmd:mtskr help create_railway 2>&e點擊使用 &6/mtskr help create_railway 2 &e繼續。
     2: |
-      &3Step 2 &7- &6建立側線
+      &bStep 2 &7- &6建立側線
       &b1. &e放一個鐵軌節點。
       &b2. &e在相同的x或z上放置另一個節點。<ttp:請確保兩個節點間的距離足夠放你的車輛，建議10格。>&2*<reset>
       &b3. &e用&6側線鐵軌連接器&e連接他們。<ttp:側線的方向會決定列車行駛的方向。>&2*<reset>
 
       <ttp:點擊繼續><cmd:mtskr help create_railway 3>&e點擊使用 &6/mtskr help create_railway 3 &e繼續。
     3: |
-      &3Step 3 &7- &6建立月台
+      &bStep 3 &7- &6建立月台
       &b1. &e選一個地方。
       &b2. &e用&6月台鐵軌連接器&e建立一個月台，方式和側線相同。<ttp:月台是單向的鐵軌。你可以從不同方向堆疊鐵軌。>&2*<reset>
       &b3. &e多建幾個月台吧。
 
       <ttp:點擊繼續><cmd:mtskr help create_railway 4>&e點擊使用 &6/mtskr help create_railway 4 &e繼續。
     4: |
-      &3Step 4 &7- &6連接鐵軌
+      &bStep 4 &7- &6連接鐵軌
       &b1. &e使用普通鐵軌連接器<ttp:單向鐵軌連接器和雙向鐵軌連接器。>&2*<reset> &e將側線和月台連在一起，並確保你的鐵軌可以讓列車離開側線後回到側線。
       &b2. &e獲取一個 &6路線創建器。
       &b3. &e使用路線創建器選取 &6順行 &e必經的節點，更多節點將在側線運行時載入。這可以讓你的路線有多個側線在跑。<ttp:不需要選取每個節點，你可以只選取月台尾端。選取更多的節點有助於一個複雜的鐵路。>&2*<reset>
@@ -150,7 +150,7 @@ tutorial:
 
       <ttp:點擊繼續><cmd:mtskr help create_railway 5>&e點擊使用 &6/mtskr help create_railway 5 &e繼續。
     5: | # 你可以修改第10行
-      &3Step 5 &7- &6編輯側線
+      &bStep 5 &7- &6編輯側線
       &b1. &e拿出 MTskR 刷子。
       &b2. &e蹲下點擊側線的第一個節點<ttp:建立側線的第一個節點。>&2*<reset>&e。
       &b3. &e發車間隔決定側線多久會發一班車。編輯完名稱或發車間隔請點擊&6變更&e。
@@ -281,14 +281,14 @@ items: # 請不要修改lore的格式或行數
 functions:
   load:
     config:
-      reload: "[MTskR] &a設定 已重新載入"
-      unload: "[MTskR] &a設定 已卸載"
+      reload: "[MTskR] &a已重新載入設定"
+      unload: "[MTskR] &a已卸載設定"
     data:
-      reload: "[MTskR] &a資料 已重新載入"
-      unload: "[MTskR] &a資料 已卸載"
+      reload: "[MTskR] &a已重新載入資料"
+      unload: "[MTskR] &a已卸載資料"
     language:
-      reload: "[MTskR] &a語言 已重新載入"
-      unload: "[MTskR] &a語言 已卸載"
+      reload: "[MTskR] &a已重新載入語言"
+      unload: "[MTskR] &a已卸載語言"
 items_function:
   loc_selector:
     select: "&e第%index%點設到 &6%loc%&e。"
@@ -308,7 +308,7 @@ items_function:
     name: "名稱 &c請遵守上述規則"
     color: "顏色(十六進位)"
     create: "建立"
-    created: "&e已建立路線<#%color%>%name% &e的 %bound% 方向。"
+    created: "&e已建立路線 <#%color%>%name% &e的 %bound% 方向。"
     log: "[MTskR] %player% 已建立 路線 '<#%color%>%name%<reset>' 的 %bound% 方向，id: %id%。"
     select: "&c至少要選擇一個節點。"
     remove: "&e已移除 %node%。"
@@ -344,10 +344,10 @@ models_download:
   desc: "介紹："
   name: "下載名稱"
   download: "下載"
-  downloaded: "&e已下載 &6%author% &e的 &6%model%&e。 &7(ID:%id%)%nl%&7%file%"
-  log: "[MTskR] %player% 已下載 %author% 的 %model%。 &7(ID:%id%)%nl%&7%file%"
+  downloaded: "&e已下載 &6%author% &e的 &6%model%&e。&7(ID:%id%)%nl%&7%file%"
+  log: "[MTskR] %player% 已下載 %author% 的 %model%。&7(ID:%id%)%nl%&7%file%"
 models:
-  dne: "&c模型不存在。 "
+  dne: "&c模型不存在。"
   exist_memory: "&c%name% 存在記憶中，在第4參數加上-f即可覆寫。"
   exist_disk: "&c%name% 存在硬碟中，在第4參數加上-f即可覆寫。"
   none: "&c請先用位置選擇器選取兩個點。"

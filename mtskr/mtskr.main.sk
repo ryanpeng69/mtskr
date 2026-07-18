@@ -2,12 +2,13 @@
 # Minecraft Transit Railway mod in Paper without resource packs
 # https://github.com/ryanpeng69/mtskr/
 on load:
-    reload mtskr lang from console
     reload mtskr config from console
+    reload mtskr lang from console
     reload mtskr data from console
 on join:
     set {-MTskR::lang::%player%} to best mtskr language for language of player
 on language change:
+    wait 1 tick
     set {-MTskR::lang::%player%} to best mtskr language for language of player
     send formatted mtskr_message({-MTskR::lang::%player%}, "language_changed")
 on tab complete of ("mtskr" or "mtskr:mtskr"):
@@ -353,8 +354,19 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                 loop mtskr configs:
                     send formatted "&e%loop-value%&7: &6%mtskr config loop-value%"
         else if arg-1 matches "lang(uage)?|locale":
-            set {-MTskR::lang::%player%} to best mtskr language for arg-2
-            send formatted mtskr_message({-MTskR::lang::%player%}, "language_changed")
+            if sender is console:
+                set mtskr config "console_lang" to best mtskr language for arg-2
+                set {-MTskR::lang::CONSOLE} to mtskr config "console_lang"
+            else:
+                if arg-2 is set:
+                    set {-MTskR::lang::%player%} to best mtskr language for arg-2
+                    send formatted mtskr_message({-MTskR::lang::%player%}, "language_changed")
+                else:
+                    loop all loaded yaml where [input starts with "MTskR.lang."]:
+                        set {_name} to loop-value
+                        replace "MTskR.lang." in {_name} with ""
+                        add "<cmd:mtskr lang %{_name}%>&6%{_name}%<reset>" to {_locale::*}
+                    send formatted join {_locale::*} by " &7| "
         else if (whether arg-1 is "debug") and whether ((whether player is op) or (whether sender is console) is true) are true:
             set {_key} to join (arg-2, arg-3, arg-4, arg-5, and arg-6) by "::"
             replace " " in {_key} with "::"

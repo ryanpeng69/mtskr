@@ -61,10 +61,10 @@ on right click:
                 set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
                 set {_start_node} to block at {_loc}
                 set {_start_node_button} to blockdata of {_start_node}
-                clear line {_line} of lore of player's tool
+                set {_rawblock} to last element of (regex split (unformatted line 4 of lore of player's tool) at " (?=.+$)")
+                set lore of player's tool to mtskr_message({_lang}, "items.%{_item}%.lores", "block", {_rawblock}) split at nl
                 make player's tool stop glint
                 if x and z of {_start_node} and event-block are different:
-                    set {_rawblock} to last element of (regex split (unformatted line 4 of lore of player's tool) at " (?=.+$)")
                     set {_block} to {_rawblock} parsed as blockdata
                     set {_start_block} to the block below {_start_node}
                     set {_start_facing} to facing of {_start_node}
@@ -359,8 +359,8 @@ on break:
                 mtskr_removeRail({_ls}, loop-value, event-world)
         loop yaml node keys "" of {_yaml}:
             loop-value is not {_ls}
-            set {_removed} to true
             yaml node "%loop-value%.%{_ls}%" of {_yaml} exists
+            set {_removed} to true
             mtskr_removeRail(loop-value, {_ls}, event-world)
         {_removed} is true
         send actionbar mtskr_message({_lang}, "items_function.break.rail", "loc", {_ls}) to player

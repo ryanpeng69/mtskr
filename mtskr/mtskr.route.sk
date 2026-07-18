@@ -50,16 +50,17 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                             set {_door} to mtskr_rotateRelativeCoor({_end}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
                             set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
                             if {_train_yaw} is 0:
-                                set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door}))
+                                set {_platform::%loop-value%} to the block below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door}))
                             else if {_train_yaw} is 180:
-                                set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door}))
+                                set {_platform::%loop-value%} to the block below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door}))
                             else if {_train_yaw} is 90:
-                                set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door}))
+                                set {_platform::%loop-value%} to the block below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door}))
                             else if {_train_yaw} is 270:
-                                set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door}))
-                            string tag "mtskr.block" of custom nbt of block at {_platform} is "platform"
+                                set {_platform::%loop-value%} to the block below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door}))
+                            string tag "mtskr.block" of custom nbt of block at {_platform::%loop-value%} is "platform"
                             set {_doors::%loop-value%} to {_door}
                             mtskr_moveDoor(expr-1, loop-value, "open")
+                            open the block above {_platform::%loop-value%}
                     loop floor({_stop_time} * 20 / {_tick_for_ride_train_detection}) times:
                         if {-MTskR::%expr-4%} is true:
                             loop {_doors::*}:
@@ -77,6 +78,8 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                             wait timespan({_tick_for_ride_train_detection}, ticks)
                         else:
                             continue
+                    loop indexes of {_doors::*}:
+                        close the block above {_platform::%loop-value%}
                     move train expr-1 from {_end} to expr-3 with running check expr-4
             continue
 effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:
@@ -194,6 +197,7 @@ function mtskr_refreshRoute(siding: string, world: world):
                         else:
                             set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::terminal} to terminal of "out" bound route for siding {_siding} in world {_world}
                         set {-MTskR::signs::%{_world}%::%{_platform}%::arrival::%{_siding}%::start} to now
+                    set yaml value "%{_siding}%.siding.run_on_start" of "MTskR.data.rails.%{_world}%" to true
                     while {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
                         mtskr_startTrain({_siding}, {_world}, {_nodes::*}, {_thread})
                         wait timespan({_schedule}, seconds)
@@ -209,6 +213,7 @@ function mtskr_stopRoute(world: world, siding: string):
     loop indexes of {-MTskR::signs::%{_world}%::*}:
         clear {-MTskR::signs::%{_world}%::%loop-value%::arrival::%{_siding}%::*}
     clear {-MTskR::routes::%{_world}%::%{_siding}%::*}
+    set yaml value "%{_siding}%.siding.run_on_start" of "MTskR.data.rails.%{_world}%" to false
 function mtskr_getPath(c: string, end: string, world: world, history: strings = "") :: strings:
     set {_yaml} to "MTskR.data.rails.%{_world}%"
     if {_history::1} is "":
@@ -253,5 +258,6 @@ on skript start:
         loop yaml node keys "" of "MTskR.data.rails.%loop-value-1%":
             loop yaml node keys loop-value-2 of "MTskR.data.rails.%loop-value-1%":
                 if yaml value "%loop-value-2%.%loop-value-3%.type" of "MTskR.data.rails.%loop-value-1%" is "siding":
+                    yaml value "%loop-value-2%.%loop-value-3%.siding.run_on_start" of "MTskR.data.rails.%loop-value-1%" is true
                     update train of siding "%loop-value-2%.%loop-value-3%" in world loop-value-1
                     mtskr_refreshRoute("%loop-value-2%.%loop-value-3%", loop-value-1)

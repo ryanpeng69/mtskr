@@ -27,20 +27,21 @@ effect open [mtskr] tutorial (to|for) %player%:
                     trigger:
                         make player execute command "mtskr gui"
 function mtskr_showTutorial(player: player, arg-1: text, arg-2: text, arg-3: text):
+    set {_lang} to {-MTskR::lang::%{_player}%}
     if {_arg-1} matches "help|tutorial":
         if {_arg-2} is "create_railway":
             {_player} is op
             if {_arg-3} matches "[2-5]":
                 send formatted mtskr_message({_lang}, "tutorial.create_railway.%{_arg-3}%") to {_player}
             else:
-                give mtskr brush to {_player}'s inventory
-                give mtskr rail node to {_player}'s inventory
-                give mtskr siding rail connector to {_player}'s inventory
-                give mtskr one way rail connector to {_player}'s inventory
-                give mtskr double way rail connector to {_player}'s inventory
-                give mtskr platform rail connector to {_player}'s inventory
-                give mtskr platform block to {_player}'s inventory
-                give mtskr route creator to {_player}'s inventory
+                give mtskr brush for {_player} to {_player}'s inventory
+                give mtskr rail node for {_player} to {_player}'s inventory
+                give mtskr siding rail connector for {_player} to {_player}'s inventory
+                give mtskr one way rail connector for {_player} to {_player}'s inventory
+                give mtskr double way rail connector for {_player} to {_player}'s inventory
+                give mtskr platform rail connector for {_player} to {_player}'s inventory
+                give mtskr platform block for {_player} to {_player}'s inventory
+                give mtskr route creator for {_player} to {_player}'s inventory
                 send formatted mtskr_message({_lang}, "tutorial.create_railway.1") to {_player}
         else if {_arg-2} matches "command|cmd":
             if {_player} is op:
