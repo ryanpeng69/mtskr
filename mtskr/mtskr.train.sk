@@ -190,25 +190,31 @@ on dismount:
                 set {_door} to mtskr_rotateRelativeCoor({-MTskR::trains::%{_train}%::base}, {_model_yaw}, yaml value "%loop-value%.loc" of {_modelyaml})
                 set {_type} to yaml value "%loop-value%.door" of {_modelyaml}
                 if {_train_yaw} is 0:
+                    set {_direction::%loop-value%} to (east if {_type} starts with "L", else west)
                     set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "L", else the location 1 west of {_door}))
                 else if {_train_yaw} is 180:
+                    set {_direction::%loop-value%} to (east if {_type} starts with "R", else west)
                     set {_platform} to the block below ((the location 1 east of {_door} if {_type} starts with "R", else the location 1 west of {_door}))
                 else if {_train_yaw} is 90:
+                    set {_direction::%loop-value%} to (south if {_type} starts with "L", else north)
                     set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "L", else the location 1 north of {_door}))
                 else if {_train_yaw} is 270:
+                    set {_direction::%loop-value%} to (south if {_type} starts with "R", else north)
                     set {_platform} to the block below ((the location 1 south of {_door} if {_type} starts with "R", else the location 1 north of {_door}))
                 string tag "mtskr.block" of custom nbt of block at {_platform} is "platform"
-                add middle of the block above {_platform} to {_dest::*}
+                set {_dest::%loop-value%} to middle of the block above {_platform}
         if {_dest::*} is set:
             loop {_dest::*}:
                 set {_dist} to distance between player and loop-value
                 if {_nearestdist} is not set:
                     set {_nearestdist} to {_dist}
                     set {_nearest} to loop-value
+                    set {_direction} to {_direction::%loop-index%}
                 else if {_dist} is smaller than {_nearestdist}:
                     set {_nearestdist} to {_dist}
                     set {_nearest} to loop-value
-            set yaw of {_nearest} to yaw of vector from player to {_nearest}
+                    set {_direction} to {_direction::%loop-index%}
+            set yaw of {_nearest} to yaw of direction {_direction}
             wait 1 tick
             teleport player to {_nearest}
 on skript stop:

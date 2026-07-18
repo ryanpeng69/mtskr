@@ -2,8 +2,8 @@
 # Minecraft Transit Railway mod in Paper without resource packs
 # https://github.com/ryanpeng69/mtskr/
 on load:
-    reload mtskr config from console
     reload mtskr lang from console
+    reload mtskr config from console
     reload mtskr data from console
 on join:
     set {-MTskR::lang::%player%} to best mtskr language for language of player

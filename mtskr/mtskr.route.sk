@@ -25,15 +25,13 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                 set yaw of ({_start} and {_end}) to yaw of {_v}
                 set pitch of ({_start} and {_end}) to pitch of {_v}
                 teleport {-MTskR::trains::%expr-1%::base} to {_start}
-                set vector length of {_v} to 0
-                set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
-                set {_steps} to distance between {_start} and {_end} * 2
-                set {_vector} to vector from {_start} to {_end}
-                set vector length of {_vector} to 0.5
-                loop {_steps} times:
+                set {_length} to vector length of {_v}
+                set {_ticks} to {_length} / (mtskr config "train_speed")
+                set vector length of {_v} to {_length} / {_ticks}
+                loop {_ticks} times:
                     if {-MTskR::%expr-4%} is true:
                         if {-MTskR::trains::%expr-1%::base} is alive:
-                            teleport {-MTskR::trains::%expr-1%::base} to (location of {-MTskR::trains::%expr-1%::base} ~ {_vector})
+                            teleport {-MTskR::trains::%expr-1%::base} to location of {-MTskR::trains::%expr-1%::base} ~ {_v}
                             wait 1 tick
                         else:
                             continue
@@ -214,27 +212,46 @@ function mtskr_stopRoute(world: world, siding: string):
         clear {-MTskR::signs::%{_world}%::%loop-value%::arrival::%{_siding}%::*}
     clear {-MTskR::routes::%{_world}%::%{_siding}%::*}
     set yaml value "%{_siding}%.siding.run_on_start" of "MTskR.data.rails.%{_world}%" to false
+function mtskr_railSortWeight(type: string) :: int:
+    if {_type} is "turnback":
+        return 4
+    else if {_type} is "platform":
+        return 3
+    else if {_type} is "siding":
+        return 2
+    else:
+        return 1
 function mtskr_getPath(c: string, end: string, world: world, history: strings = "") :: strings:
     set {_yaml} to "MTskR.data.rails.%{_world}%"
     if {_history::1} is "":
         clear {_history::*}
-    if yaml node keys {_c} of {_yaml} contains {_end}:
+    set {_keys::*} to yaml node keys {_c} of {_yaml}
+    sort {_keys::*} in descending order by mtskr_railSortWeight(yaml value "%{_c}%.%input%.type" of {_yaml})
+    if {_keys::*} contains {_end}:
+        if size of {_keys::*} is greater than 1:
+            loop {_keys::*}:
+                if yaml value "%{_c}%.%loop-value%.type" of {_yaml} is "turnback":
+                    set {_foundTurnback} to true
+        {_foundTurnback} is not true
         set {_prev::*} to {_history::*}
         clear {_prev::1}
         return ({_prev::*}, {_c}, {_end})
-    else:
-        loop yaml node keys {_c} of {_yaml}:
-            if {_history::*} is set:
-                if yaml value "%{_c}%.%loop-value%.type" of {_yaml} is "turnback":
-                    size of {_history::*} is greater than 1
-                    2nd last element of {_history::*} is {_c}
-                    last element of {_history::*} is loop-value
-                    continue this loop
-                else if last element of {_history::*} is loop-value:
-                    continue this loop
-            set {_results::*} to mtskr_getPath(loop-value, {_end}, {_world}, ({_history::*}, {_c}))
-            if {_results::*} is set:
-                return {_results::*}
+    loop {_keys::*}:
+        if {_history::*} is set:
+            if yaml value "%{_c}%.%loop-value%.type" of {_yaml} is "turnback":
+                size of {_history::*} is greater than 1
+                2nd last element of {_history::*} is {_c}
+                last element of {_history::*} is loop-value
+                if {_keys::*} contains {_end}:
+                    set {_prev::*} to {_history::*}
+                    clear {_prev::1}
+                    return ({_prev::*}, {_c}, {_end})
+                continue this loop
+            else if last element of {_history::*} is loop-value:
+                continue this loop
+        set {_results::*} to mtskr_getPath(loop-value, {_end}, {_world}, ({_history::*}, {_c}))
+        if {_results::*} is set:
+            return {_results::*}
 function mtskr_startTrain(siding: string, world: world, nodes: strings, thread: int):
     update train of {_siding} in {_world}
     set {_id} to last element of indexes of {-MTskR::trains::*} parsed as int
@@ -249,6 +266,10 @@ function mtskr_startTrain(siding: string, world: world, nodes: strings, thread: 
     if {-MTskR::siding::%{_world}%::%{_siding}%::running::%{_thread}%} is true:
         move train {_id} from {_c} to {-MTskR::trains::%{_id}%::spawnloc} with running check "siding::%{_world}%::%{_siding}%::running::%{_thread}%"
     remove entity {-MTskR::trains::%{_id}%::base}
+on right click:
+    event-block is interactable
+    if string tag "mtskr.block" of custom nbt of block below event-block is "platform":
+        cancel event
 on skript start:
     wait 1 second
     while players is not set:

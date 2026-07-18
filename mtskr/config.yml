@@ -9,3 +9,5 @@ model_maxium_blocks: 1000
 
 # The gap of how long the train will detect for passengers at the door to get on the train in ticks.
 tick_for_ride_train_detection: 1
+
+train_speed: 0.5

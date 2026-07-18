@@ -29,10 +29,10 @@ effect (open|show) mtskr items gui (for|to) [player] %player%:
             if {_type} is "bridge_creator":
                 set {_item} to 5 blocks wide bridge creator for expr-1
             else if {_type} is "tunnel_creator":
-                set {_item} to 5 x 7 tunnel creator for expr-1
+                set {_item} to 5x6 tunnel creator for expr-1
                 clear {_lores::3}
             else if {_type} is "tunnel_wall_creator":
-                set {_item} to 5x7 tunnel wall creator for expr-1
+                set {_item} to 5x6 tunnel wall creator for expr-1
             clear {_lores::4} and {_lores::5}
             add mtskr_message({-MTskR::lang::%expr-1%}, "main.cmd.items.click_to_customize_size") to {_lores::*}
             set slot {_index} of {_inv} to ({_item} named "&f%{_name}%" with lore {_lores::*}) with custom nbt from "{gui:item.%loop-value%}"
@@ -65,10 +65,10 @@ on inventory click:
                         add number range input:
                             key: "height"
                             label: mtskr_message({_lang}, "main.cmd.items.height")
-                            start: 7
+                            start: 6
                             end: 21
                             step: 1
-                            initial: 7
+                            initial: 6
                 actions:
                     add callback action button:
                         label: mtskr_message({_lang}, "main.cmd.items.get")

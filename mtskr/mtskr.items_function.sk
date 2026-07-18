@@ -178,12 +178,13 @@ on right click:
             send actionbar {_lores::4} to player
         else:
             set {_v::*} to {_selected_loc} parsed as "%integer%, %integer%, %integer%, %world%"
-            set {_loc} to block at location({_v::1}, {_v::2}, {_v::3}, {_v::4})
+            set {_loc} to location({_v::1}, {_v::2}, {_v::3}, {_v::4})
             set lore of player's tool to mtskr_message({_lang}, "items.%{_item}%.lores", "loc", "") split at nl
             make player's tool stop glint
             if world of {_loc} is not world of event-block:
                 send error mtskr_message({_lang}, "items_function.rail_connector.world") to player
             else if x and z of block at {_loc} and event-block are different:
+                block at {_loc} is stone button 
                 set lore of player's tool to mtskr_message({_lang}, "items.%{_item}%.lores", "loc", "") split at nl
                 set {_type} to {_item}
                 replace "_rail_connector" in {_type} with ""
@@ -270,7 +271,7 @@ on right click:
                                         set yaml value "%{_id}%.color" of {_yaml} to {_color}
                                     set yaml list "%{_id}%.%{_name::2}%.nodes" of {_yaml} to {_nodes::*}
                                     send formatted mtskr_message({_lang}, "items_function.route_creator.created", ("bound", "color", "name"), ({_name::2}, {_color}, {_name})) to player
-                                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "items_function.route_creator.log", ("bound", "color", "name", "id"), ({_name::2}, {_color}, {_name}, {_id})) to console
+                                    send formatted mtskr_message({-MTskR::lang::CONSOLE}, "items_function.route_creator.log", ("player", "bound", "color", "name", "id"), (player, {_name::2}, {_color}, {_name}, {_id})) to console
                                     save yaml {_yaml}
                                 else:
                                     send error mtskr_message({_lang}, "items_function.route_creator.false", ("regex", "examples"), ("([^\.|\|\|]+|#\d+)(\.|\|\|)(in|out)", "e.g. &fexample1||out&7, &fexample2.in&7, &f#1.in")) to player
@@ -388,8 +389,7 @@ on place:
         send actionbar mtskr_message({_lang}, "items_function.place.seat", "loc", mtskr_nodeString(event-location)) to player
     else if string tag "mtskr.item" of custom nbt of player's tool is "platform_block":
         set string tag "mtskr.block" of custom nbt of event-block to "platform"
-        if facing of event-block is up or down:
-            set facing of event-block to facing of player
+        set facing of event-block to horizontal facing of player 
         send actionbar mtskr_message({_lang}, "items_function.place.platform", "loc", mtskr_nodeString(event-location)) to player
     else if string tag "mtskr.item" of custom nbt of player's tool is "arrival_sign":
         if blockdata tag "facing" of blockdata of event-block is set:

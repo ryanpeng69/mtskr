@@ -41,6 +41,7 @@ function mtskr_arrivalCountdown(world: world, platform: string, siding: string) 
     set {_splitSiding::*} to {_siding} split at "."
     set {_ticks} to 0
     if {_nodes::*} contains {_splitPlatform::1} and {_splitPlatform::2}:
+        set {_speed} to mtskr config "train_speed"
         set {_yaml} to "MTskR.data.rails.%{_world}%"
         set {_model} to yaml value "%{_siding}%.siding.train" of {_yaml}
         set {_c} to {_splitSiding::2}
@@ -55,14 +56,14 @@ function mtskr_arrivalCountdown(world: world, platform: string, siding: string) 
                 else:
                     set {_stop_time} to 5
                 set {_mid} to spawnloc of {_model} for platform {_node} in world {_world}
-                add (distance between {_start} and {_mid}) * 2 to {_ticks}
+                add (distance between {_start} and {_mid}) / {_speed} to {_ticks}
                 if loop-value is {_splitPlatform::2}:
                     return {_ticks}
                 else:
                     add {_stop_time} * 20 to {_ticks}
-                    add (distance between {_mid} and {_end}) * 2 to {_ticks}
+                    add (distance between {_mid} and {_end}) / {_speed} to {_ticks}
             else:
-                add (distance between {_start} and {_end}) * 2 to {_ticks}
+                add (distance between {_start} and {_end}) / {_speed} to {_ticks}
     return {_ticks}
 function mtskr_startArrivalSign(world: world, platform: string):
     set {_signYaml} to "MTskR.data.signs.%{_world}%"

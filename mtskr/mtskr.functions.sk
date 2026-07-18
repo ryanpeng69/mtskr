@@ -17,15 +17,17 @@ expression mtskr config %string%:
         save yaml "MTskR.config"
 plural expression mtskr configs:
     get:
-        return "model_maxium_blocks" and "tick_for_ride_train_detection" and "console_lang"
+        return "console_lang, model_maxium_blocks, tick_for_ride_train_detection, train_speed" split at ", "
 expression mtskr config default [value] (of|for) %string%:
     get:
-        if expr-1 is "model_maxium_blocks":
+        if expr-1 is "console_lang":
+            return "en_us"
+        else if expr-1 is "model_maxium_blocks":
             return 1000
         else if expr-1 is "tick_for_ride_train_detection":
             return 1
-        else if expr-1 is "console_lang":
-            return "en_us"
+        else if expr-1 is "train_speed":
+            return 0.5
         return
 effect (reset|fix) mtskr config:
     trigger:
