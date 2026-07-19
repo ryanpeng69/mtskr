@@ -28,7 +28,7 @@ main:
       dialog:
         title: "MTskR - 編輯 %type%"
         body: "正在編輯從 %loc1% 到 %loc2% 的 %type%"
-        label: # should use the same word as in the tutorial
+        label: # 應使用和教學中同樣的翻譯
           name: "名稱"
           stop_time: "停留時間"
           schedule: "發車間隔(0則不發車)"
@@ -40,7 +40,13 @@ main:
           stop: "停止運行"
     removeroute:
       removed: "&e%bound% 方向的路線 <#%color%>%name% &e移除了。"
-      list: "&6%world% &e中的路線&7：&e點擊移除。"
+      list_remove: "&6%world% &e中的路線&7：&e點擊移除。"
+      list_edit: "&6%world% &e中的路線&7：&e點擊編輯。"
+      name: "名稱"
+      name_false: "&c請填寫一個名稱。"
+      color: "顏色"
+      color_false: "&c這不是一個正確的十六進位顏色。"
+      delete: "移除"
     config:
       key_none: "&c請在第3參數指定鍵。"
       key_false: "&c設定不包含 %key%。"

@@ -40,7 +40,13 @@ main:
           stop: "Stop Running"
     removeroute:
       removed: "&e%bound% bound of route <#%color%>%name% &eremoved."
-      list: "&eRoutes in world &6%world%&7: &eClick to remove."
+      list_remove: "&eRoutes in world &6%world%&7: &eClick to remove."
+      list_edit: "&eRoutes in world &6%world%&7: &eClick to edit."
+      name: "Name"
+      name_false: "&cPlease write a name for it."
+      color: "Color"
+      color_false: "&cThis is not a valid hex color."
+      delete: "Delete"
     config:
       key_none: "&cPlease specify a key at arg-3."
       key_false: "&cThe config doesn't have %key%."
