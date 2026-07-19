@@ -31,8 +31,11 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                 loop {_ticks} times:
                     if {-MTskR::%expr-4%} is true:
                         if {-MTskR::trains::%expr-1%::base} is alive:
-                            teleport {-MTskR::trains::%expr-1%::base} to location of {-MTskR::trains::%expr-1%::base} ~ {_v}
-                            wait 1 tick
+                            set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
+                            if distance between {_start} and {-MTskR::trains::%expr-1%::base} is not greater than {_length}:
+                                wait 1 tick
+                            else:
+                                stop loop
                         else:
                             continue
                     else:
@@ -59,6 +62,7 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                             set {_doors::%loop-value%} to {_door}
                             mtskr_moveDoor(expr-1, loop-value, "open")
                             open the block above {_platform::%loop-value%}
+                    set {_door_move_ticks} to mtskr config "door_move_ticks"
                     loop floor({_stop_time} * 20 / {_tick_for_ride_train_detection}) times:
                         if {-MTskR::%expr-4%} is true:
                             loop {_doors::*}:
@@ -68,7 +72,7 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                                     string tag "mtskr.block" of custom nbt of block below input is "platform"
                                 loop {_p::*}:
                                     mtskr_rideTrain(expr-1, loop-value-3)
-                            if {_stop_time} * 20 - {_tick_for_ride_train_detection} * loop-counter <= 5:
+                            if {_stop_time} * 20 - {_tick_for_ride_train_detection} * loop-counter <= {_door_move_ticks}:
                                 {_closed} is not set
                                 set {_closed} to true
                                 loop indexes of {_doors::*}:

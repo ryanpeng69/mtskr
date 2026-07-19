@@ -272,7 +272,7 @@ on right click:
                                     set yaml list "%{_id}%.%{_name::2}%.nodes" of {_yaml} to {_nodes::*}
                                     send formatted mtskr_message({_lang}, "items_function.route_creator.created", ("bound", "color", "name"), ({_name::2}, {_color}, {_name})) to player
                                     send formatted mtskr_message({-MTskR::lang::CONSOLE}, "items_function.route_creator.log", ("player", "bound", "color", "name", "id"), (player, {_name::2}, {_color}, {_name}, {_id})) to console
-                                    save yaml {_yaml}
+                                    save yaml {_yaml} without extra lines between nodes
                                 else:
                                     send error mtskr_message({_lang}, "items_function.route_creator.false", ("regex", "examples"), ("([^\.|\|\|]+|#\d+)(\.|\|\|)(in|out)", "e.g. &fexample1||out&7, &fexample2.in&7, &f#1.in")) to player
             else:
@@ -348,7 +348,7 @@ on right click:
             modify arrival sign event-block
     else if {_item} is "tutorial":
         open mtskr tutorial to player
-    save yaml {_yaml}
+    save yaml {_yaml} without extra lines between nodes
 on break:
     set {_lang} to {-MTskR::lang::%player%}
     set {_ls} to mtskr_nodeString(event-location)

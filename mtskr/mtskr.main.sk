@@ -157,7 +157,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         if {_type} is "siding":
                             if train models contains arg-5:
                                 set yaml value "%{_node}%.siding.train" of {_yaml} to {_lv}
-                                save yaml {_yaml}
+                                save yaml {_yaml} without extra lines between nodes
                                 update train for siding {_node} in world {_expr-3}
                                 play sound "entity.experience_orb.pickup"
                             else:
@@ -170,7 +170,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                             if arg-5 is set:
                                 if {_t} is not smaller than 0:
                                     set yaml value "%{_node}%.schedule" of {_yaml} to {_t}
-                                    save yaml {_yaml}
+                                    save yaml {_yaml} without extra lines between nodes
                                 else:
                                     send error mtskr_message({_lang}, "main.cmd.edit.schedule.small")
                             else:
@@ -182,7 +182,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                             set {_routeyaml} to "MTskR.data.routes.%{_world}%"
                             if (yaml node keys "" of {_routeyaml}) contains arg-5:
                                 set yaml value "%{_node}%.siding.route" of {_yaml} to arg-5
-                                save yaml {_yaml}
+                                save yaml {_yaml} without extra lines between nodes
                                 play sound "entity.experience_orb.pickup"
                             else:
                                 send error mtskr_message({_lang}, "main.cmd.route.does_not_exist", "id", arg-5)
@@ -195,13 +195,13 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                                 send error mtskr_message({_lang}, "main.cmd.edit.stop_time.out")
                             else:
                                 set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_time}
-                                save yaml {_yaml}
+                                save yaml {_yaml} without extra lines between nodes
                                 play sound "entity.experience_orb.pickup"
                         else:
                             send error mtskr_message({_lang}, "main.cmd.edit.stop_time.not_platform")
                     else if arg-4 is "name":
                         set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to arg-5
-                        save yaml {_yaml}
+                        save yaml {_yaml} without extra lines between nodes
                         play sound "entity.experience_orb.pickup"
                     else if arg-4 is "goto":
                         goto arg-2 arg-3
@@ -263,7 +263,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                                                 set yaml value "%{_node}%.platform.stop_time" of {_yaml} to float tag "stop_time" of event-nbt
                                             else if {_type} is "siding":
                                                 set yaml value "%{_node}%.siding.schedule" of {_yaml} to float tag "schedule" of event-nbt
-                                            save yaml {_yaml}
+                                            save yaml {_yaml} without extra lines between nodes
                                             play sound "entity.experience_orb.pickup"
                                     if {_type} is "siding":
                                         add callback action button:
@@ -306,7 +306,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                     else:
                         make player execute command "mtskr route list"
                         stop trigger
-                    save yaml {_yaml}                    
+                    save yaml {_yaml} without extra lines between nodes                    
                 else:
                     make player execute command "mtskr route list"
             else:

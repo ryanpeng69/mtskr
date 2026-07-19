@@ -111,7 +111,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                                 add 1 to {_seat_count}
                                 set yaml value "%{_i}%.seat" of "MTskR.model.%{_fname}%" to true
                         add 1 to {_i}
-                    save yaml "MTskR.model.%{_fname}%"
+                    save yaml "MTskR.model.%{_fname}%" without extra lines between nodes
                     play sound "entity.experience_orb.pickup" to expr-2
                     send formatted mtskr_message({_lang}, "models.saved", ("name", "blocks", "doors", "seats"), ({_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to expr-2
                     send formatted mtskr_message({-MTskR::lang::CONSOLE}, "models.log", ("player", "name", "blocks", "doors", "seats"), (expr-2, {_fname}, size of {_blocks::*}, {_door_count} / 2, {_seat_count})) to console
@@ -149,12 +149,13 @@ function mtskr_rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: 
     rotate {_v} around y-axis by ({_model_yaw} - yaw of {_base})
     return {_base} ~ {_v}
 function mtskr_moveDoor(trainid: object, doorid: object, action: string):
+    set {_door_move_ticks} to mtskr config "door_move_ticks"
     set {_model} to {-MTskR::trains::%{_trainid}%::model}
     set {_model_yaml} to "MTskR.model.%{_model}%"
     set {_type} to yaml value "%{_doorid}%.door" of {_model_yaml}
     set {_type::*} to {_type} split at ""
-    set {_x} to (0.05 if {_type::1} is "L", else -0.05)
-    set {_v} to (vector({_x}, 0, -0.2) if {_type::2} is {_type::1}, else vector({_x}, 0, 0.2))
+    set {_x} to ((0.25/{_door_move_ticks}) if {_type::1} is "L", else (-0.25/{_door_move_ticks}))
+    set {_v} to (vector({_x}, 0, (-1/{_door_move_ticks})) if {_type::2} is {_type::1}, else vector({_x}, 0, (1/{_door_move_ticks})))
     if {_action} is "close":
         set {_v} to {_v} * -1
     set {_cv} to display translation of {-MTskR::trains::%{_trainid}%::doors::%{_doorid}%}
@@ -166,7 +167,7 @@ function mtskr_moveDoor(trainid: object, doorid: object, action: string):
         {_offset::3} is {_cofst::3}
         set {_upperid} to loop-value
         stop loop
-    loop 5 times:
+    loop {_door_move_ticks} times:
         wait 1 tick
         set {_cv} to {_cv} + {_v}
         set display translation of {-MTskR::trains::%{_trainid}%::doors::%{_doorid}%} to {_cv}

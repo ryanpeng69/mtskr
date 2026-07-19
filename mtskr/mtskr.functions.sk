@@ -17,7 +17,7 @@ expression mtskr config %string%:
         save yaml "MTskR.config"
 plural expression mtskr configs:
     get:
-        return "console_lang, model_maxium_blocks, tick_for_ride_train_detection, train_speed" split at ", "
+        return "console_lang, model_maxium_blocks, tick_for_ride_train_detection, train_speed, door_move_ticks" split at ", "
 expression mtskr config default [value] (of|for) %string%:
     get:
         if expr-1 is "console_lang":
@@ -28,6 +28,8 @@ expression mtskr config default [value] (of|for) %string%:
             return 1
         else if expr-1 is "train_speed":
             return 0.5
+        else if expr-1 is "door_move_ticks":
+            return 5
         return
 effect (reset|fix) mtskr config:
     trigger:
@@ -236,4 +238,4 @@ function mtskr_removeRail(l1: string, l2: string, world: world):
         delete yaml value "%{_l2}%.%{_l1}%" of {_yaml}
         if yaml node keys {_l2} of {_yaml} is not set:
             delete yaml value {_l2} of {_yaml}
-    save yaml {_yaml}
+    save yaml {_yaml} without extra lines between nodes

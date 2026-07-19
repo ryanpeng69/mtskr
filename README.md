@@ -10,6 +10,25 @@
 
   See the [Web](https://mtskr.up.railway.app) or [Wiki](https://github.com/ryanpeng69/mtskr/wiki) for more information.
 
+## Features:
+
+1. **Display Block Trains**: Trains are made of display blocks, no resource pack required.
+
+2. **Per User Language System**: Each player can use their own language to play MTskR.
+
+3. **Easy Download Installer**: Just one plugin or script can install everything.
+
+4. **Configurable Settings**: Configure the speed and limits to fit your performance.
+
+5. **Node-based Rail System**: You don't need to place rails block by block, trains will go node by node.
+
+6. **Scheduled Departures**: Set the departure interval for your siding, the train will depart regularly.
+
+7. **Routes & Platforms**: Create routes with in-game tools and trains will stop at platforms.
+
+8. **Community Made Models**: Everyone can upload their models to [the web](https://mtskr.up.railway.app/models), and you can download them with `/mtskr model download`.
+
+9. **Items from GUI**: By running `/mtskr gui`, you can view and get all items without memorizing id.
 ## Installation:
 
 ### 1. Jar Installer (<a href="https://github.com/ryanpeng69/mtskrinstaller">mtskrInstaller.jar</a>)

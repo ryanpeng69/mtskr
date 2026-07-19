@@ -1,7 +1,7 @@
 ## MTskR config
 ## https://github.com/ryanpeng69/mtskr/
 
-# This language will be used on the messages in console
+# This language will be used on the messages in console.
 console_lang: en_us
 
 # The block limit of a model, should not be too small.
@@ -10,4 +10,8 @@ model_maxium_blocks: 1000
 # The gap of how long the train will detect for passengers at the door to get on the train in ticks.
 tick_for_ride_train_detection: 1
 
+# How many blocks/tick will the train travel.
 train_speed: 0.5
+
+# How many ticks will it take to open or close the doors.
+door_move_ticks: 5
