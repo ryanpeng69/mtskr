@@ -9,11 +9,11 @@ expression [mtskr] [train] (base|spawn|stop)[ |-][point|loc[ation]] (of|for) [tr
         set {_rail_length} to distance between {_l1} and {_l2}
         set {_rail_yaw} to closest quarter of yaw of (vector from {_l1} to {_l2})
         set {_blocks} to floor(({_rail_length} - model length of expr-1) /2) + 1
-        set {_raw_rl1} to yaml value "info.loc1" from "MTskR.model.%expr-1%"
-        set {_raw_rl2} to yaml value "info.loc2" from "MTskR.model.%expr-1%"
+        set {_raw_rl1} to yaml value "info.loc1" of "MTskR.model.%expr-1%"
+        set {_raw_rl2} to yaml value "info.loc2" of "MTskR.model.%expr-1%"
         set {_lv1::*} to {_raw_rl1} parsed as "%integer%,%integer%,%integer%"
         set {_lv2::*} to {_raw_rl2} parsed as "%integer%,%integer%,%integer%"
-        set {_yaw} to yaml value "info.facing" from "MTskR.model.%expr-1%"
+        set {_yaw} to yaml value "info.facing" of "MTskR.model.%expr-1%"
         if {_yaw} is 0:
             set {_head} to abs(max({_lv1::3}, {_lv2::3}))
         else if {_yaw} is 180:
@@ -23,9 +23,9 @@ expression [mtskr] [train] (base|spawn|stop)[ |-][point|loc[ation]] (of|for) [tr
         else if {_yaw} is 90:
             set {_head} to abs(min({_lv1::1}, {_lv2::1}))
         add {_head} to {_blocks}
-        set {_x} to x coord of {_l2}
-        set {_y} to floor(y coord of {_l2})
-        set {_z} to z coord of {_l2}
+        set {_x} to x of {_l2}
+        set {_y} to floor(y of {_l2})
+        set {_z} to z of {_l2}
         if {_rail_yaw} is 0:
             decrease {_z} by {_blocks}
         else if {_rail_yaw} is 180:
@@ -49,7 +49,7 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
             body:
                 add text body:
                     contents: mtskr_message({_lang}, "trains.body")
-                set {_train} to yaml value "%{_expr-2}%.siding.train" from {_yaml}
+                set {_train} to yaml value "%{_expr-2}%.siding.train" of {_yaml}
                 add text body:
                     contents: mini message from "%mtskr_message({_lang}, "trains.current")%%{_train}%"
             actions:
@@ -67,7 +67,7 @@ effect let %player% edit train (of|in|for) [siding] %string% (in|of) [world] %wo
                                 loop {_armorstands::*}:
                                     if metadata tag "mtskr.train_id" of loop-value is set:
                                         remove entity loop-value
-                                set yaml value "%{_expr-2}%.siding.train" from {_yaml} to {_lv}
+                                set yaml value "%{_expr-2}%.siding.train" of {_yaml} to {_lv}
                                 save yaml {_yaml}
                                 update train for siding {_expr-2} in world {_expr-3}
                                 let {_expr-1} edit train of siding {_expr-2} in world {_expr-3}
@@ -99,7 +99,7 @@ effect (update|refresh) train[s] (of|for) [siding] %string% (in|of) [world] %wor
         set {_lang} to {-MTskR::lang::CONSOLE}
         if yaml {_yaml} is loaded:
             if yaml path "%expr-1%.siding.train" of {_yaml} has value:
-                set {_train} to yaml value "%expr-1%.siding.train" from {_yaml}
+                set {_train} to yaml value "%expr-1%.siding.train" of {_yaml}
                 set {_split::*} to split expr-1 at "."
                 set {_l1} to mtskr_nodeLoc({_split::1}, expr-2)
                 set {_l2} to mtskr_nodeLoc({_split::2}, expr-2)
@@ -117,7 +117,7 @@ function mtskr_spawnTrain(train: string, loc: location):
         set yaw of {_spawn::loc} to yaw of {_loc}
         set pitch of {_spawn::loc} to pitch of {_loc}
         load yaml "plugins\Skript\scripts\%mtskr dir%models\%{_train}%.yml" as "MTskR.model.%{_train}%"
-        set {_model_yaw} to yaml value "info.facing" from "MTskR.model.%{_train}%"
+        set {_model_yaw} to yaml value "info.facing" of "MTskR.model.%{_train}%"
         set {_id} to (last element of indexes of {-MTskR::trains::*}) parsed as int + 1
         set {-MTskR::trains::%{_id}%::spawnloc} to {_spawn::loc}
         set {-MTskR::trains::%{_id}%::model} to {_train}
@@ -130,8 +130,8 @@ function mtskr_spawnTrain(train: string, loc: location):
             add 360 to {_spawn::rotates}
         set {_spawn::times} to {_spawn::rotates} / 90
         loop (yaml node keys "" of "MTskR.model.%{_train}%") where [input is not "info"]:
-            set {_spawn::locstr} to yaml value "%loop-value%.loc" from "MTskR.model.%{_train}%"
-            if yaml value "%loop-value%.seat" from "MTskR.model.%{_train}%" is true:
+            set {_spawn::locstr} to yaml value "%loop-value%.loc" of "MTskR.model.%{_train}%"
+            if yaml value "%loop-value%.seat" of "MTskR.model.%{_train}%" is true:
                 spawn armor stand at {_spawn::loc}
                 set {-MTskR::trains::%{_id}%::seats::%{_spawn::locstr}%} to (last spawned armor stand)
                 add nbt from "{NoGravity:1b,Invulnerable:1b,Bukkit.invisible:1b,Small:1b,NoBasePlate:1b}" to nbt compound of {-MTskR::trains::%{_id}%::seats::%{_spawn::locstr}%}
@@ -142,15 +142,11 @@ function mtskr_spawnTrain(train: string, loc: location):
                     set {-MTskR::trains::%{_id}%::doors::%loop-value%} to (last spawned block display)
                 else:
                     set {-MTskR::trains::%{_id}%::blocks::%loop-value%} to (last spawned block display)
-                set {_spawn::rls::*} to {_spawn::locstr} split at ","
-                set {_spawn::x} to {_spawn::rls::1} parsed as number
-                set {_spawn::y} to {_spawn::rls::2} parsed as number
-                set {_spawn::z} to {_spawn::rls::3} parsed as number
-                set {_spawn::v} to vector({_spawn::x}, {_spawn::y}, {_spawn::z})
+                set {_spawn::rls::*} to {_spawn::locstr} parsed as "%number%,%number%,%number%"
+                set {_spawn::v} to vector({_spawn::rls::1}-0.5, {_spawn::rls::2}-1, {_spawn::rls::3}-0.5)
                 rotate {_spawn::v} around y-axis by (closest quarter of yaw of {_spawn::loc} - {_model_yaw})
-                set {_spawn::v} to vector(x of {_spawn::v} - 0.5, y of {_spawn::v} - 1, z of {_spawn::v} - 0.5)
                 set display translation of (last spawned block display) to {_spawn::v}
-                set {_spawn::data} to (yaml value "%loop-value%.block" from "MTskR.model.%{_train}%")
+                set {_spawn::data} to (yaml value "%loop-value%.block" of "MTskR.model.%{_train}%")
                 loop {_spawn::times} times:
                     set blockdata tag "facing" of {_spawn::data} to (quarter clockwise direction of blockdata tag "facing" of {_spawn::data})
                 set blockdata of (last spawned block display) to {_spawn::data}
@@ -161,6 +157,7 @@ function mtskr_spawnTrain(train: string, loc: location):
             set {_nowloc} to location of {-MTskR::trains::%{_id}%::base}
             loop {-MTskR::trains::%{_id}%::seats::*}:
                 teleport loop-value to location 0.8 blocks below mtskr_rotateRelativeCoor({_nowloc}, {_model_yaw}, loop-index)
+        {-MTskR::trains::%{_id}%::*} is set
         kill train {_id}
     else:
         send formatted mtskr_message({-MTskR::lang::CONSOLE}, "trains.model_dne", "name", {_train}) to console

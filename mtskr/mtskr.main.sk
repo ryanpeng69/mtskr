@@ -30,7 +30,7 @@ on tab complete of ("mtskr" or "mtskr:mtskr"):
         tab arg 2 matches "-?\d+,-?\d+,-?\d+"
         set tab completions for position 3 to yaml node keys tab arg 2 of {_yaml}
         yaml node keys tab arg 2 of {_yaml} contains tab arg 3
-        set {_type} to yaml value "%tab arg 2%.%tab arg 3%.type" from {_yaml}
+        set {_type} to yaml value "%tab arg 2%.%tab arg 3%.type" of {_yaml}
         set tab completions for position 4 to "goto"
         {_type} matches "siding|platform"
         add "name" to tab completions for position 4
@@ -95,7 +95,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
             else if arg-2 is "rebuild":
                 if mtskr model arg-3 exists:
                     load yaml "plugins\Skript\scripts\%mtskr dir%models\%arg-3%.yml" as "MTskR.model.%arg-3%"
-                    set {_facing_yaw} to yaml value "info.facing" from "MTskR.model.%arg-3%"
+                    set {_facing_yaw} to yaml value "info.facing" of "MTskR.model.%arg-3%"
                     set {_rotates} to closest quarter of player's yaw - {_facing_yaw}
                     if {_rotates} is smaller than 0:
                         add 360 to {_rotates}
@@ -103,12 +103,12 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                     loop (yaml node keys "" of "MTskR.model.%arg-3%") where [input is not "info"]:
                         set {_base} to player's location
                         set yaw of {_base} to closest quarter of yaw of {_base}
-                        set {_loc} to mtskr_rotateRelativeCoor({_base}, {_facing_yaw}, yaml value "%loop-value%.loc" from "MTskR.model.%arg-3%")
-                        set {_data} to (yaml value "%loop-value%.block" from "MTskR.model.%arg-3%")
+                        set {_loc} to mtskr_rotateRelativeCoor({_base}, {_facing_yaw}, yaml value "%loop-value%.loc" of "MTskR.model.%arg-3%")
+                        set {_data} to (yaml value "%loop-value%.block" of "MTskR.model.%arg-3%")
                         loop {_times} times:
                             set blockdata tag "facing" of {_data} to (quarter clockwise direction of blockdata tag "facing" of {_data})
                         update block at {_loc} to be {_data}
-                        if (yaml value "%loop-value%.seat" from "MTskR.model.%arg-3%") is true:
+                        if (yaml value "%loop-value%.seat" of "MTskR.model.%arg-3%") is true:
                             add block at {_loc} to {MTskR::seats::*}
                 else:
                     send error mtskr_message({_lang}, "model.does_not_exist", "model", arg-3)
@@ -151,12 +151,12 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                 set {_node} to "%arg-2%.%arg-3%"
                 set {_world} to world of player
                 set {_yaml} to "MTskR.data.rails.%{_world}%"
-                set {_type} to yaml value "%{_node}%.type" from {_yaml}
+                set {_type} to yaml value "%{_node}%.type" of {_yaml}
                 if {_type} matches "siding|platform":
                     if arg-4 is "train":
                         if {_type} is "siding":
                             if train models contains arg-5:
-                                set yaml value "%{_node}%.siding.train" from {_yaml} to {_lv}
+                                set yaml value "%{_node}%.siding.train" of {_yaml} to {_lv}
                                 save yaml {_yaml}
                                 update train for siding {_node} in world {_expr-3}
                                 play sound "entity.experience_orb.pickup"
@@ -181,7 +181,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         if {_type} is "siding":
                             set {_routeyaml} to "MTskR.data.routes.%{_world}%"
                             if (yaml node keys "" of {_routeyaml}) contains arg-5:
-                                set yaml value "%{_node}%.siding.route" from {_yaml} to arg-5
+                                set yaml value "%{_node}%.siding.route" of {_yaml} to arg-5
                                 save yaml {_yaml}
                                 play sound "entity.experience_orb.pickup"
                             else:
@@ -194,13 +194,13 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                             if {_stop_time} is not between 5 and 60:
                                 send error mtskr_message({_lang}, "main.cmd.edit.stop_time.out")
                             else:
-                                set yaml value "%{_node}%.platform.stop_time" from {_yaml} to {_time}
+                                set yaml value "%{_node}%.platform.stop_time" of {_yaml} to {_time}
                                 save yaml {_yaml}
                                 play sound "entity.experience_orb.pickup"
                         else:
                             send error mtskr_message({_lang}, "main.cmd.edit.stop_time.not_platform")
                     else if arg-4 is "name":
-                        set yaml value "%{_node}%.%{_type}%.name" from {_yaml} to arg-5
+                        set yaml value "%{_node}%.%{_type}%.name" of {_yaml} to arg-5
                         save yaml {_yaml}
                         play sound "entity.experience_orb.pickup"
                     else if arg-4 is "goto":
@@ -212,9 +212,9 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         else:
                             send error mtskr_message({_lang}, "main.cmd.edit.stop_route_false", ("siding", "world"), ({_node}, {_world}))
                     else:
-                        if yaml value "%{_node}%.type" from {_yaml} is {_type}:
-                            if yaml value "%{_node}%.%{_type}%.name" from {_yaml} is set:
-                                set {_name} to yaml value "%{_node}%.%{_type}%.name" from {_yaml}
+                        if yaml value "%{_node}%.type" of {_yaml} is {_type}:
+                            if yaml value "%{_node}%.%{_type}%.name" of {_yaml} is set:
+                                set {_name} to yaml value "%{_node}%.%{_type}%.name" of {_yaml}
                             open multi action dialog to player:
                                 title: mtskr_message({_lang}, "main.cmd.edit.dialog.title", "type", propercase {_type})
                                 body:
@@ -226,8 +226,8 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                                         label: mtskr_message({_lang}, "main.cmd.edit.dialog.label.name")
                                         initial: ("%{_name}%" if {_name} is set, else "1")
                                     if {_type} is "platform":
-                                        if yaml value "%{_node}%.platform.stop_time" from {_yaml} is set:
-                                            set {_stop_time} to yaml value "%{_node}%.platform.stop_time" from {_yaml}
+                                        if yaml value "%{_node}%.platform.stop_time" of {_yaml} is set:
+                                            set {_stop_time} to yaml value "%{_node}%.platform.stop_time" of {_yaml}
                                         else:
                                             set {_stop_time} to 5                                            
                                         add number range input:
@@ -238,8 +238,8 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                                             step: 1
                                             initial: {_stop_time}
                                     else if {_type} is "siding":
-                                        if yaml value "%{_node}%.siding.schedule" from {_yaml} is set:
-                                            set {_schedule} to yaml value "%{_node}%.siding.schedule" from {_yaml}
+                                        if yaml value "%{_node}%.siding.schedule" of {_yaml} is set:
+                                            set {_schedule} to yaml value "%{_node}%.siding.schedule" of {_yaml}
                                         else:
                                             set {_schedule} to 0
                                         add number range input:

@@ -162,8 +162,8 @@ condition: # x and z is same
     check:
         if expr-2 is set:
             if:
-                x coord of expr-1 is x coord of expr-2
-                z coord of expr-1 is z coord of expr-2
+                x of expr-1 is x of expr-2
+                z of expr-1 is z of expr-2
             then:
                 if parse tags contains "same":
                     continue
@@ -172,13 +172,13 @@ condition: # x and z is same
         else:
             loop exprs-1:
                 if {_x} is not set:
-                    set {_x} to x coord of loop-value
-                    set {_z} to z coord of loop-value
+                    set {_x} to x of loop-value
+                    set {_z} to z of loop-value
                 else:
-                    if x coord of loop-value is not {_x}:
+                    if x of loop-value is not {_x}:
                         if parse tags contains "different":
                             continue
-                    else if z coord of loop-value is not {_z}:
+                    else if z of loop-value is not {_z}:
                         if parse tags contains "different":
                             continue
                     else:
@@ -200,16 +200,16 @@ condition %block% (is:is|not:is(n't| not)) [a] full collision block:
         else if parse tags contains "not":
             continue
 function mtskr_nodeString(loc: location) :: string:
-    return "%floor(x coord of {_loc})%,%floor(y coord of {_loc})%,%floor(z coord of {_loc})%"
+    return "%floor(x of {_loc})%,%floor(y of {_loc})%,%floor(z of {_loc})%"
 function mtskr_nodeLoc(string: string, world: world) :: location:
     set {_v::*} to {_string} parsed as "%integer%,%integer%,%integer%"
     return block at location({_v::1}, {_v::2}, {_v::3}, {_world})
 function mtskr_message(lang: string, key: string, replace: objects = "none", with: objects = "none") :: string:
     if yaml "MTskR.lang.%{_lang}%" is not loaded:
         set {_lang} to "en_us"
-    set {_string} to yaml value {_key} from "MTskR.lang.%{_lang}%"
+    set {_string} to yaml value {_key} of "MTskR.lang.%{_lang}%"
     if {_string} is not set:
-        set {_string} to yaml value {_key} from "MTskR.lang.en_us"
+        set {_string} to yaml value {_key} of "MTskR.lang.en_us"
     if {_replace::*} is not "none":
         loop {_replace::*}:
             add 1 to {_i}
@@ -229,11 +229,11 @@ function mtskr_removeRail(l1: string, l2: string, world: world):
             if metadata tag "mtskr.train_id" of loop-value is set:
                 remove entity loop-value
     if yaml node "%{_l1}%.%{_l2}%" of {_yaml} exists:
-        delete yaml value "%{_l1}%.%{_l2}%" from {_yaml}
+        delete yaml value "%{_l1}%.%{_l2}%" of {_yaml}
         if yaml node keys {_l1} of {_yaml} is not set:
             delete yaml value {_l1} of {_yaml}
     if yaml node "%{_l2}%.%{_l1}%" of {_yaml} exists:
-        delete yaml value "%{_l2}%.%{_l1}%" from {_yaml}
+        delete yaml value "%{_l2}%.%{_l1}%" of {_yaml}
         if yaml node keys {_l2} of {_yaml} is not set:
             delete yaml value {_l2} of {_yaml}
     save yaml {_yaml}

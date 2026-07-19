@@ -2,11 +2,11 @@
 
 # MTskR: Minecraft TrainSkript Railway
 
-  MTskR is a [Skript](https://github.com/SkriptLang/Skript) project based on [Jonathan Ho](https://www.youtube.com/@JonathanHo33)'s [Minecraft Transit Railway mod](https://modrinth.com/project/XKPAmI6u), developed by [RyanPeng69](https://github.com/ryanpeng69).
+  MTskR is a [Skript](https://github.com/SkriptLang/Skript) project based on [Jonathan Ho](https://www.youtube.com/@JonathanHo33)'s [Minecraft Transit Railway mod 4.0.0](https://modrinth.com/project/XKPAmI6u), developed by [RyanPeng69](https://github.com/ryanpeng69).
 
-  My goal is to implement this mod into a Paper Server using [Skript](https://github.com/SkriptLang/Skript) **without requiring any resource packs**.
+  My goal is to implement this mod into a Paper Server using [Skript](https://github.com/SkriptLang/Skript) **without any resource packs**.
 
-  Join the [MTskR Discord](http://discord.gg/kSSmEyVSRR) for support or to help us translate!
+  Join the [MTskR Discord](https://discord.gg/kSSmEyVSRR) for support or to help us translate!
 
   See the [Web](https://mtskr.up.railway.app) or [Wiki](https://github.com/ryanpeng69/mtskr/wiki) for more information.
 
@@ -25,7 +25,7 @@
 
 ### 2. Skript Installer (<a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk">mtskr.installer.sk</a>)
 <ol>
-  <li>Place the required plugins into the <code>plugins\</code> folder.</li>
+  <li>Place the <a href="https://github.com/ryanpeng69/mtskr#requirements">required plugins</a> into the <code>plugins\</code> folder.</li>
   <li>Move <a href="https://github.com/ryanpeng69/mtskr/blob/main/mtskr/mtskr.installer.sk">mtskr.installer.sk</a> into <code>plugins\Skript\scripts</code>.</li>
   <li>Run <code>/sk reload scripts</code> to reload the script.</li>
   <li>Run <code>/mtskrinstaller</code>; it will download additional files and automatically reload.</li>
@@ -35,7 +35,7 @@
 
 ### 3. Manual Installation (<a href="https://github.com/ryanpeng69/mtskr">MTskR GitHub</a>)
 <ol>
-  <li>Place the required plugins into the <code>plugins\</code> folder.</li>
+  <li>Place the <a href="https://github.com/ryanpeng69/mtskr#requirements">required plugins</a> into the <code>plugins\</code> folder.</li>
   <li>Download everything from <a href="https://github.com/ryanpeng69/mtskr">GitHub</a>.</li>
   <li>Place the files in <code>plugins\Skript\scripts\.\mtskr\</code>.</li>
   <li>Run <code>/sk reload scripts</code>.</li>
@@ -49,7 +49,7 @@
 
   Required plugins: [Skript](https://github.com/SkriptLang/Skript), [SkBee](https://github.com/ShaneBeee/SkBee), [skript-reflect](https://github.com/SkriptLang/skript-reflect), [skript-yaml](https://github.com/Sashie/skript-yaml)
 
-  Minimum requirement: `Paper 1.20.5 (custom_data)`
+  [Paper 1.20.5+](https://papermc.io/downloads/paper) (custom_data)
 
   Tested versions:
 

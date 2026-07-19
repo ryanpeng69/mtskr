@@ -28,11 +28,11 @@ expression: # length of [mtskr] [train] model %string%
         if train models contains expr-1:
             set {_yaml} to "MTskR.model.%expr-1%"
             load yaml "plugins\Skript\scripts\%mtskr dir%models\%expr-1%.yml" as {_yaml}
-            set {_raw_rl1} to yaml value "info.loc1" from {_yaml}
-            set {_raw_rl2} to yaml value "info.loc2" from {_yaml}
+            set {_raw_rl1} to yaml value "info.loc1" of {_yaml}
+            set {_raw_rl2} to yaml value "info.loc2" of {_yaml}
             loop 2 times:
                 set {_lv%loop-value%::*} to {_raw_rl%loop-value%} parsed as "%integer%,%integer%,%integer%"
-            if yaml value "info.facing" from {_yaml} is evenly divisible by 180:
+            if yaml value "info.facing" of {_yaml} is evenly divisible by 180:
                 return abs({_lv1::3} - {_lv2::3}) + 1
             else:
                 return abs({_lv1::1} - {_lv2::1}) + 1
@@ -88,28 +88,28 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                             stop trigger
                 if {_facing} is set:
                     load yaml {_path} as "MTskR.model.%{_fname}%"
-                    set yaml value "info.facing" from "MTskR.model.%{_fname}%" to yaw of direction {_facing}
+                    set yaml value "info.facing" of "MTskR.model.%{_fname}%" to yaw of direction {_facing}
                     loop 2 times:
                         set {_x} to x of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - x of {_base}
                         set {_y} to y of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - y of {_base}
                         set {_z} to z of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - z of {_base}
-                        set yaml value "info.loc%loop-value%" from "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
-                    set yaml value "info.model_version" from "MTskR.model.%{_fname}%" to 1
-                    set yaml value "info.minecraft_version" from "MTskR.model.%{_fname}%" to minecraft version
+                        set yaml value "info.loc%loop-value%" of "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
+                    set yaml value "info.model_version" of "MTskR.model.%{_fname}%" to 1
+                    set yaml value "info.minecraft_version" of "MTskR.model.%{_fname}%" to minecraft version
                     set {_i} to 0
                     loop {_blocks::*}:
                         set {_x} to x of loop-value - x of {_base}
                         set {_y} to y of loop-value - y of {_base}
                         set {_z} to z of loop-value - z of {_base}
-                        set yaml value "%{_i}%.loc" from "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
-                        set yaml value "%{_i}%.block" from "MTskR.model.%{_fname}%" to blockdata of loop-value
+                        set yaml value "%{_i}%.loc" of "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
+                        set yaml value "%{_i}%.block" of "MTskR.model.%{_fname}%" to blockdata of loop-value
                         if loop-value is an iron door:
                             add 1 to {_door_count}
-                            set yaml value "%{_i}%.door" from "MTskR.model.%{_fname}%" to mtskr_doorType({_facing}, loop-value)
+                            set yaml value "%{_i}%.door" of "MTskR.model.%{_fname}%" to mtskr_doorType({_facing}, loop-value)
                         else if loop-value is yellow carpet:
                             if {MTskR::seats::*} contains loop-value:
                                 add 1 to {_seat_count}
-                                set yaml value "%{_i}%.seat" from "MTskR.model.%{_fname}%" to true
+                                set yaml value "%{_i}%.seat" of "MTskR.model.%{_fname}%" to true
                         add 1 to {_i}
                     save yaml "MTskR.model.%{_fname}%"
                     play sound "entity.experience_orb.pickup" to expr-2
@@ -147,9 +147,8 @@ function mtskr_rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: 
     set {_z} to {_rls::3} parsed as number
     set {_v} to vector({_x}, {_y}, {_z})
     rotate {_v} around y-axis by ({_model_yaw} - yaw of {_base})
-    return {_base} offset by vector(x of {_v}, y of {_v}, z of {_v})
+    return {_base} ~ {_v}
 function mtskr_moveDoor(trainid: object, doorid: object, action: string):
-    # set {_base_yaw} to yaw of {-MTskR::trains::%{_trainid}%::base}
     set {_model} to {-MTskR::trains::%{_trainid}%::model}
     set {_model_yaml} to "MTskR.model.%{_model}%"
     set {_type} to yaml value "%{_doorid}%.door" of {_model_yaml}

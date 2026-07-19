@@ -133,8 +133,8 @@ effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %wo
             body:
                 add text body:
                     contents: mtskr_message({_lang}, "route.body")
-                set {_routeid} to yaml value "%{_expr-2}%.siding.route" from {_yaml}
-                set {_route} to yaml value "%{_routeid}%.name" from {_routeyaml}
+                set {_routeid} to yaml value "%{_expr-2}%.siding.route" of {_yaml}
+                set {_route} to yaml value "%{_routeid}%.name" of {_routeyaml}
                 add text body:
                     contents: mini message from "%mtskr_message({_lang}, "route.current")%%{_route}%"
             actions:
@@ -149,7 +149,7 @@ effect let %player% edit route (of|in|for) [siding] %string% (in|of) [world] %wo
                         add callback action button:
                             label: mini message from {_lv}
                             trigger:
-                                set yaml value "%{_expr-2}%.siding.route" from {_yaml} to {_li}
+                                set yaml value "%{_expr-2}%.siding.route" of {_yaml} to {_li}
                                 save yaml {_yaml}
                                 let {_expr-1} edit route of siding {_expr-2} in world {_expr-3}
                 else:

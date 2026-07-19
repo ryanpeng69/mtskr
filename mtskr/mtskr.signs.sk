@@ -10,13 +10,13 @@ function mtskr_fixSign(loc: location, facing: direction, platform: string):
     else:
         set {_facing} to yaw of direction {_facing}
     if {_facing} is 180:
-        increase z coord of {_spawn} by 0.5
+        increase z of {_spawn} by 0.5
     else if {_facing} is 0:
-        decrease z coord of {_spawn} by 0.5
+        decrease z of {_spawn} by 0.5
     else if {_facing} is 90:
-        increase x coord of {_spawn} by 0.5
+        increase x of {_spawn} by 0.5
     else if {_facing} is 270:
-        decrease x coord of {_spawn} by 0.5
+        decrease x of {_spawn} by 0.5
     if {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} is not alive:
         spawn text display at {_spawn}
         set {-MTskR::signs::%{_world}%::%{_platform}%::displays::%{_key}%} to last spawned text display

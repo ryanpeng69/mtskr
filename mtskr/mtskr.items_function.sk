@@ -72,8 +72,8 @@ on right click:
                     set {_end_facing} to facing of event-block
                     set {_end_node} to event-block
                     set {_r} to floor({_width} / 2) + 1
-                    if x coord of {_end_block} is not x coord of {_start_block}:
-                        if z coord of {_end_block} is not z coord of {_start_block}:
+                    if x of {_end_block} is not x of {_start_block}:
+                        if z of {_end_block} is not z of {_start_block}:
                             loop {_r} times:
                                 if {_start_facing} is west or east:
                                     set {_start1::%loop-value%} to the block loop-value blocks north of {_start_block}
@@ -82,15 +82,15 @@ on right click:
                                         set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
                                         set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}
                                     else:
-                                        if x coord of {_start_block} is greater than x coord of {_end_block}:
-                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                        if x of {_start_block} is greater than x of {_end_block}:
+                                            if z of {_start_block} is greater than z of {_end_block}:
                                                 set {_end1::%loop-value%} to the block loop-value blocks east of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks west of {_end_block}  
                                             else:
                                                 set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}  
                                         else:
-                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                            if z of {_start_block} is greater than z of {_end_block}:
                                                 set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}  
                                             else:
@@ -103,15 +103,15 @@ on right click:
                                         set {_end1::%loop-value%} to the block loop-value blocks west of {_end_block}
                                         set {_end2::%loop-value%} to the block loop-value blocks east of {_end_block}
                                     else:
-                                        if x coord of {_start_block} is greater than x coord of {_end_block}:
-                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                        if x of {_start_block} is greater than x of {_end_block}:
+                                            if z of {_start_block} is greater than z of {_end_block}:
                                                 set {_end1::%loop-value%} to the block loop-value blocks south of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks north of {_end_block}  
                                             else:
                                                 set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}  
                                         else:
-                                            if z coord of {_start_block} is greater than z coord of {_end_block}:
+                                            if z of {_start_block} is greater than z of {_end_block}:
                                                 set {_end1::%loop-value%} to the block loop-value blocks north of {_end_block}
                                                 set {_end2::%loop-value%} to the block loop-value blocks south of {_end_block}  
                                             else:
@@ -207,17 +207,17 @@ on right click:
                     set {_node} to "%mtskr_nodeString({_loc})%.%mtskr_nodeString(event-block)%"
                     set {_nodeBack} to "%mtskr_nodeString(event-block)%.%mtskr_nodeString({_loc})%"
                     if {_type} is "one_way":
-                        set yaml value "%mtskr_nodeString({_loc})%.%mtskr_nodeString(event-block)%.type" from {_yaml} to "normal"
+                        set yaml value "%mtskr_nodeString({_loc})%.%mtskr_nodeString(event-block)%.type" of {_yaml} to "normal"
                     else if {_type} matches "turnback|normal":
-                        set yaml value "%{_node}%.type" from {_yaml} to {_type}
-                        set yaml value "%{_nodeBack}%.type" from {_yaml} to {_type}
+                        set yaml value "%{_node}%.type" of {_yaml} to {_type}
+                        set yaml value "%{_nodeBack}%.type" of {_yaml} to {_type}
                     else:
-                        set yaml value "%{_node}%.type" from {_yaml} to {_type}
+                        set yaml value "%{_node}%.type" of {_yaml} to {_type}
                         if {_type} is "siding":
-                            set yaml value "%{_node}%.siding.name" from {_yaml} to "1"
-                            set yaml value "%{_nodeBack}%.type" from {_yaml} to "normal"
+                            set yaml value "%{_node}%.siding.name" of {_yaml} to "1"
+                            set yaml value "%{_nodeBack}%.type" of {_yaml} to "normal"
                         else if {_type} is "platform":
-                            set yaml value "%{_node}%.platform.name" from {_yaml} to "1"
+                            set yaml value "%{_node}%.platform.name" of {_yaml} to "1"
                             mtskr_startArrivalSign({_world}, {_node})
                     send actionbar mtskr_message({_lang}, "items_function.rail_connector.connected") to player
             else:
@@ -298,16 +298,16 @@ on right click:
                 cancel event
                 set {_rails::*} to (yaml node keys {_event_str} from {_yaml})
                 loop {_rails::*}:
-                    if yaml value "%{_event_str}%.%loop-value%.type" from {_yaml} matches "siding|platform":
+                    if yaml value "%{_event_str}%.%loop-value%.type" of {_yaml} matches "siding|platform":
                         add loop-value to {_filtered::*}
                 if size of {_filtered::*} is 1:
-                    set {_type} to yaml value "%{_event_str}%.%{_filtered::1}%.type" from {_yaml}
+                    set {_type} to yaml value "%{_event_str}%.%{_filtered::1}%.type" of {_yaml}
                     wait 1 tick
                     make player execute command "mtskr %{_type}% %{_event_str}% %{_filtered::1}%"
                 else if size of {_filtered} is greater than 1:
                     send formatted "&9==========" to player
                     loop {_rails::*}:
-                        set {_type} to yaml value "%{_event_str}%.%loop-value%.type" from {_yaml}
+                        set {_type} to yaml value "%{_event_str}%.%loop-value%.type" of {_yaml}
                         set {_dist} to distance between event-block and mtskr_nodeLoc(loop-value, {_world})
                         set {_cte} to mtskr_message({_lang}, "items_function.brush.edit")
                         send formatted "<ttp:%{_cte}%><cmd:mtskr %{_type}% %{_event_str}% %loop-value%><%mtskr color of {_type}%>%loop-value%&7(%{_dist}%)" to player
@@ -334,10 +334,10 @@ on right click:
                     set {_split::*} to loop-value split at "."
                     set {_start::%loop-index%} to mtskr_nodeLoc({_split::1}, {_world})
                     set {_end} to mtskr_nodeLoc({_split::2}, {_world})
-                    set {_type} to yaml value "%loop-value%.type" from {_yaml}
+                    set {_type} to yaml value "%loop-value%.type" of {_yaml}
                     set {_trail::%loop-index%} to trail({_end}, mtskr color of {_type}, 1 second)
                 loop yaml node keys {_event_str} from {_yaml}:
-                    set {_type} to yaml value "%{_event_str}%.%loop-value%.type" from {_yaml}
+                    set {_type} to yaml value "%{_event_str}%.%loop-value%.type" of {_yaml}
                     add "%{_type}%(%distance between event-block and mtskr_nodeLoc(loop-value, {_world})%)" to {_info::*}
                 send actionbar "&e%{_event_str}% &6%join {_info::*} by "&7, &6"%" to player
                 loop 10 times:
