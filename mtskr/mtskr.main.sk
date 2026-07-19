@@ -86,7 +86,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
     prefix: mtskr
     trigger:
         set {_lang} to {-MTskR::lang::%player%}
-        if (whether arg-1 is "models?") and whether ((whether player is op) or (whether sender is console) is true) are true:
+        if (whether arg-1 matches "models?") and whether ((whether player is op) or (whether sender is console) is true) are true:
             if arg-2 is "create":
                 if arg-4 is "-f":
                     force create train model arg-3
