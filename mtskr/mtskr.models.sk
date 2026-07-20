@@ -42,9 +42,10 @@ expression: # length of [mtskr] [train] model %string%
 effect remove entit(y|ies) %entities%:
     trigger:
         loop exprs-1:
-            (loop-value).remove()
+            loop-value.remove()
 effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %player%]:
     trigger:
+        expr-2 is a player
         set {_fname} to expr-1
         replace ("\, /, :, *, ?, "", <, >, |,  " split at ", ") in {_fname} with "_"
         set {_path} to "plugins\Skript\scripts\%mtskr dir%models\%{_fname}%.yml"
@@ -94,7 +95,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         set {_y} to y of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - y of {_base}
                         set {_z} to z of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - z of {_base}
                         set yaml value "info.loc%loop-value%" of "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
-                    set yaml value "info.model_version" of "MTskR.model.%{_fname}%" to 1
+                    set yaml value "info.model_version" of "MTskR.model.%{_fname}%" to 2
                     set yaml value "info.minecraft_version" of "MTskR.model.%{_fname}%" to minecraft version
                     set {_i} to 0
                     loop {_blocks::*}:
@@ -151,22 +152,26 @@ function mtskr_rotateRelativeCoor(base: location, model_yaw: integer, rloc_str: 
 function mtskr_moveDoor(trainid: object, doorid: object, action: string):
     set {_door_move_ticks} to mtskr config "door_move_ticks"
     set {_model} to {-MTskR::trains::%{_trainid}%::model}
-    set {_model_yaml} to "MTskR.model.%{_model}%"
-    set {_type} to yaml value "%{_doorid}%.door" of {_model_yaml}
+    set {_yaml} to "MTskR.model.%{_model}%"
+    set {_type} to yaml value "%{_doorid}%.door" of {_yaml}
     set {_type::*} to {_type} split at ""
     set {_x} to ((0.25/{_door_move_ticks}) if {_type::1} is "L", else (-0.25/{_door_move_ticks}))
     set {_v} to (vector({_x}, 0, (-1/{_door_move_ticks})) if {_type::2} is {_type::1}, else vector({_x}, 0, (1/{_door_move_ticks})))
     if {_action} is "close":
         set {_v} to {_v} * -1
     set {_cv} to display translation of {-MTskR::trains::%{_trainid}%::doors::%{_doorid}%}
-    set {_offset::*} to yaml value "%{_doorid}%.loc" of {_model_yaml} parsed as "%int%,%int%,%int%"
-    loop yaml node keys "" of {_model_yaml}:
-        set {_cofst::*} to yaml value "%loop-value%.loc" of {_model_yaml} parsed as "%int%,%int%,%int%"
+    set {_offset::*} to yaml value "%{_doorid}%.loc" of {_yaml} parsed as "%int%,%int%,%int%"
+    loop yaml node keys "" of {_yaml}:
+        set {_cofst::*} to yaml value "%loop-value%.loc" of {_yaml} parsed as "%int%,%int%,%int%"
         {_offset::1} is {_cofst::1}
         {_offset::2} + 1 is {_cofst::2}
         {_offset::3} is {_cofst::3}
         set {_upperid} to loop-value
         stop loop
+    set {_sound} to yaml value "sound.door_%{_action}%.key" of {_yaml}
+    set {_volume} to yaml value "sound.door_%{_action}%.volume" of {_yaml}
+    set {_pitch} to yaml value "sound.door_%{_action}%.pitch" of {_yaml}
+    play sound {_sound} in player category with volume {_volume} and pitch {_pitch} at {-MTskR::trains::%{_trainid}%::base} to players
     loop {_door_move_ticks} times:
         wait 1 tick
         set {_cv} to {_cv} + {_v}

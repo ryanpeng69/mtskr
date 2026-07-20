@@ -28,11 +28,33 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                 set {_length} to vector length of {_v}
                 set {_ticks} to {_length} / (mtskr config "train_speed")
                 set vector length of {_v} to {_length} / {_ticks}
+                set {_modelyaml} to "MTskR.model.%{_model}%"
+                loop "move, break" split at ", ":
+                    set {_sound::%loop-value%} to yaml value "sound.%loop-value%.key" of {_modelyaml}
+                    set {_volume::%loop-value%} to yaml value "sound.%loop-value%.volume" of {_modelyaml}
+                    set {_pitch::%loop-value%} to yaml value "sound.%loop-value%.pitch" of {_modelyaml}
+                set {_frequency} to yaml value "sound.move.frequency" of {_modelyaml}
                 loop {_ticks} times:
                     if {-MTskR::%expr-4%} is true:
                         if {-MTskR::trains::%expr-1%::base} is alive:
                             set velocity of {-MTskR::trains::%expr-1%::base} to {_v}
                             if distance between {_start} and {-MTskR::trains::%expr-1%::base} is not greater than {_length}:
+                                if at least one of:
+                                    {-MTskR::trains::%expr-1%::move_sound_last} is not set
+                                    time since {-MTskR::trains::%expr-1%::move_sound_last} >= timespan({_frequency}, ticks)
+                                then:
+                                    set {-MTskR::trains::%expr-1%::move_sound_last} to now
+                                    set {_p::*} to players in radius 10 around {-MTskR::trains::%expr-1%::base}
+                                    if:
+                                        {_stop_time} is set
+                                        {_ticks} - loop-value is smaller than 20
+                                        {_break_played} is not set 
+                                    then:
+                                        play sound {_sound::break} in player category with volume {_volume::break} and pitch {_pitch::break} at {-MTskR::trains::%expr-1%::base} to {_p::*}
+                                        stop sound {_sound::move} in player category for {_p::*}
+                                        set {_break_played} to true
+                                    else:
+                                        play sound {_sound::move} in player category with volume {_volume::move} and pitch {_pitch::move} at {-MTskR::trains::%expr-1%::base} to {_p::*}
                                 wait 1 tick
                             else:
                                 stop loop
@@ -42,7 +64,6 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                         continue
                 teleport {-MTskR::trains::%expr-1%::base} to {_end}
                 if {_stop_time} is set:
-                    set {_modelyaml} to "MTskR.model.%{_model}%"
                     set {_model_yaw} to yaml value "info.facing" of {_modelyaml}
                     set {_train_yaw} to yaw of {-MTskR::trains::%expr-1%::base}
                     set {_tick_for_ride_train_detection} to mtskr config "tick_for_ride_train_detection"
@@ -79,9 +100,10 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                                     mtskr_moveDoor(expr-1, loop-value-2, "close")
                             wait timespan({_tick_for_ride_train_detection}, ticks)
                         else:
-                            continue
+                            stop loop
                     loop indexes of {_doors::*}:
                         close the block above {_platform::%loop-value%}
+                    {-MTskR::%expr-4%} is true
                     move train expr-1 from {_end} to expr-3 with running check expr-4
             continue
 effect load route %int% (for|of|from) [siding] %string% (in|of) [world] %world%:

@@ -129,7 +129,7 @@ function mtskr_spawnTrain(train: string, loc: location):
         if {_spawn::rotates} is smaller than 0:
             add 360 to {_spawn::rotates}
         set {_spawn::times} to {_spawn::rotates} / 90
-        loop (yaml node keys "" of "MTskR.model.%{_train}%") where [input is not "info"]:
+        loop (yaml node keys "" of "MTskR.model.%{_train}%") except "info" and "sound":
             set {_spawn::locstr} to yaml value "%loop-value%.loc" of "MTskR.model.%{_train}%"
             if yaml value "%loop-value%.seat" of "MTskR.model.%{_train}%" is true:
                 spawn armor stand at {_spawn::loc}

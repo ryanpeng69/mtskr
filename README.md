@@ -26,7 +26,7 @@
 
 7. **Routes & Platforms**: Create routes with in-game tools and trains will stop at platforms.
 
-8. **Community Made Models**: Everyone can upload their models to [the web](https://mtskr.up.railway.app/models), and you can download them with `/mtskr model download`.
+8. **Community Models Sharing**: Build your models in game easily with blocks and share it on [the web](https://mtskr.up.railway.app/models). Everyone can download it with `/mtskr model download`.
 
 9. **Items from GUI**: By running `/mtskr gui`, you can view and get all items without memorizing id.
 ## Installation:
