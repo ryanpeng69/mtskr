@@ -111,13 +111,13 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
     prefix: mtskr
     trigger:
         set {_lang} to {-MTskR::lang::%sender%}
-        if (whether arg-1 matches "models?") and (whether sender is op or console) are true:
-            if arg-2 is "create":
+        if (whether arg-1 matches "models?") and (whether non ops does not contain sender) are true:
+            if (whether arg-2 is "create") and (whether sender is op) are true:
                 if arg-4 is "-f":
                     force create train model arg-3
                 else:
                     create train model arg-3
-            else if arg-2 is "rebuild":
+            else if (whether arg-2 is "rebuild" and (whether sender is op) are true):
                 sender is a player
                 if mtskr model arg-3 exists:
                     load yaml "plugins\Skript\scripts\%mtskr dir%models\%arg-3%.yml" as "MTskR.model.%arg-3%"
@@ -140,7 +140,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                     send error mtskr_message({_lang}, "model.does_not_exist", "model", arg-3)
             else if arg-2 matches "list|info":
                 send formatted "&e%join train models by "&7, &e"%"
-            else if arg-2 is "download":
+            else if (whether arg-2 is "download") and (whether sender is op) are true:
                 if arg-3 is set:
                     open page (arg-3 parsed as int) of models online to player
                 else:
@@ -153,11 +153,11 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                             load yaml "plugins\Skript\scripts\%mtskr dir%models\%arg-3%.yml" as {_yaml}
                             set yaml value "sound.%arg-4%.key" of {_yaml} to arg-5
                             set {_split::*} to split "%arg-6%" at " "
-                            if {_split::1} parsed as int is between 0 and 2:
+                            if {_split::1} parsed as number is between 0 and 2:
                                 set yaml value "sound.%arg-4%.volume" of {_yaml} to {_split::1}
                             else:
                                 set yaml value "sound.%arg-4%.volume" of {_yaml} to 0.5
-                            if {_split::2} parsed as int is between 0 and 2:
+                            if {_split::2} parsed as number is between 0 and 2:
                                 set yaml value "sound.%arg-4%.pitch" of {_yaml} to {_split::2}
                             else:
                                 set yaml value "sound.%arg-4%.pitch" of {_yaml} to 1
@@ -188,10 +188,10 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                     loop "create, rebuild, list, download, sound" split at ", ":
                         send formatted "<ttp:%{_click_to_use}%><sgt:/mtskr model %loop-value% >&6/mtskr model %loop-value% ..."
                 else:
-                    send join ("&e" and (sorted "list, download, sound" split at ", ")) with " &7| &e"
+                    send join ("&e" and (sorted "list, sound" split at ", ")) with " &7| &e"
         else if (whether arg-1 matches "gui|items|get") and (whether sender is op) are true:
             open mtskr items gui for player
-        else if (whether arg-1 is "reload") and (whether sender is op or console) are true:
+        else if (whether arg-1 is "reload") and (whether non ops does not contain sender) are true:
             if arg-2 matches "scripts|all":
                 set {_dir} to "%current script%"
                 regex replace "(\\)?[^\\]+$" in {_dir} with "$1"
@@ -379,10 +379,10 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         else:
                             send error mtskr_message({_lang}, "main.cmd.removeroute.color_false")
                     else:
-                        send "&7===&6#%arg-3%==="
-                        send formatted "<sgt:mtskr route edit %arg-3% name >&e%mtskr_message({_lang}, "main.cmd.removeroute.name")%&7: %{_name}%"
-                        send formatted "<sgt:mtskr route edit %arg-3% color >&e%mtskr_message({_lang}, "main.cmd.removeroute.color")%&7: %{_color}%"
-                        send formatted "<sgt:mtskr route remove %arg-3%>&c%mtskr_message({_lang}, "main.cmd.removeroute.delete")%"
+                        send "&7===&6#%arg-3%&7==="
+                        send formatted "<sgt:/mtskr route edit %arg-3% name >&e%mtskr_message({_lang}, "main.cmd.removeroute.name")%&7: %{_name}%"
+                        send formatted "<sgt:/mtskr route edit %arg-3% color >&e%mtskr_message({_lang}, "main.cmd.removeroute.color")%&7: %{_color}%"
+                        send formatted "<sgt:/mtskr route remove %arg-3%>&c%mtskr_message({_lang}, "main.cmd.removeroute.delete")%"
                 else:
                     make player execute command "mtskr route list"
             else if arg-2 matches "remove|delete":
@@ -391,6 +391,8 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                 if (yaml node keys "" of {_yaml}) contains {_input::1}:
                     set {_name} to yaml value "%{_input::1}%.name" of {_yaml}
                     set {_color} to yaml value "%{_input::1}%.color" of {_yaml}
+                    if {_input::2} is not set:
+                        set {_input::2} to ""
                     send formatted mtskr_message({_lang}, "main.cmd.removeroute.removed", ("bound", "color", "name"), ({_input::2}, {_color}, {_name}))
                     if arg-3 matches "\d+((\.|\|\|)(in|out))?":
                         delete yaml value arg-3 of {_yaml}
@@ -426,7 +428,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         else:
                             add "&7%{_key}%: <ttp:%{_nodes}%><cmd:mtskr route edit %{_key}%><#%{_color}%>%{_name}%" to {_list::*}
                 send formatted join {_list::*} by "<reset>&7, "
-        else if (whether arg-1 matches "config|cfg|settings?|options?") and (whether sender is op or console) are true:
+        else if (whether arg-1 matches "config|cfg|settings?|options?") and (whether non ops does not contain sender) are true:
             if arg-2 is "set":
                 if arg-3 is set:
                     if arg-4 is set:
@@ -467,7 +469,7 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
                         replace "MTskR.lang." in {_name} with ""
                         add "<cmd:mtskr lang %{_name}%>&6%{_name}%<reset>" to {_locale::*}
                     send formatted join {_locale::*} by " &7| "
-        else if (whether arg-1 is "debug") and (whether sender is op or console) are true:
+        else if (whether arg-1 is "debug") and (whether non ops does not contain sender) are true:
             set {_key} to join (arg-2, arg-3, arg-4, arg-5, and arg-6) by "::"
             replace " " in {_key} with "::"
             send {-MTskR::%{_key}%}
@@ -475,4 +477,4 @@ command mtskr [<text>] [<text>] [<text>] [<text>] [<text>] [<texts>]:
             if sender is a player:
                 mtskr_showTutorial(player, arg-1, arg-2, arg-3)
             else:
-                send join ("&e" and (sorted "help, lang, model, gui, reload, edit, route, config" split at ", ")) with " &7| &e"
+                send join ("&e" and (sorted "help, lang, model, reload, config" split at ", ")) with " &7| &e"

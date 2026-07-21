@@ -62,7 +62,8 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                 stop trigger
         if {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2} are set:
             set {_blocks::*} to (all blocks within {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2}) where [input is not air]
-            if size of {_blocks::*} is not greater than mtskr config "model_maxium_blocks":
+            set {_display::*} to (all entities within {-MTskR::item::%expr-2%::loc_selector::loc1} and {-MTskR::item::%expr-2%::loc_selector::loc2}) 
+            if size of {_blocks::*} + size of {_display::*} is not greater than mtskr config "model_maxium_blocks":
                 loop {_blocks::*}:
                     if loop-value is an oak sign:
                         if {_facing} is not set:
@@ -95,7 +96,7 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                         set {_y} to y of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - y of {_base}
                         set {_z} to z of {-MTskR::item::%expr-2%::loc_selector::loc%loop-value%} - z of {_base}
                         set yaml value "info.loc%loop-value%" of "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
-                    set yaml value "info.model_version" of "MTskR.model.%{_fname}%" to 2
+                    set yaml value "info.model_version" of "MTskR.model.%{_fname}%" to 1
                     set yaml value "info.minecraft_version" of "MTskR.model.%{_fname}%" to minecraft version
                     set {_i} to 0
                     loop {_blocks::*}:
@@ -111,6 +112,13 @@ effect [1:force] create [MTskR] [train] model [with name|named] %string% [from %
                             if {MTskR::seats::*} contains loop-value:
                                 add 1 to {_seat_count}
                                 set yaml value "%{_i}%.seat" of "MTskR.model.%{_fname}%" to true
+                        add 1 to {_i}
+                    loop {_display::*}:
+                        set {_x} to x of loop-value - x of {_base}
+                        set {_y} to y of loop-value - y of {_base}
+                        set {_z} to z of loop-value - z of {_base}
+                        set yaml value "%{_i}%.loc" of "MTskR.model.%{_fname}%" to "%{_x}%,%{_y}%,%{_z}%"
+                        set yaml value "%{_i}%.display" of "MTskR.model.%{_fname}%" to loop-value
                         add 1 to {_i}
                     save yaml "MTskR.model.%{_fname}%" without extra lines between nodes
                     play sound "entity.experience_orb.pickup" to expr-2

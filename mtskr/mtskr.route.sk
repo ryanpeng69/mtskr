@@ -44,17 +44,8 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                                     time since {-MTskR::trains::%expr-1%::move_sound_last} >= timespan({_frequency}, ticks)
                                 then:
                                     set {-MTskR::trains::%expr-1%::move_sound_last} to now
-                                    set {_p::*} to players in radius 10 around {-MTskR::trains::%expr-1%::base}
-                                    if:
-                                        {_stop_time} is set
-                                        {_ticks} - loop-value is smaller than 20
-                                        {_break_played} is not set 
-                                    then:
-                                        play sound {_sound::break} in player category with volume {_volume::break} and pitch {_pitch::break} at {-MTskR::trains::%expr-1%::base} to {_p::*}
-                                        stop sound {_sound::move} in player category for {_p::*}
-                                        set {_break_played} to true
-                                    else:
-                                        play sound {_sound::move} in player category with volume {_volume::move} and pitch {_pitch::move} at {-MTskR::trains::%expr-1%::base} to {_p::*}
+                                    set {_p::*} to players in radius 20 around {-MTskR::trains::%expr-1%::base}
+                                    play sound {_sound::move} in player category with volume {_volume::move} and pitch {_pitch::move} at {-MTskR::trains::%expr-1%::base} to {_p::*}
                                 wait 1 tick
                             else:
                                 stop loop
@@ -64,6 +55,10 @@ effect move train [with id[entifier]] %integer% from [loc[ation]] %location% to 
                         continue
                 teleport {-MTskR::trains::%expr-1%::base} to {_end}
                 if {_stop_time} is set:
+                    set {_p::*} to players in radius 20 around {-MTskR::trains::%expr-1%::base}
+                    stop sound {_sound::move} in player category for {_p::*}
+                    play sound {_sound::break} in player category with volume {_volume::break} and pitch {_pitch::break} at {-MTskR::trains::%expr-1%::base} to {_p::*}
+                    set {_break_played} to true
                     set {_model_yaw} to yaml value "info.facing" of {_modelyaml}
                     set {_train_yaw} to yaw of {-MTskR::trains::%expr-1%::base}
                     set {_tick_for_ride_train_detection} to mtskr config "tick_for_ride_train_detection"
